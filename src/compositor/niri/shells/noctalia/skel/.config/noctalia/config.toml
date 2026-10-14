@@ -1,0 +1,165 @@
+[accessibility]
+ui_scale = 1.20
+
+[bar.default]
+center = [ "workspaces", "spacer_1", "active_window" ]
+concave_edge_corners = true
+end = [ "media", "spacer_1", "tray", "notifications", "network", "volume", "session" ]
+margin_edge = 0
+margin_ends = 0
+radius_bottom_left = 12
+radius_bottom_right = 12
+radius_top_left = 0
+radius_top_right = 0
+scale = 1.10
+start = [ "launcher", "clock", "spacer_1", "group:g1" ]
+thickness = 35
+
+    [[bar.default.capsule_group]]
+    border = ""
+    fill = "on_secondary"
+    id = "g1"
+    members = [ "temp", "sysmon_2", "sysmon_3" ]
+    opacity = 1.0
+    padding = 6.0
+
+[shell]
+clipboard_image_action_command = "swash --stdin --name \"swash-$(date +'%Y-%m-%d_%H:%M:%S').png\""
+launch_apps_as_systemd_services = true
+polkit_agent = true
+settings_show_advanced = true
+
+    [shell.greeter_sync]
+    auto_sync = false
+
+    [shell.panel]
+    open_near_click_control_center = true
+    session_placement = "floating"
+    session_position = "center"
+
+    [shell.screenshot]
+    copy_to_clipboard = false
+    pipe_command = "swash --stdin --name \"swash-$(date +'%Y-%m-%d_%H:%M:%S').png\""
+    pipe_to_command = true
+    save_to_file = false
+
+    [[shell.session.actions]]
+    action = "lock"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "1"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "logout"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "2"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "lock_and_suspend"
+    countdown_seconds = 3.0
+    enabled = true
+    shortcut = "3"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "reboot"
+    countdown_seconds = 3.0
+    enabled = true
+    shortcut = "4"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "shutdown"
+    countdown_seconds = 3.0
+    enabled = true
+    shortcut = "5"
+    variant = "destructive"
+
+[system.monitor]
+gpu_poll_seconds = 2
+
+[wallpaper]
+directory = "/usr/share/backgrounds/rakuos"
+
+    [wallpaper.default]
+    path = "/usr/share/backgrounds/rakuos/RakuOS-Fuji-2.png"
+
+[theme]
+# dark, not light. This is the switch the rest of the image follows, and it used
+# to disagree with the GTK settings it controls, which is what made the shell look
+# different from a plain Hyprland setup:
+#   mode = light  ->  apply.sh writes color-scheme=prefer-light AND
+#                     gtk-theme=adw-gtk3 (light)
+#   mode = dark   ->  apply.sh writes color-scheme=prefer-dark  AND
+#                     gtk-theme=adw-gtk3-dark
+# Both writes go through gsettings, so they override ~/.config/gtk-4.0/settings.ini
+# on every appearance sync. With mode = light, Noctalia itself demanded light while
+# the skel separately asked GTK for a dark theme and dark icons -- light shell, dark
+# icons, which is the mismatch that was visible. Now the skel and the shell agree.
+# Note this is only the palette choice, not NightMode: there is no [theme] night or
+# dim key in this config, so nothing dims or warms the screen colour on a schedule.
+mode = "dark"
+
+    [theme.templates]
+    builtin_ids = [ "gtk3", "gtk4", "niri", "qt" ]
+
+[widget.clock]
+color = "secondary"
+format = "{:%H:%M %A %m/%d/%y}"
+
+[widget.launcher]
+color = "secondary"
+
+[widget.media]
+hide_when_no_media = true
+title_scroll = "on_hover"
+
+[widget.network]
+color = "secondary"
+
+[widget.notifications]
+color = "secondary"
+
+[widget.session]
+color = "error"
+
+[widget.spacer_1]
+type = "spacer"
+
+[widget.temp]
+show_value = false
+
+[widget.sysmon_2]
+glyph = "gpu-usage"
+show_value = false
+stat = "gpu_temp"
+type = "sysmon"
+
+[widget.sysmon_3]
+glyph = "cpu-2"
+stat = "ram_used"
+type = "sysmon"
+
+[widget.tray]
+capsule = true
+capsule_fill = "on_secondary"
+
+[widget.volume]
+color = "secondary"
+
+[widget.workspaces]
+active_pill_size = 2.5
+capsule = true
+capsule_fill = "on_primary"
+inactive_pill_size = 1.0
+pill_scale = 0.80
+show_labels = false
+
+[shell]
+niri_overview_type_to_launch_enabled = true
+
+[backdrop]
+enabled = true

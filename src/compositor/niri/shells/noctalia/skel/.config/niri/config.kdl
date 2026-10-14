@@ -1,0 +1,130 @@
+// This config is in the KDL format: https://kdl.dev
+// "/-" comments out the following node.
+// Check the wiki for a full description of the configuration:
+// https://niri-wm.github.io/niri/Configuration%3A-Introduction.html
+include "/usr/share/niri/global.kdl"
+include "noctalia/binds.kdl"
+include "noctalia/outputs.kdl"
+include "noctalia/input.kdl"
+include "noctalia/windowrules.kdl"
+include "noctalia/cursor.kdl"
+include optional=true "windowrules.kdl"
+include optional=true "touchscreen.kdl"
+include optional=true "workspaces.kdl"
+include optional=true "user.kdl"
+
+spawn-at-startup "noctalia"
+
+environment {
+    TERMINAL "ghostty"
+}
+
+prefer-no-csd
+
+screenshot-path "~/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+gestures {
+}
+
+input {
+    focus-follows-mouse
+    warp-mouse-to-focus
+}
+
+switch-events {
+    lid-close { spawn "systemctl suspend"; }
+}
+
+layout {
+    // Set gaps around windows in logical pixels.
+    gaps 5
+
+    background-color "transparent"
+    center-focused-column "on-overflow"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+    default-column-width { proportion 0.5; }
+
+    border {
+        off
+        width 4
+        active-color   "#707070"      // Neutral gray
+        inactive-color "#d0d0d0"      // Light gray
+        urgent-color   "#cc4444"      // Softer red
+    }
+    focus-ring {
+        width 2
+        active-color   "#808080"      // Medium gray
+        inactive-color "#505050"      // Dark gray
+    }
+    shadow {
+        softness 30
+        spread 5
+        offset x=0 y=5
+        color "#0007"
+    }
+    struts {
+    }
+    tab-indicator {
+        width 9
+        gap 8
+        length total-proportion=1.0
+        place-within-column
+      active-color "4680dd"
+      urgent-color "red"
+    }
+}
+
+overview {
+    workspace-shadow {
+        off
+    }
+}
+
+animations {
+    workspace-switch {
+        spring damping-ratio=0.80 stiffness=523 epsilon=0.0001
+    }
+    window-open {
+        duration-ms 150
+        curve "ease-out-expo"
+    }
+    window-close {
+        duration-ms 150
+        curve "ease-out-quad"
+    }
+    horizontal-view-movement {
+        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
+    }
+    window-movement {
+        spring damping-ratio=0.75 stiffness=323 epsilon=0.0001
+    }
+    window-resize {
+        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
+    }
+    config-notification-open-close {
+        spring damping-ratio=0.65 stiffness=923 epsilon=0.001
+    }
+    screenshot-ui-open {
+        duration-ms 200
+        curve "ease-out-quad"
+    }
+    overview-open-close {
+        spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
+    }
+}
+
+recent-windows {
+    highlight {
+        padding 20
+        corner-radius 20
+    }
+    previews {
+        max-height 450
+        max-scale 0.5
+    }
+}

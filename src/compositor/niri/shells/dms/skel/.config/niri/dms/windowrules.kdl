@@ -1,0 +1,80 @@
+// DMS Window Rules - Managed by DankMaterialShell
+// Do not edit manually - changes may be overwritten
+
+// @id=dms_rule_0 @name=Wezterm
+window-rule {
+    match app-id="^org\\.wezfurlong\\.wezterm$"
+}
+
+// @id=dms_rule_1 @name=Maximized
+window-rule {
+    match app-id="Spotify"
+    match app-id="spotify"
+    match app-id="vesktop"
+    match app-id="GDevelop 5"
+    match app-id="discord"
+    match app-id="Godot"
+    match app-id="Pixelorama"
+    open-maximized true
+}
+
+// @id=dms_rule_2 @name=Floating windows
+window-rule {
+    match app-id="^gnome-calculator$"
+    match app-id="org.quickshell"
+    match app-id="com.danklinux.dms"
+    match app-id="org.gnome.Calculator"
+    match app-id="^galculator$"
+    match app-id="^blueman-manager$"
+    match app-id="^steam$"
+    match app-id="spacefin-welcome"
+    match app-id="^xdg-desktop-portal$"
+    match app-id="gsr-ui"
+    match app-id="org.rakuos.Installer.Gtk"
+    open-floating true
+}
+
+// @id=dms_rule_3 @name=Settings
+window-rule {
+    match app-id="^gnome-control-center$"
+    match app-id="^pavucontrol$"
+    match app-id="^nm-connection-editor$"
+    default-column-width { proportion 0.5; }
+}
+
+// @id=dms_rule_4 @name=Wider-collums
+window-rule {
+    match app-id="org.gnome.gitlab.somas.Apostrophe"
+    match app-id="CurseForge"
+    open-floating false
+    default-column-width { fixed 1188; }
+}
+
+// @id=dms_rule_5 @name=RakuOS software fix
+window-rule {
+    match app-id="org.rakuos.Software"
+    open-floating false
+    default-column-width { fixed 1060; }
+}
+
+// @id=dms_rule_6 @name=Gnome weather
+window-rule {
+    match app-id="org.gnome.Weather"
+    open-floating true
+    default-column-width { fixed 838; }
+    default-window-height { fixed 498; }
+    default-floating-position x=32 y=32 relative-to="top-right"
+}
+
+// @id=dms_rule_7 @name=Picture in Picture
+window-rule {
+    match app-id="firefox$" title="^Picture-in-Picture$"
+    match app-id="org.garudalinux.firedragon" title="^Picture-in-Picture$"
+    match app-id="app.zen_browser.zen" title="^Picture-in-Picture$"
+    match app-id="one.ablaze.floorp" title="^Picture-in-Picture$"
+    match app-id="zoom"
+    open-floating true
+    default-column-width { fixed 480; }
+    default-window-height { fixed 270; }
+    default-floating-position x=32 y=32 relative-to="bottom-right"
+}
