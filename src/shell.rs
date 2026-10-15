@@ -170,6 +170,27 @@ pub struct Identity {
     /// subtly wrong, which is the kind of fault nobody notices until later. Empty
     /// means the shell needs nothing else, which is the common case.
     pub companion_systemd_user_units: &'static [&'static str],
+    /// Systemd user units besides the shell's own that a switch keeps in step
+    /// with it, in order.
+    ///
+    /// Arriving at the shell, each is unmasked, enabled and started; leaving it,
+    /// each is stopped, disabled and masked — the same run of verbs the shell's
+    /// own unit gets, applied to the daemons that share its fate. DMS declares
+    /// `dsearch`, the unit the `danksearch` package ships and DMS searches
+    /// through: an image that enables it globally would bring it back beside
+    /// whatever shell replaced DMS, and on an image that enables nothing the
+    /// picker's own enable is what starts it at the next login.
+    ///
+    /// Not [`Self::companion_systemd_user_units`], whose units are started and
+    /// stopped with the shell but never disabled or masked: nothing enables
+    /// those, so there is no enablement to undo. Both lists come down on the way
+    /// out; only this one is held down.
+    ///
+    /// On [`Identity`] rather than [`Port`] because it is a fact about the
+    /// shell: the daemons a shell owns and the unit names their packages ship do
+    /// not change from compositor to compositor. Empty is the usual answer —
+    /// three of the four registered shells have no daemon of their own.
+    pub autostart_systemd_user_units: &'static [&'static str],
     /// Data paths the shell itself or its companion programs keep, relative to
     /// `$HOME`, that a person would want back.
     ///
@@ -321,19 +342,6 @@ pub struct Port {
     /// The systemd user unit that starts this shell, when it has one.
     pub systemd_user_unit: Option<&'static str>,
     pub mechanism: StartMechanism,
-    /// Whether the image enables this unit globally, so the session starts it on
-    /// its own at login even when another shell was chosen.
-    ///
-    /// This differs per compositor even though the unit is the same one, because
-    /// it is the image that decides it: `rakuos-niri` runs
-    /// `systemctl --global enable dms`, and `dms.service` is
-    /// `WantedBy=graphical-session.target`, so every login starts DMS whether or
-    /// not it is the shell the user picked. Stopping the unit is then only half a
-    /// switch — it has to be masked while another shell holds the session, or it
-    /// comes back at the next login beside the chosen shell. The Hyprland image
-    /// ships the same unit but enables nothing globally, which is why this is
-    /// `false` there, and why the flag cannot live on [`Identity`].
-    pub unit_enabled_by_image: bool,
     /// Other paths, relative to `$HOME`, that this shell's skel also carries.
     ///
     /// The compositor config and `config_dir` are handled by name, because where
@@ -395,6 +403,11 @@ pub struct Shell {
     /// subtly wrong, which is the kind of fault nobody notices until later. Empty
     /// means the shell needs nothing else, which is the common case.
     pub companion_systemd_user_units: &'static [&'static str],
+    /// See [`Identity::autostart_systemd_user_units`]. Kept on `Shell` for the
+    /// same reason as [`Self::companion_systemd_user_units`]: `stop` and `start`
+    /// read the shell being switched through [`Self`], so the daemons that go up
+    /// and down with it have to travel with it.
+    pub autostart_systemd_user_units: &'static [&'static str],
     /// See [`Identity::companion_paths`]. Kept on `Shell` for the same reason as
     /// [`Self::generated_paths`]: both `clean` and `plan` read the shell they are
     /// working on through `Shell`, so the paths a companion program owns have to
@@ -461,11 +474,6 @@ pub struct Shell {
     /// there would stall the session — so that mechanism is what decides the
     /// command has to carry `--daemon`.
     pub mechanism: StartMechanism,
-    /// See [`Port::unit_enabled_by_image`]. Carried here for the same reason as
-    /// the rest of the port: `stop` and `start` read the shell being switched
-    /// through [`Self`], so a fact that decides what they do to the unit has to
-    /// travel with the shell rather than be looked up from the registry again.
-    pub unit_enabled_by_image: bool,
     /// File name inside the project `assets/` directory.
     pub logo: Option<&'static str>,
 }
@@ -500,6 +508,7 @@ impl Shell {
             start_argv: identity.start_argv,
             process_match: identity.process_match,
             companion_systemd_user_units: identity.companion_systemd_user_units,
+            autostart_systemd_user_units: identity.autostart_systemd_user_units,
             companion_paths: identity.companion_paths,
             install_plan: identity.install_plan,
             uninstall_plan: identity.uninstall_plan,
@@ -513,7 +522,6 @@ impl Shell {
             state_dir: port.state_dir,
             systemd_user_unit: port.systemd_user_unit,
             mechanism: port.mechanism,
-            unit_enabled_by_image: port.unit_enabled_by_image,
             skel_extra_paths: port.skel_extra_paths,
             backup_extra_paths: port.backup_extra_paths,
         }

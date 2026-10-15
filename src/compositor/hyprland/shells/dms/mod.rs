@@ -4,7 +4,12 @@
 //! stages, the `dcal` companion and the systemd unit are in
 //! [`crate::shells::dms`], and are not repeated here.
 //!
-//! - **start**: `systemctl --user start dms`, for the unit shipped in the package.
+//! - **start**: `systemctl --user start dms`, for the unit shipped in the
+//!   package. Nothing here enables that unit globally, so the enablement a
+//!   switch writes when DMS comes in — unmask, enable and start, with `dsearch`
+//!   alongside — is what starts DMS at the next login; leaving DMS stops,
+//!   disables and masks both again. The skel's autostart no longer starts DMS
+//!   itself, only the `dcal` companion its calendar widgets come from.
 //! - **clean**: `~/.config/DankMaterialShell` and
 //!   `~/.local/state/DankMaterialShell`, the same two the backup takes. The
 //!   launcher entry is not among them — the Noctalia skel writes its own copy on
@@ -40,10 +45,6 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/DankMaterialShell"),
     systemd_user_unit: Some("dms"),
     mechanism: StartMechanism::SystemdUserUnit,
-    // The Hyprland image ships `dms.service` but enables nothing globally, so the
-    // unit never comes up on its own here; the compositor's own autostart is what
-    // runs DMS at login. Only Niri sets this.
-    unit_enabled_by_image: false,
     skel_extra_paths: &[
         ".config/gtk-3.0/gtk.css",
         ".config/gtk-3.0/settings.ini",

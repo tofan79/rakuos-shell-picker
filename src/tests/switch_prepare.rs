@@ -22,6 +22,7 @@ static GHOST: Shell = Shell {
     install_plan: None,
     uninstall_plan: None,
     companion_systemd_user_units: &[],
+    autostart_systemd_user_units: &[],
     companion_paths: &[],
     skel_extra_paths: &[],
     generated_paths: &[],
@@ -31,7 +32,6 @@ static GHOST: Shell = Shell {
     backup_extra_paths: &[],
     systemd_user_unit: None,
     mechanism: StartMechanism::DirectProcess,
-    unit_enabled_by_image: false,
     logo: None,
 };
 

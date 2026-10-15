@@ -506,6 +506,24 @@ fn dms_declares_the_calendar_service_it_draws_widgets_from() {
 }
 
 #[test]
+fn dms_declares_the_search_unit_that_autostarts_with_it() {
+    // `danksearch` ships dsearch.service and DMS searches through it. A switch
+    // takes it up and down with DMS itself — unmasked, enabled and started on
+    // the way in, stopped, disabled and masked on the way out — and it is named
+    // on DMS rather than on every shell that is *not* DMS, so there is one copy
+    // of the fact and a fifth shell cannot forget it. The verbs live in
+    // `apply::start` and `apply::stop_unit`.
+    assert_eq!(
+        dms::SHELL.autostart_systemd_user_units, &["dsearch"],
+        "DMS searches through dsearch.service, which must not outlive it"
+    );
+    assert!(
+        noctalia::SHELL.autostart_systemd_user_units.is_empty(),
+        "Noctalia owns no daemon of its own"
+    );
+}
+
+#[test]
 fn a_shell_is_stopped_the_same_way_it_is_started() {
     // The whole reason this is a function and not a branch inside `stop`:
     // `stop` cannot be exercised against a live desktop from the suite, and the

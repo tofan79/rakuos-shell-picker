@@ -974,13 +974,16 @@ fn stop_unit(
         progress(&format!("{} stopped", shell.display_name));
     }
 
-    // Stopping is not the whole job when the image enables the unit globally:
-    // `systemctl stop` ends it for this session but leaves the enablement the
-    // image set up, so `graphical-session.target` starts it again at the next
-    // login — beside whatever shell was chosen. See [`Port::unit_enabled_by_image`]
-    // (crate::shell::Port). `unmask_and_enable` in [`start`] is the exact undo.
-    if shell.unit_enabled_by_image {
-        disable_and_mask(unit, progress);
+    // Stopping is not the whole job. `systemctl stop` ends the unit for this
+    // session but leaves behind whatever enablement would start it again at the
+    // next login: the image's own global enable on Niri, and on Hyprland the
+    // enable a switch wrote when DMS came in. Disabling and masking closes both
+    // doors, and the daemons that autostart with the shell — `dsearch` for DMS,
+    // see [`Shell::autostart_systemd_user_units`] — are stopped and held down
+    // the same way. `unmask_and_enable` in [`start`] is the exact undo.
+    disable_and_mask(unit, progress);
+    for companion in shell.autostart_systemd_user_units {
+        stop_and_mask(companion, progress);
     }
     Ok(())
 }
@@ -1005,6 +1008,27 @@ fn disable_and_mask(unit: &str, progress: &mut dyn FnMut(&str)) {
             Err(err) => progress(&format!("cannot run systemctl to {verb} {name}: {err}")),
         }
     }
+}
+
+/// Stop a unit that autostarts with a shell on its way out, then hold it down.
+///
+/// The shell's own unit is stopped by [`stop_unit`], which confirms the process
+/// really went; a daemon the shell declares has no process this program looks
+/// for, so it is stopped through systemd and the answer taken at face value.
+/// Every step is a line rather than an error, for the reason in [`stop`]: the
+/// shell is already down, and stranding the session over a helper that would
+/// not stop is worse than saying so.
+fn stop_and_mask(unit: &str, progress: &mut dyn FnMut(&str)) {
+    let name = format!("{unit}.service");
+    match run("systemctl", &["--user", "stop", &name]) {
+        Ok(out) if out.status.success() => progress(&format!("stopped {name}")),
+        Ok(out) => progress(&format!(
+            "cannot stop {name}: {}",
+            String::from_utf8_lossy(&out.stderr).trim()
+        )),
+        Err(err) => progress(&format!("cannot run systemctl to stop {name}: {err}")),
+    }
+    disable_and_mask(unit, progress);
 }
 
 /// Undo [`disable_and_mask`] so a unit the image enables can start again.
@@ -1526,6 +1550,31 @@ fn clean(
     (removed, kept)
 }
 
+/// Start one systemd user unit, treating a refusal as this switch's failure.
+///
+/// Shared by the three starts [`start`] performs — the shell's own unit, the
+/// companions it needs, and the daemons that autostart with it — so a refusal
+/// reads the same wherever it comes from and there is one place to fix if the
+/// wording or the error type changes.
+fn start_systemd_unit(
+    name: &str,
+    progress: &mut dyn FnMut(&str),
+) -> Result<(), (&'static str, String)> {
+    let out = run("systemctl", &["--user", "start", name])
+        .map_err(|e| ("start", format!("cannot run systemctl: {e}")))?;
+    if !out.status.success() {
+        return Err((
+            "start",
+            format!(
+                "{name} refused to start: {}",
+                String::from_utf8_lossy(&out.stderr).trim()
+            ),
+        ));
+    }
+    progress(&format!("{name} started"));
+    Ok(())
+}
+
 /// Start a shell the way it says it starts.
 fn start(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), (&'static str, String)> {
     // Companions first, in the order the shell declares them. A shell's own unit
@@ -1537,17 +1586,7 @@ fn start(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), (&'static 
             "starting {name}, which {} needs",
             shell.display_name
         ));
-        let out = run("systemctl", &["--user", "start", &name])
-            .map_err(|e| ("start", format!("cannot run systemctl: {e}")))?;
-        if !out.status.success() {
-            return Err((
-                "start",
-                format!(
-                    "{name} refused to start: {}",
-                    String::from_utf8_lossy(&out.stderr).trim()
-                ),
-            ));
-        }
+        start_systemd_unit(&name, progress)?;
     }
 
     // Which branch to take comes from `mechanism`, not from the presence of a unit
@@ -1563,24 +1602,28 @@ fn start(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), (&'static 
                 format!("{} claims a systemd unit but names none", shell.id),
             )
         })?;
-        let name = format!("{unit}.service");
-        if shell.unit_enabled_by_image {
-            // The mirror of the mask `stop_unit` leaves behind, so switching back
-            // to a shell the image enables is the reverse of leaving it.
-            unmask_and_enable(unit, progress);
-        }
-        progress(&format!("starting {name}"));
-        let out = run("systemctl", &["--user", "start", &name])
-            .map_err(|e| ("start", format!("cannot run systemctl: {e}")))?;
-        if !out.status.success() {
-            return Err((
-                "start",
-                format!(
-                    "{name} refused to start: {}",
-                    String::from_utf8_lossy(&out.stderr).trim()
-                ),
+
+        // The daemons that autostart with the shell come up before it, enabled
+        // like the shell itself: the mirror of the stop+disable+mask `stop_unit`
+        // leaves behind, so switching back to DMS is leaving it run backwards.
+        // On the image that globally enables these units it is a mask being
+        // undone; anywhere else this enable is the only thing that will start
+        // them at the next login.
+        for companion in shell.autostart_systemd_user_units {
+            unmask_and_enable(companion, progress);
+            let name = format!("{companion}.service");
+            progress(&format!(
+                "starting {name}, which {} needs",
+                shell.display_name
             ));
+            start_systemd_unit(&name, progress)?;
         }
+
+        // The same move for the shell's own unit, after its companions.
+        unmask_and_enable(unit, progress);
+        let name = format!("{unit}.service");
+        progress(&format!("starting {name}"));
+        start_systemd_unit(&name, progress)?;
         return Ok(());
     }
 

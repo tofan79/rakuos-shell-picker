@@ -109,6 +109,8 @@ pub const IDENTITY: Identity = Identity {
         args: &["rum", "remove", "-y"],
     }),
     companion_systemd_user_units: &[],
+    // No daemon of its own, so nothing to keep in step with systemd.
+    autostart_systemd_user_units: &[],
     // Where the companion keeps its own data, and where the shell keeps data
     // that is not configuration. `axctl` records the brightness it has applied
     // in `~/.config/axctl/brightness.tsv`; Ambxst keeps the chat history and the

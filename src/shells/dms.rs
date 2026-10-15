@@ -133,6 +133,22 @@ pub const IDENTITY: Identity = Identity {
         args: &["rum", "remove", "-y"],
     }),
     companion_systemd_user_units: &["dcal"],
+    // `danksearch` is declared here rather than beside `dcal`, because its life
+    // is different: `dcal` is started and stopped with the shell and never
+    // disabled, while `dsearch` shares the shell's enablement — unmasked,
+    // enabled and started when DMS comes in, stopped, disabled and masked when
+    // it goes, on every compositor. The Niri image enables it globally
+    // (`dsearch.service` is `WantedBy=default.target`), so leaving DMS without
+    // masking it would leave the search daemon running for a shell that is
+    // gone; on Hyprland nothing enables it, so the picker's own enable is what
+    // starts it at the next login.
+    //
+    // The list lives on DMS and not on the shells that are *not* DMS: leaving
+    // DMS is the moment these go down, and every shell a user might switch to
+    // is already covered by that one event. Writing "mask dsearch" on Noctalia,
+    // Caelestia and Ambxst would be the same fact in four places, and the fifth
+    // shell would have to remember it.
+    autostart_systemd_user_units: &["dsearch"],
     // Where the companions themselves keep their data. `dankcalendar-git` owns
     // the calendar database and its keyring, and `dgop` owns the palette it
     // writes; nothing installs any of it, so the skel carries none of it and the

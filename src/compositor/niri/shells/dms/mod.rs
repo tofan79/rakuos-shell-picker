@@ -5,13 +5,14 @@
 //! [`crate::shells::dms`], and are not repeated here.
 //!
 //! - **start**: `systemctl --user start dms`, the same unit Hyprland uses. The
-//!   `rakuos-niri` image enables it globally (`systemctl --global enable dms`),
-//!   and `dms.service` is `WantedBy=graphical-session.target`, so a login starts
-//!   DMS on its own whether or not it is the shell the user picked. That is the
-//!   one fact `unit_enabled_by_image` records: leaving DMS disables and masks the
-//!   unit so the next login does not bring it back beside the shell that was
-//!   chosen, and the Hyprland port leaves the flag `false` because its image
-//!   enables nothing globally.
+//!   `rakuos-niri` image enables it — and `dsearch` — globally with
+//!   `systemctl --global enable`, and `dms.service` is
+//!   `WantedBy=graphical-session.target`, so a login starts DMS on its own
+//!   whether or not it is the shell the user picked. That is why leaving DMS
+//!   has to stop, disable and mask both units: without the mask the next login
+//!   brings them back beside the shell that was chosen. `start` unwinds exactly
+//!   that when the shell comes home, and does the same on Hyprland, where
+//!   nothing enables these units but the picker itself.
 //! - **clean**: `~/.config/DankMaterialShell` and
 //!   `~/.local/state/DankMaterialShell`, the same two the backup takes.
 //! - **verify**: a process named `dms` is alive.
@@ -28,7 +29,6 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/DankMaterialShell"),
     systemd_user_unit: Some("dms"),
     mechanism: StartMechanism::SystemdUserUnit,
-    unit_enabled_by_image: true,
     skel_extra_paths: &[
         ".config/gtk-3.0/dank-colors.css",
         ".config/gtk-3.0/gtk.css",

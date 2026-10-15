@@ -38,6 +38,7 @@ static INSTALLED_IDLE: Shell = Shell {
     systemd_user_unit: None,
 
     companion_systemd_user_units: &[],
+    autostart_systemd_user_units: &[],
     companion_paths: &[],
     skel_extra_paths: &[],
     generated_paths: &[],
@@ -46,7 +47,6 @@ static INSTALLED_IDLE: Shell = Shell {
     polkit_agent: &[],
     backup_extra_paths: &[],
     mechanism: StartMechanism::DirectProcess,
-    unit_enabled_by_image: false,
     logo: None,
 };
 
@@ -65,6 +65,7 @@ static NOT_INSTALLED: Shell = Shell {
     systemd_user_unit: None,
 
     companion_systemd_user_units: &[],
+    autostart_systemd_user_units: &[],
     companion_paths: &[],
     skel_extra_paths: &[],
     generated_paths: &[],
@@ -73,7 +74,6 @@ static NOT_INSTALLED: Shell = Shell {
     polkit_agent: &[],
     backup_extra_paths: &[],
     mechanism: StartMechanism::DirectProcess,
-    unit_enabled_by_image: false,
     logo: None,
 };
 
@@ -92,6 +92,7 @@ static ALREADY_RUNNING: Shell = Shell {
     systemd_user_unit: None,
 
     companion_systemd_user_units: &[],
+    autostart_systemd_user_units: &[],
     companion_paths: &[],
     skel_extra_paths: &[],
     generated_paths: &[],
@@ -100,7 +101,6 @@ static ALREADY_RUNNING: Shell = Shell {
     polkit_agent: &[],
     backup_extra_paths: &[],
     mechanism: StartMechanism::DirectProcess,
-    unit_enabled_by_image: false,
     logo: None,
 };
 

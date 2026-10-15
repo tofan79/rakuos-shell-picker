@@ -115,6 +115,8 @@ pub const IDENTITY: Identity = Identity {
         args: &["rum", "remove", "-y"],
     }),
     companion_systemd_user_units: &[],
+    // No daemon of its own, so nothing to keep in step with systemd.
+    autostart_systemd_user_units: &[],
     // No companions, so nothing of theirs to save or bring back.
     companion_paths: &[],
     // Caelestia renders these four into `gtk-3.0` and `gtk-4.0` on every start;

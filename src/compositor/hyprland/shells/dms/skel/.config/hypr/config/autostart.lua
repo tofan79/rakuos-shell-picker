@@ -2,17 +2,20 @@
 -- if you dont use UWSM add your auto start programs here, otherwise use XDG autostart https://wiki.archlinux.org/title/XDG_Autostart
 
 hl.on("hyprland.start", function ()
-    -- Noctalia is not started from here any more.
+    -- Noctalia is not started from here any more, and neither is DMS.
     --
-    -- DMS goes through systemctl rather than a bare `exec dms`, because
-    -- dms.service declares BusName=org.freedesktop.Notifications with Type=dbus
-    -- and Restart=on-failure. Started outside systemd it would own no bus name
-    -- and nothing would restart it. `systemctl start` is idempotent, so this
-    -- stays correct after the unit is enabled, and nothing starts twice.
+    -- DMS and its search daemon come from their systemd units: the picker
+    -- unmasks, enables and starts `dms.service` and `dsearch.service` when DMS
+    -- is the chosen shell, so every login after that starts them on its own,
+    -- and switching away stops, disables and masks them again. They must go
+    -- through systemd either way — `dms.service` declares
+    -- BusName=org.freedesktop.Notifications with Type=dbus and Restart=on-failure,
+    -- so started outside systemd it would own no bus name and nothing would
+    -- restart it.
     --
-    -- dcal first: the calendar widget connects to it on startup.
+    -- dcal stays here: the calendar widget connects to it on startup, and it is
+    -- started for the session rather than enabled.
     hl.exec_cmd("systemctl --user start dcal.service")
-    hl.exec_cmd("systemctl --user start dms.service")
 
     hl.exec_cmd("xhost +SI:localuser:root")
 

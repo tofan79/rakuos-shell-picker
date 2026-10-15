@@ -44,7 +44,6 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/ambxst"),
     systemd_user_unit: None,
     mechanism: StartMechanism::DirectProcess,
-    unit_enabled_by_image: false,
     // The launcher entry is the same counterpart the other shells carry: a
     // switch must not leave Noctalia advertised in the app menu while Ambxst is
     // the shell. This copy ships hidden (`NoDisplay=true`), like DMS's.

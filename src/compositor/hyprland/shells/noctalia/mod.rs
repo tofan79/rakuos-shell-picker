@@ -31,7 +31,6 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/noctalia"),
     systemd_user_unit: None,
     mechanism: StartMechanism::Autostart,
-    unit_enabled_by_image: false,
     // `config_dir` is handled separately, since it comes from a backup when one
     // holds it. The launcher entry is the counterpart to the one the DMS skel
     // replaces: without it, switching back would leave Noctalia installed and

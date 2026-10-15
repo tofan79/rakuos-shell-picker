@@ -26,7 +26,6 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/noctalia"),
     systemd_user_unit: None,
     mechanism: StartMechanism::SpawnAtStartup,
-    unit_enabled_by_image: false,
     skel_extra_paths: &[
         ".config/gtk-3.0/gtk.css",
         ".config/gtk-3.0/noctalia.css",

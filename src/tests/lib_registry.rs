@@ -586,18 +586,16 @@ fn a_mechanism_agrees_with_its_unit_name() {
 }
 
 #[test]
-fn only_a_unit_the_image_enables_is_masked() {
-    // A switch disables and masks the unit it leaves, and unmasks and enables the
-    // unit it returns to, only when `unit_enabled_by_image` says the image starts
-    // that unit on its own. A flag on a shell with no unit would never be read, so
-    // check it never outruns the unit it is about.
+fn a_unit_that_autostarts_with_a_shell_belongs_to_one() {
+    // The enable/disable verbs are only reachable through a systemd unit, so a
+    // shell with no unit that declared one would carry a fact nothing reads.
     for compositor in super::compositor::all() {
         for shell in compositor.shells() {
-            if shell.unit_enabled_by_image {
+            if !shell.autostart_systemd_user_units.is_empty() {
                 assert!(
                     shell.mechanism.uses_systemd_unit(),
-                    "{}/{} sets unit_enabled_by_image with no systemd unit, so the \
-                     flag would never be seen",
+                    "{}/{} declares units that autostart with it but starts \
+                     through no systemd unit",
                     compositor.id(),
                     shell.id
                 );
@@ -605,12 +603,26 @@ fn only_a_unit_the_image_enables_is_masked() {
         }
     }
 
-    // The one port that sets it: the Niri image runs `systemctl --global enable
-    // dms`, so DMS autostarts at login there and a switch has to mask it. Pinned
-    // both ways so a port quietly gaining or losing the mask is a test failure
-    // rather than a login that ends up with two shells running.
-    assert!(super::compositor::niri::shells::dms::SHELL.unit_enabled_by_image);
-    assert!(!super::compositor::hyprland::shells::dms::SHELL.unit_enabled_by_image);
+    // The one list: DMS declares `dsearch`, the unit `danksearch` ships. DMS
+    // searches through it, and leaving DMS has to stop, disable and mask it on
+    // every compositor — on Niri because the image enables it globally, on
+    // Hyprland because the picker's own enable put it there. Pinned both ways
+    // so a shell quietly gaining or losing the daemon is a test failure rather
+    // than a search service left running beside a shell it does not belong to.
+    assert_eq!(
+        super::shells::dms::IDENTITY.autostart_systemd_user_units,
+        &["dsearch"]
+    );
+    for identity in super::shells::every() {
+        if identity.id == "dms" {
+            continue;
+        }
+        assert!(
+            identity.autostart_systemd_user_units.is_empty(),
+            "{} declares a unit that autostarts with it; only DMS owns one today",
+            identity.id
+        );
+    }
 }
 
 #[test]
