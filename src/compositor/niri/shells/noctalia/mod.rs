@@ -6,23 +6,17 @@
 //!
 //! - **start**: the compositor runs it from `spawn-at-startup "noctalia"` in the
 //!   skel's `config.kdl`, so switching to Noctalia means starting the process and
-//!   switching away means ending it. Niri waits for a startup command to return
-//!   before it carries on, so the mechanism is
+//!   switching away means ending it. The mechanism is
 //!   [`StartMechanism::SpawnAtStartup`](crate::shell::StartMechanism::SpawnAtStartup)
-//!   and the command is detached — a foreground shell here would stall the session.
+//!   and the command is detached so the session does not wait.
 //! - **backup**: `~/.config/noctalia` plus `~/.local/state/noctalia`, because most
 //!   of a Noctalia setup lives in the second one.
 //! - **clean**: those same two paths, plus the four rendered themes once the
 //!   backup taken for that switch reproduces them byte for byte.
 //! - **verify**: a process named `noctalia` is alive.
 //!
-//! The Niri skel is the image's own `etc/skel`: the compositor config under
-//! `~/.config/niri/noctalia/` and the shell's `~/.config/noctalia/config.toml`.
-//! Neither the four rendered themes nor the launcher entry the Hyprland skel
-//! carries is here — those replace shared paths a Hyprland session has, and a
-//! Niri session has no Noctalia-on-Hyprland launcher to hide. The compositor
-//! config, `config_dir` and `state_dir` cover every file the skel ships, so both
-//! extras lists are empty.
+//! The Niri skel includes theme and launcher files to keep theming consistent
+//! across sessions and to restore the visible Noctalia launcher when active.
 
 use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::noctalia::IDENTITY;
@@ -32,8 +26,20 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/noctalia"),
     systemd_user_unit: None,
     mechanism: StartMechanism::SpawnAtStartup,
-    skel_extra_paths: &[],
-    backup_extra_paths: &[],
+    unit_enabled_by_image: false,
+    skel_extra_paths: &[
+        ".config/gtk-3.0/gtk.css",
+        ".config/gtk-3.0/noctalia.css",
+        ".config/gtk-3.0/settings.ini",
+        ".config/gtk-4.0/noctalia.css",
+        ".config/gtk-4.0/settings.ini",
+        ".config/gtk-4.0/gtk.css",
+        ".config/qt5ct/colors/noctalia.conf",
+        ".config/qt6ct/colors/noctalia.conf",
+        ".config/qt6ct/qt6ct.conf",
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+    ],
+    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

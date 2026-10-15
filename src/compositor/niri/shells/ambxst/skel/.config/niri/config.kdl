@@ -1,0 +1,5 @@
+// Ambxst
+include "~/.local/share/ambxst/niri.kdl"
+
+// OVERRIDES
+// Down here you can write or include anything that you want to override from Ambxst's settings.

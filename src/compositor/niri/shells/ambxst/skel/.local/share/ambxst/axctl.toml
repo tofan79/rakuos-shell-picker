@@ -1,0 +1,1033 @@
+[target]
+hyprland = "hyprland.lua"
+niri = "niri.kdl"
+mango = "mango.conf"
+
+[startup]
+exec-once = "ambxst"
+[appearance]
+
+[appearance.gaps]
+inner = 2
+outer = 4
+
+[appearance.border]
+width = 2
+active_color = "rgb(ffb59e)"
+inactive_color = "rgb(28211f)"
+rounding = 16
+
+[appearance.opacity]
+active = 1.0
+inactive = 1.0
+
+[appearance.blur]
+enabled = true
+size = 4
+passes = 2
+
+[appearance.shadow]
+enabled = true
+size = 8
+color = "rgba(00000080)"
+
+[appearance.animations]
+enabled = true
+workspace_style = "slidefade 20%"
+
+[general]
+layout = "dwindle"
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "Super_L"
+dispatcher = "exec"
+argument = "ambxst run launcher"
+flags = "r"
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "D"
+dispatcher = "exec"
+argument = "ambxst run dashboard"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "A"
+dispatcher = "exec"
+argument = "ambxst run assistant"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "V"
+dispatcher = "exec"
+argument = "ambxst run clipboard"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "PERIOD"
+dispatcher = "exec"
+argument = "ambxst run emoji"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "N"
+dispatcher = "exec"
+argument = "ambxst run notes"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "T"
+dispatcher = "exec"
+argument = "ambxst run tmux"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "COMMA"
+dispatcher = "exec"
+argument = "ambxst run wallpapers"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "TAB"
+dispatcher = "exec"
+argument = "ambxst run overview"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "ESCAPE"
+dispatcher = "exec"
+argument = "ambxst run powermenu"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "C"
+dispatcher = "exec"
+argument = "ambxst run config"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "L"
+dispatcher = "exec"
+argument = "loginctl lock-session"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "S"
+dispatcher = "exec"
+argument = "ambxst run tools"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "S"
+dispatcher = "exec"
+argument = "ambxst run screenshot"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "R"
+dispatcher = "exec"
+argument = "ambxst run screenrecord"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "A"
+dispatcher = "exec"
+argument = "ambxst run lens"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "B"
+dispatcher = "exec"
+argument = "ambxst reload"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "B"
+dispatcher = "exec"
+argument = "ambxst quit"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "B"
+dispatcher = "exec"
+argument = "ambxst toggle bar"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "C"
+dispatcher = "killactive"
+argument = ""
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "SPACE"
+dispatcher = "togglefloating"
+argument = ""
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "F"
+dispatcher = "fullscreen"
+argument = ""
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "1"
+dispatcher = "workspace"
+argument = "1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "2"
+dispatcher = "workspace"
+argument = "2"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "3"
+dispatcher = "workspace"
+argument = "3"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "4"
+dispatcher = "workspace"
+argument = "4"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "5"
+dispatcher = "workspace"
+argument = "5"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "6"
+dispatcher = "workspace"
+argument = "6"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "7"
+dispatcher = "workspace"
+argument = "7"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "8"
+dispatcher = "workspace"
+argument = "8"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "9"
+dispatcher = "workspace"
+argument = "9"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "0"
+dispatcher = "workspace"
+argument = "10"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "1"
+dispatcher = "movetoworkspace"
+argument = "1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "2"
+dispatcher = "movetoworkspace"
+argument = "2"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "3"
+dispatcher = "movetoworkspace"
+argument = "3"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "4"
+dispatcher = "movetoworkspace"
+argument = "4"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "5"
+dispatcher = "movetoworkspace"
+argument = "5"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "6"
+dispatcher = "movetoworkspace"
+argument = "6"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "7"
+dispatcher = "movetoworkspace"
+argument = "7"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "8"
+dispatcher = "movetoworkspace"
+argument = "8"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "9"
+dispatcher = "movetoworkspace"
+argument = "9"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "0"
+dispatcher = "movetoworkspace"
+argument = "10"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "1"
+dispatcher = "movetoworkspacesilent"
+argument = "1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "2"
+dispatcher = "movetoworkspacesilent"
+argument = "2"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "3"
+dispatcher = "movetoworkspacesilent"
+argument = "3"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "4"
+dispatcher = "movetoworkspacesilent"
+argument = "4"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "5"
+dispatcher = "movetoworkspacesilent"
+argument = "5"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "6"
+dispatcher = "movetoworkspacesilent"
+argument = "6"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "7"
+dispatcher = "movetoworkspacesilent"
+argument = "7"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "8"
+dispatcher = "movetoworkspacesilent"
+argument = "8"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "9"
+dispatcher = "movetoworkspacesilent"
+argument = "9"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "0"
+dispatcher = "movetoworkspacesilent"
+argument = "10"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "mouse_down"
+dispatcher = "workspace"
+argument = "e-1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "mouse_up"
+dispatcher = "workspace"
+argument = "e+1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "Z"
+dispatcher = "workspace"
+argument = "e-1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "X"
+dispatcher = "workspace"
+argument = "e+1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "Z"
+dispatcher = "workspace"
+argument = "-1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "X"
+dispatcher = "workspace"
+argument = "+1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "mouse:272"
+dispatcher = "movewindow"
+argument = ""
+flags = "m"
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "mouse:273"
+dispatcher = "resizewindow"
+argument = ""
+flags = "m"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioPlay"
+dispatcher = "exec"
+argument = "playerctl play-pause"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioPrev"
+dispatcher = "exec"
+argument = "playerctl previous"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioNext"
+dispatcher = "exec"
+argument = "playerctl next"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioMedia"
+dispatcher = "exec"
+argument = "playerctl play-pause"
+flags = "l"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioStop"
+dispatcher = "exec"
+argument = "playerctl stop"
+flags = "l"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioRaiseVolume"
+dispatcher = "exec"
+argument = "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 10%+"
+flags = "le"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioLowerVolume"
+dispatcher = "exec"
+argument = "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 10%-"
+flags = "le"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86AudioMute"
+dispatcher = "exec"
+argument = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+flags = "le"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86MonBrightnessUp"
+dispatcher = "exec"
+argument = "sh -c 'echo brightness-up > \"${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ambxst_ipc.pipe\"'"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86MonBrightnessDown"
+dispatcher = "exec"
+argument = "sh -c 'echo brightness-down > \"${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ambxst_ipc.pipe\"'"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "XF86Calculator"
+dispatcher = "exec"
+argument = "notify-send \"Soon\""
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "V"
+dispatcher = "togglespecialworkspace"
+argument = ""
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "V"
+dispatcher = "movetoworkspace"
+argument = "special"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "switch:Lid Switch"
+dispatcher = "exec"
+argument = "loginctl lock-session"
+flags = "l"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "switch:on:Lid Switch"
+dispatcher = "exec"
+argument = "axctl monitor set-dpms 0 0"
+flags = "l"
+enabled = true
+
+[[keybinds]]
+modifiers = []
+key = "switch:off:Lid Switch"
+dispatcher = "exec"
+argument = "axctl monitor set-dpms 0 1"
+flags = "l"
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "Up"
+dispatcher = "movefocus"
+argument = "u"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL"]
+key = "k"
+dispatcher = "movefocus"
+argument = "u"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "Down"
+dispatcher = "movefocus"
+argument = "d"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL"]
+key = "j"
+dispatcher = "movefocus"
+argument = "d"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "Left"
+dispatcher = "movefocus"
+argument = "l"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL"]
+key = "z"
+dispatcher = "movefocus"
+argument = "l"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL"]
+key = "h"
+dispatcher = "movefocus"
+argument = "l"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER"]
+key = "Right"
+dispatcher = "movefocus"
+argument = "r"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL"]
+key = "x"
+dispatcher = "movefocus"
+argument = "r"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL"]
+key = "l"
+dispatcher = "movefocus"
+argument = "r"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "Left"
+dispatcher = "movewindow"
+argument = "l"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "h"
+dispatcher = "movewindow"
+argument = "l"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "Right"
+dispatcher = "movewindow"
+argument = "r"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "l"
+dispatcher = "movewindow"
+argument = "r"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "Up"
+dispatcher = "movewindow"
+argument = "u"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "k"
+dispatcher = "movewindow"
+argument = "u"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "Down"
+dispatcher = "movewindow"
+argument = "d"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "j"
+dispatcher = "movewindow"
+argument = "d"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "Right"
+dispatcher = "layoutmsg"
+argument = "colresize +0.1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "l"
+dispatcher = "layoutmsg"
+argument = "colresize +0.1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "Left"
+dispatcher = "layoutmsg"
+argument = "colresize -0.1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "h"
+dispatcher = "layoutmsg"
+argument = "colresize -0.1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "Down"
+dispatcher = "resizeactive"
+argument = "0 50"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "j"
+dispatcher = "resizeactive"
+argument = "0 50"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "Up"
+dispatcher = "resizeactive"
+argument = "0 -50"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "k"
+dispatcher = "resizeactive"
+argument = "0 -50"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT"]
+key = "SPACE"
+dispatcher = "layoutmsg"
+argument = "promote"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL"]
+key = "SPACE"
+dispatcher = "layoutmsg"
+argument = "center"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "SHIFT"]
+key = "SPACE"
+dispatcher = "layoutmsg"
+argument = "colresize +conf"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT", "CTRL"]
+key = "Left"
+dispatcher = "layoutmsg"
+argument = "swapcol l"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT", "CTRL"]
+key = "h"
+dispatcher = "layoutmsg"
+argument = "swapcol l"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT", "CTRL"]
+key = "Right"
+dispatcher = "layoutmsg"
+argument = "swapcol r"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "ALT", "CTRL"]
+key = "l"
+dispatcher = "layoutmsg"
+argument = "swapcol r"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "1"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 1"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "2"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 2"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "3"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 3"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "4"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 4"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "5"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 5"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "6"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 6"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "7"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 7"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "8"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 8"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "9"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 9"
+flags = ""
+enabled = true
+
+[[keybinds]]
+modifiers = ["SUPER", "CTRL", "ALT"]
+key = "0"
+dispatcher = "layoutmsg"
+argument = "movecoltoworkspace 10"
+flags = ""
+enabled = true
+
+[[layer_rules]]
+namespace = "quickshell"
+no_anim = true
+
+[[layer_rules]]
+namespace = "quickshell"
+blur = true
+
+[[layer_rules]]
+namespace = "quickshell"
+blur_popups = true
+
+[[layer_rules]]
+namespace = "quickshell"
+ignore_alpha = true
+ignore_alpha_value = 1.00
+
+[[layer_rules]]
+namespace = "selection"
+no_anim = true
+
+[[layer_rules]]
+namespace = "fabric"
+blur = true
+ignore_alpha_value = 0.4
+
+[[layer_rules]]
+namespace = "^ambxst(:.*)?$"
+blur = true
+blur_popups = true
+no_anim = true
+ignore_alpha_value = 0.20
+
+[[layer_rules]]
+namespace = "^ambxst:wallpaper$"
+place_within_backdrop = true
+
+[input]
+[input.keyboard]
+layouts = ""
+variants = ""

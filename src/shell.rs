@@ -321,6 +321,19 @@ pub struct Port {
     /// The systemd user unit that starts this shell, when it has one.
     pub systemd_user_unit: Option<&'static str>,
     pub mechanism: StartMechanism,
+    /// Whether the image enables this unit globally, so the session starts it on
+    /// its own at login even when another shell was chosen.
+    ///
+    /// This differs per compositor even though the unit is the same one, because
+    /// it is the image that decides it: `rakuos-niri` runs
+    /// `systemctl --global enable dms`, and `dms.service` is
+    /// `WantedBy=graphical-session.target`, so every login starts DMS whether or
+    /// not it is the shell the user picked. Stopping the unit is then only half a
+    /// switch — it has to be masked while another shell holds the session, or it
+    /// comes back at the next login beside the chosen shell. The Hyprland image
+    /// ships the same unit but enables nothing globally, which is why this is
+    /// `false` there, and why the flag cannot live on [`Identity`].
+    pub unit_enabled_by_image: bool,
     /// Other paths, relative to `$HOME`, that this shell's skel also carries.
     ///
     /// The compositor config and `config_dir` are handled by name, because where
@@ -448,6 +461,11 @@ pub struct Shell {
     /// there would stall the session — so that mechanism is what decides the
     /// command has to carry `--daemon`.
     pub mechanism: StartMechanism,
+    /// See [`Port::unit_enabled_by_image`]. Carried here for the same reason as
+    /// the rest of the port: `stop` and `start` read the shell being switched
+    /// through [`Self`], so a fact that decides what they do to the unit has to
+    /// travel with the shell rather than be looked up from the registry again.
+    pub unit_enabled_by_image: bool,
     /// File name inside the project `assets/` directory.
     pub logo: Option<&'static str>,
 }
@@ -495,6 +513,7 @@ impl Shell {
             state_dir: port.state_dir,
             systemd_user_unit: port.systemd_user_unit,
             mechanism: port.mechanism,
+            unit_enabled_by_image: port.unit_enabled_by_image,
             skel_extra_paths: port.skel_extra_paths,
             backup_extra_paths: port.backup_extra_paths,
         }

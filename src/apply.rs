@@ -973,7 +973,58 @@ fn stop_unit(
     if !before.is_empty() {
         progress(&format!("{} stopped", shell.display_name));
     }
+
+    // Stopping is not the whole job when the image enables the unit globally:
+    // `systemctl stop` ends it for this session but leaves the enablement the
+    // image set up, so `graphical-session.target` starts it again at the next
+    // login — beside whatever shell was chosen. See [`Port::unit_enabled_by_image`]
+    // (crate::shell::Port). `unmask_and_enable` in [`start`] is the exact undo.
+    if shell.unit_enabled_by_image {
+        disable_and_mask(unit, progress);
+    }
     Ok(())
+}
+
+/// Disable and mask a unit the image enables, so a login cannot start it.
+///
+/// `disable` undoes as much of the enablement as this user may undo — the
+/// image's own symlink under `/etc/systemd/user` is root-owned and stays — and
+/// `mask`, which shadows the unit per user, is what actually holds it down. Both
+/// are reported as lines rather than returned: the shell is stopped by the time
+/// this runs, so a failure here is dirt to mention, not a reason to abandon a
+/// switch that has otherwise worked.
+fn disable_and_mask(unit: &str, progress: &mut dyn FnMut(&str)) {
+    let name = format!("{unit}.service");
+    for (verb, done) in [("disable", "disabled"), ("mask", "masked")] {
+        match run("systemctl", &["--user", verb, &name]) {
+            Ok(out) if out.status.success() => progress(&format!("{done} {name}")),
+            Ok(out) => progress(&format!(
+                "cannot {verb} {name}: {}",
+                String::from_utf8_lossy(&out.stderr).trim()
+            )),
+            Err(err) => progress(&format!("cannot run systemctl to {verb} {name}: {err}")),
+        }
+    }
+}
+
+/// Undo [`disable_and_mask`] so a unit the image enables can start again.
+///
+/// `unmask` has to come first: while a unit is masked, `enable` still records the
+/// enablement but a `start` of it would fail. The pair is deliberately the mirror
+/// of [`disable_and_mask`], so a switch to the shell is a switch away from it run
+/// backwards, with nothing one-way.
+fn unmask_and_enable(unit: &str, progress: &mut dyn FnMut(&str)) {
+    let name = format!("{unit}.service");
+    for (verb, done) in [("unmask", "unmasked"), ("enable", "enabled")] {
+        match run("systemctl", &["--user", verb, &name]) {
+            Ok(out) if out.status.success() => progress(&format!("{done} {name}")),
+            Ok(out) => progress(&format!(
+                "cannot {verb} {name}: {}",
+                String::from_utf8_lossy(&out.stderr).trim()
+            )),
+            Err(err) => progress(&format!("cannot run systemctl to {verb} {name}: {err}")),
+        }
+    }
 }
 
 /// Take the helpers the shell declared down with it.
@@ -1513,6 +1564,11 @@ fn start(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), (&'static 
             )
         })?;
         let name = format!("{unit}.service");
+        if shell.unit_enabled_by_image {
+            // The mirror of the mask `stop_unit` leaves behind, so switching back
+            // to a shell the image enables is the reverse of leaving it.
+            unmask_and_enable(unit, progress);
+        }
         progress(&format!("starting {name}"));
         let out = run("systemctl", &["--user", "start", &name])
             .map_err(|e| ("start", format!("cannot run systemctl: {e}")))?;

@@ -45,7 +45,7 @@ src/compositor/             satu folder per compositor
         skel/               config Hyprland, qt6ct, data .local/share/ambxst,
                             launcher (Noctalia, NoDisplay)
   niri/
-    mod.rs                  alat khusus Niri (niri msg action reload-config/quit)
+    mod.rs                  alat khusus Niri (niri msg action load-config-file/quit -s)
     shells/                 satu folder per shell — shell itu DI NIRI
       mod.rs                urutan kartu
       dms/mod.rs + skel/

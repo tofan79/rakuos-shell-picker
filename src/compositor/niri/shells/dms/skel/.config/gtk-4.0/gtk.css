@@ -1,0 +1,10 @@
+@import url("dank-colors.css");
+@import 'colors.css';
+
+window,
+window.background,
+.window-frame,
+headerbar {
+    border-radius: 0px;
+    box-shadow: none;
+}

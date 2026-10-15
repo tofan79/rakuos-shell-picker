@@ -30,6 +30,7 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/caelestia"),
     systemd_user_unit: None,
     mechanism: StartMechanism::StartEvent,
+    unit_enabled_by_image: false,
     // The launcher entry, and only it: Caelestia's own GTK and Qt entry points
     // are written by the shell from its templates, so no theme file is the
     // switch's to install. The one file is the counterpart to the same path in

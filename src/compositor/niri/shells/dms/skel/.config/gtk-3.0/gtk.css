@@ -1,0 +1,6 @@
+/* DMS's own entry point: scripts/gtk.sh injects exactly this line and nothing
+   else, so a foreign @import in this file survives every apply it runs. The
+   file has to be in the skel for that reason -- a switch from another shell
+   replaces it instead of leaving its import behind. When adw-gtk3 carries the
+   colours instead, gtk.sh strips this line and leaves the file empty. */
+@import url("dank-colors.css");

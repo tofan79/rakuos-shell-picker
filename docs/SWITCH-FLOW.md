@@ -179,6 +179,15 @@ pilihan cabangnya bukan perkiraan:
   statenya, lalu diulang sampai `STOP_GRACE` (**10 detik**) habis, baru
   **SIGKILL**. Kill adalah cadangan, bukan rencana.
 
+> Kalau unit itu ditandai `unit_enabled_by_image`, `stop` menambahkan satu
+> langkah: unit di-`disable` dan di-`mask`. `rakuos-niri` menyalakan DMS lewat
+> `systemctl --global enable dms`, dan `dms.service` `WantedBy=graphical-session.target`,
+> jadi `stop` saja tidak cukup — tanpa mask unitnya **kembali sendiri** di login
+> berikutnya, di samping shell yang baru dipilih. Ini per-compositor: image
+> Hyprland mengirim unit yang sama tetapi tidak menyalakannya global, jadi di
+> sana flag-nya `false` dan `stop` biasa sudah cukup. `start` membalikkannya
+> (`unmask` + `enable`), jadi tidak ada yang searah.
+
 Pada arah ini outgoing shell-nya Noctalia, yang `mechanism: Autostart` dan
 `systemd_user_unit: None` → **cabang sinyal**: SIGTERM ke pid `noctalia`.
 Noctalia juga tidak punya companion, jadi tidak ada unit lain yang ikut.
@@ -239,6 +248,10 @@ Companion duluan karena unit shell-nya sendiri **tidak** bergantung padanya:
 systemd akan dengan senang hati menjalankan DMS tanpa `dcal`, dan hasilnya shell
 yang tampak jalan tapi widget kalendernya salah — jenis kerusakan yang tidak
 seorang pun sadari sampai nanti.
+
+Untuk shell yang `unit_enabled_by_image`, `start` lebih dulu membalikkan apa yang
+`stop` lakukan: `systemctl --user unmask` lalu `enable`, baru `start`. Itu yang
+membuat kembali ke DMS persis kebalikan dari meninggalkannya.
 
 ### 3g. Verify
 

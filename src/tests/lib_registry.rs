@@ -94,17 +94,17 @@ fn each_compositor_lists_the_shells_it_really_supports() {
         ["noctalia", "dms", "caelestia", "ambxst"]
     );
 
-    // Niri's two: DMS from its base image and Noctalia from the repository.
-    // Caelestia is Hyprland-only upstream and Ambxst has no Niri port, so neither
-    // is here — a shell absent for a compositor is exactly what the per-compositor
-    // registry exists to express.
+    // Niri's three: DMS from its base image and Noctalia and Ambxst from the
+    // repository. Caelestia is Hyprland-only upstream, so it alone is absent — a
+    // shell missing for a compositor is exactly what the per-compositor registry
+    // exists to express.
     let niri = compositor::all()
         .into_iter()
         .find(|c| c.id() == "niri")
         .expect("niri registered");
     assert_eq!(
         niri.shells().iter().map(|s| s.id).collect::<Vec<_>>(),
-        ["dms", "noctalia"]
+        ["dms", "noctalia", "ambxst"]
     );
 }
 
@@ -517,6 +517,54 @@ fn every_file_in_a_skel_reaches_the_machine() {
 }
 
 #[test]
+fn every_toml_in_a_skel_parses() {
+    // A skel is copied to the machine verbatim, so a file that does not parse is
+    // shipped broken: the shell reads it, rejects it, and quietly drops whatever
+    // it was meant to configure. Noctalia's `config.toml` carried a duplicate
+    // `[shell]` table in the Niri skel for exactly this reason — the file reaches
+    // the user either way, and nothing above looked inside it. Parsing every
+    // `.toml` a skel ships makes a redefinition that would cost a setting fail
+    // the suite instead.
+    fn collect(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                collect(&path, out);
+            } else if path.extension().is_some_and(|ext| ext == "toml") {
+                out.push(path);
+            }
+        }
+    }
+
+    for compositor in super::compositor::all() {
+        for shell in compositor.shells() {
+            let skel = crate::apply::skel_for(compositor.id(), shell.id);
+            if !skel.is_dir() {
+                continue;
+            }
+            let mut files = Vec::new();
+            collect(&skel, &mut files);
+            for path in files {
+                let text = std::fs::read_to_string(&path)
+                    .unwrap_or_else(|e| panic!("reading {}: {e}", path.display()));
+                let rel = path.strip_prefix(&skel).unwrap_or(&path);
+                toml::from_str::<toml::Value>(&text).unwrap_or_else(|e| {
+                    panic!(
+                        "{}/{} ships {} which is not valid TOML: {e}",
+                        compositor.id(),
+                        shell.id,
+                        rel.display()
+                    )
+                });
+            }
+        }
+    }
+}
+
+#[test]
 fn a_mechanism_agrees_with_its_unit_name() {
     // `apply::start` and `apply::verify` branch on the mechanism and then read
     // the unit name, so a shell could claim one and not supply the other. Both
@@ -535,6 +583,34 @@ fn a_mechanism_agrees_with_its_unit_name() {
             );
         }
     }
+}
+
+#[test]
+fn only_a_unit_the_image_enables_is_masked() {
+    // A switch disables and masks the unit it leaves, and unmasks and enables the
+    // unit it returns to, only when `unit_enabled_by_image` says the image starts
+    // that unit on its own. A flag on a shell with no unit would never be read, so
+    // check it never outruns the unit it is about.
+    for compositor in super::compositor::all() {
+        for shell in compositor.shells() {
+            if shell.unit_enabled_by_image {
+                assert!(
+                    shell.mechanism.uses_systemd_unit(),
+                    "{}/{} sets unit_enabled_by_image with no systemd unit, so the \
+                     flag would never be seen",
+                    compositor.id(),
+                    shell.id
+                );
+            }
+        }
+    }
+
+    // The one port that sets it: the Niri image runs `systemctl --global enable
+    // dms`, so DMS autostarts at login there and a switch has to mask it. Pinned
+    // both ways so a port quietly gaining or losing the mask is a test failure
+    // rather than a login that ends up with two shells running.
+    assert!(super::compositor::niri::shells::dms::SHELL.unit_enabled_by_image);
+    assert!(!super::compositor::hyprland::shells::dms::SHELL.unit_enabled_by_image);
 }
 
 #[test]
@@ -953,6 +1029,10 @@ fn ambxst_is_a_first_class_shell() {
         crate::apply::skel_for("hyprland", "ambxst").is_dir(),
         "ambxst ships a skel, or a switch to it could not complete; removing it \
          would leave an installable card with nothing to install"
+    );
+    assert!(
+        crate::apply::skel_for("niri", "ambxst").is_dir(),
+        "ambxst ships a niri skel, or a switch to it could not complete"
     );
     assert!(
         ambxst.config_dir.is_some(),

@@ -31,6 +31,7 @@ static GHOST: Shell = Shell {
     backup_extra_paths: &[],
     systemd_user_unit: None,
     mechanism: StartMechanism::DirectProcess,
+    unit_enabled_by_image: false,
     logo: None,
 };
 

@@ -46,6 +46,7 @@ static INSTALLED_IDLE: Shell = Shell {
     polkit_agent: &[],
     backup_extra_paths: &[],
     mechanism: StartMechanism::DirectProcess,
+    unit_enabled_by_image: false,
     logo: None,
 };
 
@@ -72,6 +73,7 @@ static NOT_INSTALLED: Shell = Shell {
     polkit_agent: &[],
     backup_extra_paths: &[],
     mechanism: StartMechanism::DirectProcess,
+    unit_enabled_by_image: false,
     logo: None,
 };
 
@@ -98,6 +100,7 @@ static ALREADY_RUNNING: Shell = Shell {
     polkit_agent: &[],
     backup_extra_paths: &[],
     mechanism: StartMechanism::DirectProcess,
+    unit_enabled_by_image: false,
     logo: None,
 };
 
@@ -331,11 +334,16 @@ fn every_refusal_is_distinct_from_a_confirmation() {
 }
 
 #[test]
-fn the_real_environment_detects_hyprland() {
-    // Guards against detection silently breaking on the actual session.
+fn the_real_environment_detects_a_registered_compositor() {
+    // Guards against detection silently breaking on the actual session. The
+    // session can be either compositor now, so this checks the result is one
+    // the picker knows rather than naming a particular one.
     let detection = crate::compositor::detect_with(&SystemEnv);
     if let Some(current) = detection.current {
-        assert_eq!(current, "hyprland");
+        assert!(
+            crate::compositor::all().iter().any(|c| c.id() == current),
+            "detected {current:?}, which is not a registered compositor"
+        );
     }
 }
 

@@ -103,7 +103,14 @@ pub const IDENTITY: Identity = Identity {
         // The fonts were installed for this shell's look, so they go with it;
         // `mate-polkit` is the agent its `execs.lua` starts. The switch's guard
         // keeps whichever of them the target shell still declares.
-        stages: &[&["caelestia-shell", "quickshell-git", "mate-polkit", "google-rubik-fonts", "cascadia-code-nf-fonts", "material-symbols-fonts",]],
+        stages: &[&[
+            "caelestia-shell",
+            "quickshell-git",
+            "mate-polkit",
+            "google-rubik-fonts",
+            "cascadia-code-nf-fonts",
+            "material-symbols-fonts",
+        ]],
         program: "pkexec",
         args: &["rum", "remove", "-y"],
     }),

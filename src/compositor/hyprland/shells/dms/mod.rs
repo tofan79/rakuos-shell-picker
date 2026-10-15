@@ -40,6 +40,10 @@ const PORT: Port = Port {
     state_dir: Some(".local/state/DankMaterialShell"),
     systemd_user_unit: Some("dms"),
     mechanism: StartMechanism::SystemdUserUnit,
+    // The Hyprland image ships `dms.service` but enables nothing globally, so the
+    // unit never comes up on its own here; the compositor's own autostart is what
+    // runs DMS at login. Only Niri sets this.
+    unit_enabled_by_image: false,
     skel_extra_paths: &[
         ".config/gtk-3.0/gtk.css",
         ".config/gtk-3.0/settings.ini",
