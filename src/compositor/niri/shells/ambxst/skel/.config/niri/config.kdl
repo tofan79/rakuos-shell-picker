@@ -1,5 +1,37 @@
-// Ambxst
+// This config is in the KDL format: https://kdl.dev
+// "/-" comments out the following node.
+// Check the wiki for a full description of the configuration:
+// https://niri-wm.github.io/niri/Configuration%3A-Introduction.html
+include "/usr/share/niri/global.kdl"
 include "~/.local/share/ambxst/niri.kdl"
+include optional=true "windowrules.kdl"
+include optional=true "touchscreen.kdl"
+include optional=true "workspaces.kdl"
+include optional=true "user.kdl"
 
-// OVERRIDES
-// Down here you can write or include anything that you want to override from Ambxst's settings.
+environment {
+    TERMINAL "ghostty"
+}
+
+prefer-no-csd
+screenshot-path "~/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+input {
+    focus-follows-mouse
+    warp-mouse-to-focus
+}
+
+switch-events {
+    lid-close { spawn "systemctl suspend"; }
+}
+
+recent-windows {
+    highlight {
+        padding 20
+        corner-radius 20
+    }
+    previews {
+        max-height 450
+        max-scale 0.5
+    }
+}
