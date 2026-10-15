@@ -50,6 +50,7 @@ src/compositor/             satu folder per compositor
       mod.rs                urutan kartu
       dms/mod.rs + skel/
       noctalia/mod.rs + skel/
+      ambxst/mod.rs + skel/
   fake.rs                   compositor kedua untuk test, hanya di build test
 
 src/shell.rs                tipe Identity + Port + Shell + InstallPlan +
@@ -203,7 +204,7 @@ Ulangi folder itu untuk setiap compositor lain yang menawarkannya.
 `<compositor>/shells/nama_baru/mod.rs` akan berbeda di `mechanism` atau
 `systemd_user_unit` kalau memang begitu, dan identik kalau memang sama.
 
-Tujuh field yang sering tertukar:
+Delapan field yang sering tertukar:
 
 - `skel_extra_paths` — file yang switch **timpa**. Tambah di sini berarti
   menimpa file milik user, jadi harus ada di `backup_extra_paths` atau
@@ -267,6 +268,17 @@ Benturan dua aturan ini di dua arah yang berbeda adalah disengaja:
   itulah yang membuat arah DMS → Noctalia justru menghapus `quickshell-git`.
   Salah isi hanya bisa berakibat paket **ditahan**, bukan shell rusak, jadi
   arah yang aman untuk salah adalah mendeklarasikannya.
+- `autostart_systemd_user_units` dan `polkit_agent` — dua deklarasi yang membuat
+  shell dibawa masuk dan keluar dengan utuh. Yang pertama: unit systemd yang
+  **ikut hidup/mati bersama shell**, dengan transisi yang sama seperti unit
+  shell-nya sendiri — keluar: `stop` + `disable` + `mask`; masuk: `unmask` +
+  `enable` + `start`. DMS mendeklarasikan `dsearch`, unit dari paket
+  `danksearch`; jangan tertukar dengan `companion_systemd_user_units`, yang
+  hanya di-stop/start dan tidak pernah di-disable/mask karena tidak ada yang
+  meng-enable-nya. Yang kedua: argv agen polkit yang harus dijalankan switch
+  **sebelum** tahap `pkexec rum remove` — Caelestia dan Ambxst menjawab polkit
+  lewat `/usr/libexec/polkit-mate-authentication-agent-1`, DMS dan Noctalia
+  menjawab polkit sendiri dan kosong di sini.
 
 Lihat [SWITCH-FLOW.md](SWITCH-FLOW.md) untuk urutan lengkap kedua arah beserta
 daftar file yang masing-masing langkah sentuh.
@@ -312,7 +324,8 @@ bahwa config compositor-nya belum ada — jujur soal penyebab, tapi membuat pick
 tampak rusak. Sekarang `a_skel_is_missing_only_where_the_shell_cannot_be_installed`
 menangkapnya: mendaftarkan compositor yang punya skel kosong adalah test yang
 gagal, bukan tab berisi penolakan. Niri terdaftar kembali setelah skel-nya ada —
-`shells/dms/` dan `shells/noctalia/` masing-masing membawa `skel/`.
+`shells/dms/`, `shells/noctalia/` dan `shells/ambxst/` masing-masing membawa
+`skel/`.
 
 ## Konvensi nama
 

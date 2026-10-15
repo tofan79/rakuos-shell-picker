@@ -10,7 +10,7 @@ Status: **selesai** = jalan & teruji · **sebagian** = UI ada, fungsional belum 
 | A1 | Binary `rakuos-shell-picker`, app ID `org.rakuos.ShellPicker` | selesai |
 | A2 | Satu crate (`lib` + `bin`) dengan modul per compositor | selesai |
 | A3 | Struktur modular, `ui/` terisolasi dari backend | selesai |
-| A4 | 201 unit test (registry, logo, urutan, state, guard, dialog, logging) | selesai |
+| A4 | 206 unit test (registry, logo, urutan, state, guard, dialog, logging) | selesai |
 | A5 | Clippy bersih, `cargo test` hijau | selesai |
 
 ## B. Tampilan
@@ -19,7 +19,7 @@ Status: **selesai** = jalan & teruji · **sebagian** = UI ada, fungsional belum 
 |---|---|---|
 | B1 | Window persegi 806×806, float, rule Hyprland | selesai |
 | B2 | Tema gelap, panel semi-transparan, outline 1px | selesai |
-| B3 | Tab compositor dari registry, tab awal = compositor yang jalan | selesai (hyprland saja) |
+| B3 | Tab compositor dari registry, tab awal = compositor yang jalan | selesai (Hyprland + Niri) |
 | B4 | Grid 4 kolom, lebar kartu dipatok 150px | selesai |
 | B5 | Grid scroll vertikal, lebar terkunci (aman 20+ shell) | selesai |
 | B6 | Logo SVG langsung via GdkTexture, tanpa PNG | selesai |
@@ -29,7 +29,7 @@ Status: **selesai** = jalan & teruji · **sebagian** = UI ada, fungsional belum 
 | B14 | Label aksi berbunyi "switch", bukan "install" | selesai |
 | B15 | Panel log hanya tampil saat ada operasi, hidden saat idle | selesai |
 | B16 | Panel log gagal tetap tampil sampai ditutup | selesai (badge di card belum) |
-| B17 | Halaman compositor yang tidak sedang jalan menampilkan banner + penolakan saat diklik | selesai (logikanya ada; tidak ada tab kedua untuk saat ini) |
+| B17 | Halaman compositor yang tidak sedang jalan menampilkan banner + penolakan saat diklik | selesai (tab Niri kini nyata; halaman non-aktif tetap menolak) |
 | B9 | Placeholder "Coming soon" untuk compositor tanpa shell | selesai |
 | B10 | Kartu `unavailable` untuk shell yang belum terpasang | selesai |
 | B11 | Dialog konfirmasi Yes/No sebelum apply | selesai |
@@ -45,7 +45,7 @@ Status: **selesai** = jalan & teruji · **sebagian** = UI ada, fungsional belum 
 | C3 | Proses sedang jalan (scan `/proc/*/comm`) | selesai |
 | C4 | Status `running` / `switch` / `not installed` di kartu | selesai |
 | C5 | Health probe per shell (socket/API) | belum |
-| C6 | Deteksi compositor aktif dari envvar (`HYPRLAND_INSTANCE_SIGNATURE`) | selesai |
+| C6 | Deteksi compositor aktif dari envvar (`HYPRLAND_INSTANCE_SIGNATURE`, `NIRI_SOCKET`) | selesai |
 | C7 | Deteksi sesi Wayland (`WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`) | selesai |
 | C8 | Fallback deteksi lewat `/proc/*/exe` | selesai |
 | C9 | Tolak semua aksi kalau compositor tidak terdeteksi | selesai |
@@ -79,11 +79,12 @@ Inti dari proyek. `switch::prepare` (langkah 1–3) dan `apply::apply_with`
 | E8 | Stop shell lama dengan rapi (bukan `kill -9`) | selesai — SIGTERM, tunggu, batas waktu, `kill -KILL` hanya upaya terakhir |
 | E9 | Start shell baru dengan mekanisme yang benar | selesai — `StartMechanism`, dibaca lagi oleh `verify` |
 | E10 | Deteksi shell yang jalan tanpa lewat daftar kita | selesai — `process_running` lewat `/proc` |
-| E11 | Registry shell untuk compositor kedua | selesai — Niri terdaftar dengan port DMS + Noctalia (`src/compositor/niri/shells/`) |
+| E11 | Registry shell untuk compositor kedua | selesai — Niri terdaftar dengan port DMS + Noctalia + Ambxst (`src/compositor/niri/shells/`) |
 | E12 | Cek environment sebelum switch (display, Wayland) | selesai — deteksi menolak kalau tidak ada sesi Wayland, `prepare` langkah 2 menolak target yang tidak bisa jalan |
 | E13 | Guard di backend | selesai — `Refusal::Compositor` di `switch::prepare` langkah 1, arahnya sama dengan guard UI |
 | E14 | Bersih setelah switch: `.pre-*`, config dan state shell keluar | selesai — `apply::clean`, hanya yang direproduksi backup byte untuk byte |
 | E15 | Hapus paket shell yang ditinggalkan | selesai — `switch::uninstall` + `Identity::uninstall_plan`; paket base image tidak pernah dikirim ke package manager, runtime bersama tidak pernah disentuh |
+| E16 | Unit systemd daemon shell mengikuti hidup/matinya | selesai — `Identity::autostart_systemd_user_units`; keluar: `stop`+`disable`+`mask`, masuk: `unmask`+`enable`+`start`; DMS mendeklarasikan `dsearch`, perlakuannya sama di kedua compositor |
 
 ## G. Logging
 
@@ -124,9 +125,9 @@ Urutan pengerjaan:
    [SAFETY.md](SAFETY.md).
 5. **Switch end-to-end.** Stop → start → verifikasi → tulis state. Uji dengan
    DMS karena itu satu-satunya yang terpasang di mesin ini.
-6. **Compositor kedua.** *(selesai)* Niri terdaftar dengan skel untuk DMS dan
-   Noctalia. Urutannya tetap: skel dulu, baru registrasi. Jangan mendaftarkan
-   compositor yang skel-nya kosong —
+6. **Compositor kedua.** *(selesai)* Niri terdaftar dengan skel untuk DMS,
+   Noctalia, dan Ambxst. Urutannya tetap: skel dulu, baru registrasi. Jangan
+   mendaftarkan compositor yang skel-nya kosong —
    `a_skel_is_missing_only_where_the_shell_cannot_be_installed` akan gagal.
 
 ## Syarat "selesai" per fitur

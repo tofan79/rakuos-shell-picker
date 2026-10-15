@@ -15,7 +15,7 @@ Shell yang tersedia berbeda per compositor:
 | Compositor | Shell |
 |---|---|
 | Hyprland | Noctalia, DMS, Caelestia, Ambxst |
-| Niri | DMS, Noctalia |
+| Niri | DMS, Noctalia, Ambxst |
 
 ## Status
 
@@ -45,10 +45,11 @@ src/app.rs       aplikasi GTK & window
 src/ui/          widget, satu file per bagian
 src/compositor/  satu folder per compositor
   hyprland/shells/   satu folder per shell, isinya skel/ dan Port-nya
-  niri/shells/       satu folder per shell (dms, noctalia), isinya skel/ dan Port-nya
+  niri/shells/       satu folder per shell (dms, noctalia, ambxst), isinya skel/ dan Port-nya
 src/shell.rs     tipe Shell & cara memeriksa satu shell
 src/session.rs   state active/previous
-assets/          logo SVG
+assets/          logo SVG shell
+data/            ikon aplikasi & desktop entry
 docs/            spesifikasi & rencana
 ```
 

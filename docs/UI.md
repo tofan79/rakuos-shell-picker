@@ -22,7 +22,7 @@ Vertikal, dari atas:
 ```
 +--------------------------------------------------+
 |                                                  |
-|              hyprland                           |   tabbar
+|              hyprland       Niri                 |   tabbar
 |                                                  |
 |     +-------+  +-------+  +-------+  +------+   |
 |     | logo | | | logo | | | logo | | | logo |   |   grid 4 kolom
@@ -167,7 +167,7 @@ membandingkan isinya.
 | Noctalia | ya | ya | di base image Hyprland; dipasang di Niri |
 | DankMaterialShell (DMS) | ya | ya | diinstal dari repository (multi-stage) |
 | Caelestia Shell | ya | — | diinstal dari repository (quickshell + paket) |
-| Ambxst | ya | — | diinstal dari repository (quickshell + paket + companion) |
+| Ambxst | ya | ya | diinstal dari repository (quickshell + paket + companion) |
 
 Ambxst ada di repository `rakuos`, jadi ia punya paket, install plan, uninstall
 plan, dan `skel/` sendiri (lokasi config-nya `.config/ambxst`). Karena punya
@@ -181,8 +181,8 @@ clipboard, `.local/share/ambxst-notes` untuk catatan) ikut tersimpan lewat
 Aturan yang lebih umum: **skel boleh absen hanya di tempat shell tidak bisa
 diinstal** — diuji
 `a_skel_is_missing_only_where_the_shell_cannot_be_installed`. Niri karena itu
-hanya mendaftarkan shell yang skel-nya sudah ada (DMS dan Noctalia); Caelestia
-dan Ambxst belum punya port Niri, jadi tidak didaftarkan.
+mendaftarkan shell yang skel-nya sudah ada (DMS, Noctalia, dan Ambxst);
+Caelestia belum punya port Niri, jadi tidak didaftarkan.
 
 ## Panel log
 
