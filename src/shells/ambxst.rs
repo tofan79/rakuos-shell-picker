@@ -151,8 +151,9 @@ pub const IDENTITY: Identity = Identity {
     // shells that use them keeps them, while a switch to a shell that needs none
     // (Noctalia) takes them away.
     runtime_packages: &["quickshell", "quickshell-git", "matugen", "mate-polkit"],
-    // Ambxst starts this from `config/autostart.lua`; a live switch has to start
-    // it itself. See `Identity::polkit_agent`.
+    // Each compositor's skel starts this — from `config/autostart.lua` on
+    // Hyprland, from `spawn-at-startup` in the Niri skel's `config.kdl` — and a
+    // live switch has to start it itself. See `Identity::polkit_agent`.
     polkit_agent: &["/usr/libexec/polkit-mate-authentication-agent-1"],
     logo: Some("ambxst-logo-color.svg"),
 };

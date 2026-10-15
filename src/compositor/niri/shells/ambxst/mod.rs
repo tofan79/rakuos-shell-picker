@@ -38,7 +38,11 @@
 //! because it is the compositor's `config_dir` and where the shell is started
 //! from. The Qt `color_scheme_path` is in the skel because Ambxst renders only
 //! the palette (`qt5ct/colors/ambxst.colors` and its qt6ct twin) and never the
-//! pointer to it.
+//! pointer to it. The skel's `config.kdl` also starts the mate-polkit agent
+//! from `spawn-at-startup`: Ambxst answers polkit through it (see
+//! [`crate::shell::Identity::polkit_agent`]), a live switch starts it, and
+//! Ambxst's own regenerated `niri.kdl` launches only the shell, so nothing else
+//! would bring one up at login.
 
 use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::ambxst::IDENTITY;

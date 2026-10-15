@@ -1,7 +1,3 @@
-Polkit
-spawn-at-startup "/usr/libexec/polkit-mate-authentication-agent-1"
-
-
 // This config is in the KDL format: https://kdl.dev
 // "/-" comments out the following node.
 // Check the wiki for a full description of the configuration:
@@ -12,6 +8,11 @@ include optional=true "windowrules.kdl"
 include optional=true "touchscreen.kdl"
 include optional=true "workspaces.kdl"
 include optional=true "user.kdl"
+
+// The mate-polkit agent: Ambxst's `pkexec` asks are answered through it, and
+// nothing else here starts one — the shell's own regenerated niri.kdl launches
+// only `ambxst` itself. A live switch starts the agent on its own.
+spawn-at-startup "/usr/libexec/polkit-mate-authentication-agent-1"
 
 environment {
     TERMINAL "ghostty"
