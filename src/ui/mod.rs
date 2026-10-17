@@ -96,6 +96,18 @@ impl Selection {
         });
     }
 
+    /// Lock or unlock every card while a switch runs.
+    ///
+    /// `Busy` already refuses a second switch, but only after the user has been
+    /// walked through a confirmation for it. Dimming the cards up front says
+    /// "wait" before the click instead of after it. The card being switched to
+    /// keeps its mark and stays lit (see `.card:disabled:checked`).
+    fn set_locked(&self, locked: bool) {
+        for item in self.items.iter() {
+            item.button.set_sensitive(!locked);
+        }
+    }
+
     /// Undo any pending selection. Used when a click ends in a refusal or a
     /// cancel: a card left selected suggests a switch is waiting to happen.
     fn clear_highlight(&mut self) {
@@ -261,6 +273,7 @@ fn begin(
             .failed("a switch is already running; wait for it to finish");
         return;
     }
+    shared.borrow().set_locked(true);
 
     let (tx, rx) = std::sync::mpsc::channel::<Line>();
     let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
@@ -367,6 +380,7 @@ fn drain(shared: &Shared, rx: &Receiver<Line>) -> gtk4::glib::ControlFlow {
     }
     if finished {
         selection.busy.release();
+        selection.set_locked(false);
         gtk4::glib::ControlFlow::Break
     } else {
         gtk4::glib::ControlFlow::Continue

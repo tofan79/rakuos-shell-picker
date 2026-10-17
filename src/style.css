@@ -61,6 +61,16 @@ window.picker {
   background-color: alpha(#89b4fa, 0.16);
 }
 
+/* A switch is running: every card is locked. The one being switched to keeps
+   its mark and stays lit, so it is clear which switch everyone is waiting on. */
+.card:disabled {
+  opacity: 0.45;
+}
+
+.card:disabled:checked {
+  opacity: 1;
+}
+
 .card.unavailable {
   opacity: 0.5;
 }
