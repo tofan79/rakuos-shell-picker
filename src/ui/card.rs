@@ -11,9 +11,9 @@ use crate::compositor::Compositor;
 use crate::shell::Shell;
 use crate::ui::{logo, Shared};
 
-/// Card width is pinned here (not CSS) so 4 columns always fit the 806px window
-/// no matter how many shells get registered.
-pub const CARD_WIDTH: i32 = 150;
+/// Card width is pinned here (not CSS) so every column is the same width and the
+/// flow in `grid.rs` can wrap on a clean boundary at any window size.
+pub const CARD_WIDTH: i32 = 160;
 
 pub fn build(
     shell: &'static Shell,
@@ -22,6 +22,8 @@ pub fn build(
 ) -> ToggleButton {
     let btn = ToggleButton::new();
     btn.set_size_request(CARD_WIDTH, -1);
+    // Centred in its slot: the slot grows with the window, the card does not.
+    btn.set_halign(Align::Center);
     btn.add_css_class("card");
 
     let status = shell.status_label();
@@ -39,6 +41,7 @@ pub fn build(
     name.add_css_class("card-label");
     name.set_halign(Align::Center);
     // Bounds the label so a long name can never widen its column.
+    name.set_width_chars(12);
     name.set_max_width_chars(12);
     name.set_ellipsize(pango::EllipsizeMode::End);
 

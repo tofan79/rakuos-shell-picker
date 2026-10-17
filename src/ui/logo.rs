@@ -28,6 +28,12 @@ pub fn frame(child: &gtk4::Widget) -> GtkBox {
     frame.set_valign(Align::Center);
     frame.set_size_request(LOGO_BOX, LOGO_BOX);
     frame.add_css_class("logo-frame");
+    // A horizontal box packs its children from the start, so `halign(Center)` on
+    // the child alone does nothing sideways: it is centred inside a slot exactly
+    // as wide as itself. Letting the child expand makes the slot as wide as the
+    // box, and the alignment then centres the logo in it.
+    child.set_hexpand(true);
+    child.set_vexpand(true);
     frame.append(child);
     frame
 }

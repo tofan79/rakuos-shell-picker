@@ -1,7 +1,10 @@
 //! The shell grid for one compositor, and the placeholder for an empty one.
 //!
-//! Fixed grid geometry. Rows grow without bound, so the grid scrolls instead of
-//! the window growing: adding shells later stays safe well past 20 entries.
+//! A wrapping flow of cards, at most [`MAX_PER_ROW`] to a row. The window is
+//! free-sized (a tiling compositor decides it), so the number of columns follows
+//! the width instead of being fixed: wide window, one row of up to five; narrow
+//! window, the cards wrap. Whatever still does not fit scrolls, vertically or
+//! horizontally, so the window never has to grow and nothing is clipped.
 
 use gtk4::prelude::*;
 use gtk4::{Align, Box as GtkBox, Button, Label, Orientation};
@@ -9,9 +12,15 @@ use gtk4::{Align, Box as GtkBox, Button, Label, Orientation};
 use crate::compositor::Compositor;
 use crate::ui::{card, logo, Shared};
 
-const COLUMNS: i32 = 4;
-const COLUMN_SPACING: u32 = 34;
-const ROW_SPACING: u32 = 46;
+/// Most cards in one row; fewer when the window is narrower.
+const MAX_PER_ROW: u32 = 5;
+const COLUMN_SPACING: u32 = 20;
+const ROW_SPACING: u32 = 28;
+/// Widest the card area gets. Past this the cards stay together in the middle
+/// instead of drifting apart on a very wide window.
+const MAX_WIDTH: i32 = 960;
+/// Breathing room between the cards and the window edge.
+const SIDE_MARGIN: i32 = 24;
 /// Width used by the "coming soon" placeholder, which spans the grid.
 const CARD_WIDE: i32 = 320;
 
@@ -27,7 +36,8 @@ pub fn build(compositor: &'static dyn Compositor, shared: &Shared) -> gtk4::Scro
     }
 
     let column = GtkBox::new(Orientation::Vertical, 0);
-    column.set_halign(Align::Center);
+    column.set_halign(Align::Fill);
+    column.set_hexpand(true);
     column.set_valign(Align::Start);
     column.set_spacing(14);
     column.set_margin_top(14);
@@ -37,20 +47,31 @@ pub fn build(compositor: &'static dyn Compositor, shared: &Shared) -> gtk4::Scro
         column.append(&banner(reason));
     }
 
-    let grid = gtk4::Grid::new();
-    grid.set_column_spacing(COLUMN_SPACING);
-    grid.set_row_spacing(ROW_SPACING);
+    let flow = gtk4::FlowBox::new();
+    flow.set_selection_mode(gtk4::SelectionMode::None);
+    flow.set_homogeneous(true);
+    flow.set_min_children_per_line(1);
+    // Never more columns than there are cards: a homogeneous FlowBox spreads its
+    // slots over the full width, so four cards in five slots would leave a gap
+    // on the right instead of sitting centred.
+    flow.set_max_children_per_line((shells.len() as u32).clamp(1, MAX_PER_ROW));
+    flow.set_column_spacing(COLUMN_SPACING);
+    flow.set_row_spacing(ROW_SPACING);
+    flow.set_halign(Align::Fill);
+    flow.set_hexpand(true);
+    flow.set_valign(Align::Start);
+    flow.set_margin_start(SIDE_MARGIN);
+    flow.set_margin_end(SIDE_MARGIN);
 
-    for (i, shell) in shells.iter().enumerate() {
-        grid.attach(
-            &card::build(shell, compositor, shared),
-            (i as i32) % COLUMNS,
-            (i as i32) / COLUMNS,
-            1,
-            1,
-        );
+    for shell in shells.iter() {
+        flow.insert(&card::build(shell, compositor, shared), -1);
     }
-    column.append(&grid);
+    let clamp = libadwaita::Clamp::builder()
+        .maximum_size(MAX_WIDTH)
+        .tightening_threshold(MAX_WIDTH)
+        .child(&flow)
+        .build();
+    column.append(&clamp);
 
     scroller(column.upcast())
 }
@@ -139,9 +160,9 @@ fn scroller(child: gtk4::Widget) -> gtk4::ScrolledWindow {
         .child(&child)
         .vexpand(true)
         .build();
-    // Horizontal scroll stays off, so the grid width is pinned no matter how
-    // many shells get registered.
-    scroller.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
+    // Both directions scroll when needed. The flow wraps first, so sideways
+    // scrolling only appears once the window is narrower than a single card.
+    scroller.set_policy(gtk4::PolicyType::Automatic, gtk4::PolicyType::Automatic);
     scroller.set_propagate_natural_width(false);
     scroller.set_propagate_natural_height(false);
     scroller.set_hexpand(true);

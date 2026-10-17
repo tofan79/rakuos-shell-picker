@@ -195,7 +195,8 @@ pub fn refuse_undetected(parent: &ApplicationWindow, reason: &str) {
     alert(
         parent,
         "Blocked",
-        &format!("{reason}."),
+        // Reasons already end in a full stop; adding another printed "..".
+        &format!("{}.", reason.trim_end_matches('.')),
         Some("Nothing was changed."),
     );
 }

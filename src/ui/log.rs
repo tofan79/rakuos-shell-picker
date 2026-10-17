@@ -46,7 +46,8 @@ pub fn panel(log: &TextView) -> Revealer {
         .hexpand(true)
         .vexpand(true)
         .build();
-    scroller.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
+    // Long lines (package lists) scroll sideways instead of being cut off.
+    scroller.set_policy(gtk4::PolicyType::Automatic, gtk4::PolicyType::Automatic);
     scroller.set_propagate_natural_width(false);
     scroller.set_propagate_natural_height(false);
 
@@ -58,6 +59,11 @@ pub fn panel(log: &TextView) -> Revealer {
 
     let revealer = Revealer::new();
     revealer.set_child(Some(&frame));
+    // The log scroller inside is vexpand, and expand propagates upwards, so left
+    // alone this hidden panel still claims its share of the free height and the
+    // card area stops short, leaving a blank band at the bottom. Pin it to its
+    // natural height instead.
+    revealer.set_vexpand(false);
     // Idle means hidden. A panel that is always on screen is a second console,
     // which is what this was before.
     revealer.set_reveal_child(false);

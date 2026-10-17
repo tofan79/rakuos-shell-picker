@@ -7,17 +7,17 @@ Kalau kamu ubah angka, ubah juga file yang disebutnya.
 
 | Properti | Nilai | Sumber |
 |---|---|---|
-| Rasio | 1:1 | square, rule Hyprland |
-| Ukuran | 806×806 | rule di `~/.config/hypr/config/windowrules.lua` |
+| Rasio | bebas | ukuran diatur compositor (Hyprland float / Niri tiling) |
 | Default app | 800×800 | `app.rs` `DEFAULT_SIZE` |
-| Tipe | float, fixed size | rule Hyprland |
+| Isi | menyesuaikan lebar | `FlowBox`, maks 5 kartu per baris, wrap otomatis |
+| Scroll | vertikal + horizontal | muncul hanya bila isi lebih besar dari window |
 
-Window butuh rule karena Hyprland yang menentukan ukuran window. Tanpa rule,
-picker ikut di-tile dan kehilangan rasio persegi.
+Ukuran window ditentukan compositor (float di Hyprland, tiling di Niri), jadi isi
+menyesuaikan lebarnya sendiri dan tidak lagi bergantung pada rule ukuran tetap.
 
 ## Susunan
 
-Vertikal, dari atas:
+Vertikal, dari atas (jumlah kolom mengikuti lebar window, maks 5):
 
 ```
 +--------------------------------------------------+
@@ -48,10 +48,12 @@ Semua nilai ini di-pin di Rust, bukan di CSS.
 
 | Konstanta | Nilai | File | Alasan |
 |---|---|---|---|
-| `COLUMNS` | 4 | `ui/grid.rs` | lebar window cukup |
-| `COLUMN_SPACING` | 34 | `ui/grid.rs` | jarak kolom |
-| `ROW_SPACING` | 46 | `ui/grid.rs` | jarak baris |
-| `CARD_WIDTH` | 150 | `ui/card.rs` | kunci lebar kolom |
+| `MAX_PER_ROW` | 5 | `ui/grid.rs` | batas kartu per baris; kurang bila window sempit |
+| `MAX_WIDTH` | 960 | `ui/grid.rs` | lebar maks area kartu (`Clamp`); lebih dari ini kartu tetap di tengah |
+| `COLUMN_SPACING` | 20 | `ui/grid.rs` | jarak kolom |
+| `ROW_SPACING` | 28 | `ui/grid.rs` | jarak baris |
+| `SIDE_MARGIN` | 24 | `ui/grid.rs` | jarak kartu ke tepi window |
+| `CARD_WIDTH` | 160 | `ui/card.rs` | kunci lebar kolom |
 | `CARD_WIDE` | 320 | `ui/grid.rs` | kartu placeholder |
 | `LOG_HEIGHT` | 100 | `ui/log.rs` | tinggi tetap panel, seperdelapan window 800px |
 | `LOGO_BOX` | 100 | `ui/logo.rs` | kotak logo |
@@ -59,19 +61,20 @@ Semua nilai ini di-pin di Rust, bukan di CSS.
 
 ## Kenapa lebar kartu di Rust
 
-Lebar grid harus terkunci: `4 × 150 + 3 × 34 = 702px`. Kalau lebar kartu
-diatur dari CSS atau dari teks nama, grid akan melebar dan baris bisa
-menjadi tidak sejajar.
+Semua kolom harus sama lebar supaya `FlowBox` wrap di batas yang bersih pada
+ukuran window berapa pun (5 kolom penuh = `5 × 160 + 4 × 20 = 880px`). Kalau lebar
+kartu diatur dari CSS atau dari teks nama, kolom bisa tidak sejajar.
 
 Dua pengaman lain:
 
 - Nama dibatasi `max_width_chars(12)` + ellipsize end. Nama shell yang panjang
   tidak akan menambah lebar kolom.
-- Scroller memakai policy horizontal `Never`, jadi konten yang lebih lebar
-  dipotong, bukan menggulir ke samping.
+- Scroller memakai policy `Automatic` di dua arah. Grid wrap dulu, jadi scroll
+  samping baru muncul bila window lebih sempit dari satu kartu; konten tidak
+  pernah terpotong.
 
-Diverifikasi dengan 4 / 12 / 20 kartu (lebar tetap 702px, tinggi 166 / 566 /
-966px, viewport ~302px, scroll aktif di 12 dan 20).
+Belum diverifikasi ulang setelah pindah ke `FlowBox`; cek manual di window sempit,
+lebar, dan 12+ kartu.
 
 ## Logo
 
@@ -82,6 +85,9 @@ Diverifikasi dengan 4 / 12 / 20 kartu (lebar tetap 702px, tinggi 166 / 566 /
 - `pixel_size(72)` **dan** `size_request(72, 72)` dua-duanya dipasang.
   `pixel_size` hanya menetapkan batas bawah; tanpa `size_request`, image bisa
   dialokasikan sebesar ukuran natural SVG (mis. 256×256) dan meluber.
+  Jangan ganti ke `Picture`: ukuran naturalnya mengikuti SVG (sampai ~500px),
+  dan `FlowBox` homogen memakai ukuran natural terbesar, sehingga grid jatuh
+  ke satu kolom.
 - Kalau SVG gagal dimuat, jatuh ke huruf awal (`N`, `D`, `C`, `A`).
 
 ## Kartu shell
