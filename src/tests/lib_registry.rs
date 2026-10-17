@@ -91,12 +91,13 @@ fn each_compositor_lists_the_shells_it_really_supports() {
         .expect("hyprland registered");
     assert_eq!(
         hyprland.shells().iter().map(|s| s.id).collect::<Vec<_>>(),
-        ["noctalia", "dms", "caelestia", "ambxst"]
+        ["noctalia", "dms", "caelestia", "ambxst", "end4pc"]
     );
 
-    // Niri's three: DMS from its base image and Noctalia and Ambxst from the
-    // repository. Caelestia is Hyprland-only upstream, so it alone is absent — a
-    // shell missing for a compositor is exactly what the per-compositor registry
+    // Niri's four: DMS from its base image, Noctalia and Ambxst from the
+    // repository, and iNiR whose card exists ahead of its backend. Caelestia
+    // and end4-pC are Hyprland shells upstream, so both are absent — a shell
+    // missing for a compositor is exactly what the per-compositor registry
     // exists to express.
     let niri = compositor::all()
         .into_iter()
@@ -104,7 +105,7 @@ fn each_compositor_lists_the_shells_it_really_supports() {
         .expect("niri registered");
     assert_eq!(
         niri.shells().iter().map(|s| s.id).collect::<Vec<_>>(),
-        ["dms", "noctalia", "ambxst"]
+        ["dms", "noctalia", "ambxst", "inir"]
     );
 }
 
@@ -226,9 +227,9 @@ fn a_shell_without_an_install_plan_is_not_removable_either() {
     // A removal only makes sense for a package the picker could have put there.
     // A shell the picker cannot install — one that lives in a base image with no
     // repository entry — must therefore not carry a removal plan either, or the
-    // dialog would offer to take off something no switch ever added. Every
-    // registered shell is packaged today, so this guards the next one that is not
-    // rather than exercising a case that exists.
+    // dialog would offer to take off something no switch ever added. The two
+    // card-only ports, iNiR and end4-pC, are the first shells this checks for
+    // real: both are packaged, and both are planless until their backend lands.
     for compositor in compositor::all() {
         for shell in compositor.shells() {
             if shell.install_plan.is_none() {
@@ -991,9 +992,8 @@ fn a_compositor_with_no_skel_yet_refuses_every_shell_on_it() {
 
 #[test]
 fn a_skel_is_missing_only_where_the_shell_cannot_be_installed() {
-    // Today every registered shell has a skel, so this test has no subject and
-    // only guards the next shell that arrives without one. It stays because the
-    // rule it records is what would have caught Niri — see below — and Ambxst's
+    // The card-only ports — iNiR and end4-pC — arrived without a skel, so this
+    // now runs for real. It exists because of Niri — see below — and Ambxst's
     // skel was added exactly to move it into the covered set.
     //
     // Niri had three ports and no skel at all, and that was not deliberate.
@@ -1002,20 +1002,27 @@ fn a_skel_is_missing_only_where_the_shell_cannot_be_installed() {
     // a bug in the picker rather than a decision about Niri.
     //
     // So the rule is not that every shell has a skel. It is that a missing
-    // skel is only allowed where the shell cannot be installed anyway. This is
-    // what would have caught Niri, and it is the check that has to exist for
-    // the next compositor.
+    // skel is only allowed where a switch cannot reach a refusal *after* the
+    // backup. Two ways to get there: a shell nobody can put on the machine
+    // (no package, no plan), or a card-only port whose `config_dir` is still
+    // undeclared — `switch::prepare` refuses that one in `NoConfig` as its
+    // first check, before `Backup::create` runs. Declaring `config_dir`
+    // without writing the skel would move the refusal behind the backup,
+    // which is the pair this rejects.
     for compositor in compositor::all() {
         for shell in compositor.shells() {
             if crate::apply::skel_for(compositor.id(), shell.id).is_dir() {
                 continue;
             }
+            let refuses_before_a_backup = shell.config_dir.is_none();
+            let cannot_be_installed =
+                shell.package.is_none() && shell.install_plan.is_none();
             assert!(
-                shell.package.is_none() && shell.install_plan.is_none(),
-                "{}/{} has no skel, so a switch to it cannot complete — and it \
-                 is installable, so the dialog will offer it and the user will \
-                 be refused only after their backup was taken. Write the skel, \
-                 or take the shell out of the registry until there is one.",
+                refuses_before_a_backup || cannot_be_installed,
+                "{}/{} has no skel, so a switch to it cannot complete — and \
+                 nothing stops one from reaching the backup first, so the user \
+                 would be refused only after it was taken. Write the skel, or \
+                 take the shell out of the registry until there is one.",
                 compositor.id(),
                 shell.id
             );

@@ -189,7 +189,7 @@ pub struct Identity {
     /// On [`Identity`] rather than [`Port`] because it is a fact about the
     /// shell: the daemons a shell owns and the unit names their packages ship do
     /// not change from compositor to compositor. Empty is the usual answer —
-    /// three of the four registered shells have no daemon of their own.
+    /// five of the six registered shells have no daemon of their own.
     pub autostart_systemd_user_units: &'static [&'static str],
     /// Data paths the shell itself or its companion programs keep, relative to
     /// `$HOME`, that a person would want back.
@@ -219,7 +219,7 @@ pub struct Identity {
     /// the same programs keep the same paths on every compositor.
     ///
     /// Empty is the usual answer: a shell that keeps nothing outside its own
-    /// config and state has nothing to declare, and two of the four registered
+    /// config and state has nothing to declare, and four of the six registered
     /// shells are exactly that.
     pub companion_paths: &'static [&'static str],
     /// Files this shell renders into shared directories while it runs, relative
@@ -246,7 +246,7 @@ pub struct Identity {
     ///
     /// Empty is the usual answer. A shell that keeps itself inside its own
     /// `config_dir` writes nothing into directories shared with anything else,
-    /// and three of the four registered shells are exactly that.
+    /// and two of the six registered shells are exactly that.
     pub generated_paths: &'static [&'static str],
     /// Paths this shell leaves behind that hold **no user data**, relative to
     /// `$HOME`, and are therefore removed without the byte-for-byte check

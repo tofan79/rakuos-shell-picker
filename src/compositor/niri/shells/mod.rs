@@ -4,10 +4,11 @@
 //! only what is specific to Niri, with everything true of the shell anywhere left
 //! in `crate::shells`. No folder imports another.
 //!
-//! Niri's three are the ones the `rakuos-niri` image knows: DMS in the base
-//! image, and Noctalia and Ambxst installed from the same repository the other
-//! shells come from. Caelestia is absent because it is Hyprland-only upstream —
-//! only third-party forks exist. A card existing on one compositor and not
+//! Niri's four are the ones the `rakuos-niri` image knows: DMS in the base
+//! image, Noctalia and Ambxst installed from the same repository the other
+//! shells come from, and iNiR — a first-party Niri shell whose card exists
+//! ahead of its backend. Caelestia and end4-pC are absent because both are
+//! Hyprland shells upstream. A card existing on one compositor and not
 //! another is the reason these registries are per compositor rather than one
 //! shared list.
 //!
@@ -17,10 +18,11 @@
 
 pub mod ambxst;
 pub mod dms;
+pub mod inir;
 pub mod noctalia;
 
 use crate::shell::Shell;
 
 /// Card order in the grid. DMS is first because it is the shell the image ships
-/// running.
-pub static ALL: &[Shell] = &[dms::SHELL, noctalia::SHELL, ambxst::SHELL];
+/// running; iNiR last because its port is a card first.
+pub static ALL: &[Shell] = &[dms::SHELL, noctalia::SHELL, ambxst::SHELL, inir::SHELL];

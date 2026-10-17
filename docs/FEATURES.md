@@ -79,12 +79,13 @@ Inti dari proyek. `switch::prepare` (langkah 1–3) dan `apply::apply_with`
 | E8 | Stop shell lama dengan rapi (bukan `kill -9`) | selesai — SIGTERM, tunggu, batas waktu, `kill -KILL` hanya upaya terakhir |
 | E9 | Start shell baru dengan mekanisme yang benar | selesai — `StartMechanism`, dibaca lagi oleh `verify` |
 | E10 | Deteksi shell yang jalan tanpa lewat daftar kita | selesai — `process_running` lewat `/proc` |
-| E11 | Registry shell untuk compositor kedua | selesai — Niri terdaftar dengan port DMS + Noctalia + Ambxst (`src/compositor/niri/shells/`) |
+| E11 | Registry shell untuk compositor kedua | selesai — Niri terdaftar dengan port DMS + Noctalia + Ambxst + iNiR (`src/compositor/niri/shells/`) |
 | E12 | Cek environment sebelum switch (display, Wayland) | selesai — deteksi menolak kalau tidak ada sesi Wayland, `prepare` langkah 2 menolak target yang tidak bisa jalan |
 | E13 | Guard di backend | selesai — `Refusal::Compositor` di `switch::prepare` langkah 1, arahnya sama dengan guard UI |
 | E14 | Bersih setelah switch: `.pre-*`, config dan state shell keluar | selesai — `apply::clean`, hanya yang direproduksi backup byte untuk byte |
 | E15 | Hapus paket shell yang ditinggalkan | selesai — `switch::uninstall` + `Identity::uninstall_plan`; paket base image tidak pernah dikirim ke package manager, runtime bersama tidak pernah disentuh |
 | E16 | Unit systemd daemon shell mengikuti hidup/matinya | selesai — `Identity::autostart_systemd_user_units`; keluar: `stop`+`disable`+`mask`, masuk: `unmask`+`enable`+`start`; DMS mendeklarasikan `dsearch`, perlakuannya sama di kedua compositor |
+| E17 | Kartu iNiR (Niri) + end4-pC (Hyprland) | sebagian — kartu, logo, dan status terdaftar; install/uninstall plan, config_dir, skel, dan pola probe iNiR menyusul |
 
 ## G. Logging
 

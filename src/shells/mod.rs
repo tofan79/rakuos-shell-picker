@@ -24,6 +24,8 @@
 pub mod ambxst;
 pub mod caelestia;
 pub mod dms;
+pub mod end4pc;
+pub mod inir;
 pub mod noctalia;
 
 /// Every shell this program knows about, whatever compositor it belongs to.
@@ -41,5 +43,7 @@ pub fn every() -> Vec<crate::shell::Identity> {
         dms::IDENTITY,
         caelestia::IDENTITY,
         ambxst::IDENTITY,
+        inir::IDENTITY,
+        end4pc::IDENTITY,
     ]
 }

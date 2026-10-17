@@ -24,6 +24,8 @@ src/shells/                 satu file per shell — apa shell itu, di compositor
   dms.rs
   caelestia.rs
   ambxst.rs
+  end4pc.rs                 IDENTITY kartu: paket, logo, probe; backend menyusul
+  inir.rs
 
 src/compositor/             satu folder per compositor
   mod.rs                    trait Compositor + registry tab
@@ -44,6 +46,7 @@ src/compositor/             satu folder per compositor
         mod.rs              PORT: config `.config/ambxst`, state `.local/state/ambxst`
         skel/               config Hyprland, qt6ct, data .local/share/ambxst,
                             launcher (Noctalia, NoDisplay)
+      end4pc/mod.rs         PORT: kartu dulu — config, skel, plan menyusul
   niri/
     mod.rs                  alat khusus Niri (niri msg action load-config-file/quit -s)
     shells/                 satu folder per shell — shell itu DI NIRI
@@ -51,6 +54,7 @@ src/compositor/             satu folder per compositor
       dms/mod.rs + skel/
       noctalia/mod.rs + skel/
       ambxst/mod.rs + skel/
+      inir/mod.rs           PORT: kartu dulu — unit systemd `inir` sudah; config, skel menyusul
   fake.rs                   compositor kedua untuk test, hanya di build test
 
 src/shell.rs                tipe Identity + Port + Shell + InstallPlan +
