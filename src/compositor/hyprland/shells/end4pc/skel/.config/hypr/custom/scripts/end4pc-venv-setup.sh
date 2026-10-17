@@ -3,8 +3,10 @@
 #
 # Skrip warna dan thumbnail ii menjalankan Python lewat
 # $ILLOGICAL_IMPULSE_VIRTUAL_ENV (diatur di hyprland/env.lua). Venv dibuat di
-# sini sekali lalu dibiarkan hidup lintas switch: idempoten, dan aman
-# dipanggil pada setiap login — login setelah yang pertama hanya keluar.
+# sini; ia tinggal selama end4-pC terpasang dan dihapus (discard, tanpa backup)
+# saat pindah keluar — bootstrap inilah yang membuatnya lagi pada instalasi
+# berikutnya. Idempoten: aman dipanggil pada setiap login — login setelah yang
+# pertama hanya keluar.
 #
 # Tanpa venv shell tetap tampil; hanya fitur warna/thumbnail yang redup.
 # Semua keluhan masuk ke $LOG supaya tidak menghilang tanpa jejak.

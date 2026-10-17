@@ -85,7 +85,7 @@ Inti dari proyek. `switch::prepare` (langkah 1–3) dan `apply::apply_with`
 | E14 | Bersih setelah switch: `.pre-*`, config dan state shell keluar | selesai — `apply::clean`, hanya yang direproduksi backup byte untuk byte |
 | E15 | Hapus paket shell yang ditinggalkan | selesai — `switch::uninstall` + `Identity::uninstall_plan`; paket base image tidak pernah dikirim ke package manager, runtime bersama tidak pernah disentuh |
 | E16 | Unit systemd daemon shell mengikuti hidup/matinya | selesai — `Identity::autostart_systemd_user_units`; keluar: `stop`+`disable`+`mask`, masuk: `unmask`+`enable`+`start`; DMS mendeklarasikan `dsearch`, perlakuannya sama di kedua compositor |
-| E17 | Kartu iNiR (Niri) + end4-pC (Hyprland) | sebagian — end4-pC selesai (plan, config_dir symlink ke payload RPM, skel dots ii + `qsConfig=end4-pC`, bootstrap venv + default tampilan di `custom/`, clean: settings shell + matugen + color-schemes + cache uv); iNiR: install/uninstall plan, config_dir, skel, dan pola probe menyusul |
+| E17 | Kartu iNiR (Niri) + end4-pC (Hyprland) | sebagian — end4-pC selesai (plan, config_dir symlink ke payload RPM, skel dots ii + `qsConfig=end4-pC`, bootstrap venv + default tampilan di `custom/`, clean: settings shell + matugen + color-schemes + cache uv + venv); iNiR: install/uninstall plan, config_dir, skel, dan pola probe menyusul |
 
 ## G. Logging
 

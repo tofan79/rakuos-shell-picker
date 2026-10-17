@@ -51,9 +51,19 @@
 //!
 //! The config directory is `~/.config/quickshell/end4-pC` — the symlink into
 //! the package, and the one path a switch must write for the shell to start at
-//! all. The state directory is deliberately left undeclared: the venv lives
-//! under `~/.local/state/quickshell`, and it is worth more left in place across
-//! switches than copied into a backup on the way out.
+//! all. The state directory is deliberately not declared as one, because the
+//! venv lives inside it: what this shell keeps under
+//! `~/.local/state/quickshell` is split instead. `user/` — the todos, the
+//! notes, the AI chats, the equalizer presets — and the shell's own
+//! `states.json` travel as companion data, the same road
+//! `~/.config/illogical-impulse` takes: backed up on the way out, taken off
+//! the machine when that backup reproduces them, read back by `plan` the next
+//! time end4-pC is the shell. The venv and its bootstrap log are the two
+//! paths a backup must not carry — hundreds of megabytes, rebuilt by
+//! `end4pc-venv-setup.sh` in minutes — so they sit in `discard_paths` and a
+//! switch away deletes them outright. The directory itself is never named by
+//! any list: other programs keep their own data in the same runtime directory
+//! (Ryoku's `stage/`, for one), so no path may take it wholesale.
 
 use crate::shell::{Identity, InstallPlan, UninstallPlan};
 
@@ -124,15 +134,23 @@ pub const IDENTITY: Identity = Identity {
     // No daemon of its own, so nothing to keep in step with systemd.
     companion_systemd_user_units: &[],
     autostart_systemd_user_units: &[],
-    // The shell keeps a second configuration location of its own. `config_dir`
-    // is the symlink Quickshell resolves rather than a settings store, so what
-    // a person changes from the shell itself — `config.json`, the saved
-    // actions, the presets — lives in `~/.config/illogical-impulse`, which the
-    // shell writes on its first start. Declared rather than left alone: it is
-    // backed up with the shell, removed on the way out only when that backup
-    // reproduces it byte for byte, and read back by `plan` the next time
+    // Three places hold what this shell would lose if a switch simply ignored
+    // them. `config_dir` is the symlink Quickshell resolves rather than a
+    // settings store, so what a person changes from the shell itself —
+    // `config.json`, the saved actions, the presets — lives in
+    // `~/.config/illogical-impulse`, which the shell writes on its first
+    // start. Under `~/.local/state/quickshell`, `user/` keeps what a person
+    // wrote — todos, notes, AI chats, equalizer presets — and `states.json`
+    // the shell's own bookkeeping, the overlay widgets' placement and the AI
+    // settings among it. All three are declared rather than left alone: backed
+    // up with the shell, removed on the way out only when that backup
+    // reproduces them byte for byte, and read back by `plan` the next time
     // end4-pC is the shell.
-    companion_paths: &[".config/illogical-impulse"],
+    companion_paths: &[
+        ".config/illogical-impulse",
+        ".local/state/quickshell/states.json",
+        ".local/state/quickshell/user",
+    ],
     // Matugen renders `gtk.css` into both shared GTK directories on every
     // colour change. Both directories are in `switch::SHARED_PATHS`, so each
     // file is backed up before `clean` may take it away. `~/.config/matugen` —
@@ -158,9 +176,16 @@ pub const IDENTITY: Identity = Identity {
     // presets under `~/.local/share/easyeffects` are data and stay.
     // `~/.cache/quickshell` is the runtime's compiled-QML cache, which any
     // Quickshell shell rebuilds, and `~/.cache/matugen` and `~/.cache/uv` are
-    // the theming tool's and the venv bootstrap's caches. The managed Python
-    // under `~/.local/share/uv` is deliberately absent: the venv kept across
-    // switches points into it. None of these live where a backup walks.
+    // the theming tool's and the venv bootstrap's caches. The venv itself and
+    // the log of the bootstrap that built it are the two paths under
+    // `~/.local/state/quickshell` that no backup should carry: hundreds of
+    // megabytes rebuilt by the script on the next login, in a couple of
+    // minutes, holding nothing a person wrote — so they are deleted where they
+    // stand, and nothing else in that directory is (see the note at the top of
+    // this module). The managed Python under `~/.local/share/uv` is
+    // deliberately absent: it is a general tool's data directory, not this
+    // shell's to take, and the next bootstrap reuses the interpreter it holds.
+    // None of these live where a backup walks.
     discard_paths: &[
         ".cache/matugen",
         ".cache/quickshell",
@@ -177,6 +202,8 @@ pub const IDENTITY: Identity = Identity {
         ".local/share/color-schemes/MaterialYouLight2.colors",
         ".local/share/color-schemes/MaterialYouLight_darker_titlebar.colors",
         ".local/share/color-schemes/MaterialYouLight_darker_titlebar2.colors",
+        ".local/state/quickshell/.venv",
+        ".local/state/quickshell/venv-setup.log",
     ],
     // The runtime it is built on, shared with DMS, Caelestia and Ambxst; the
     // theming tool its colour scripts drive, shared with DMS and Ambxst; the

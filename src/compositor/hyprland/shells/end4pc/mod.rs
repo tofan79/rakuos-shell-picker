@@ -9,11 +9,13 @@
 //!   templates) and the settings directory the shell writes for itself,
 //!   `~/.config/illogical-impulse`, which travels as companion data — plus the
 //!   compositor config every switch saves. The state directory is deliberately
-//!   not declared: `~/.local/state/quickshell` holds the Python venv the
-//!   scripts run in, which is worth more left in place across switches than
-//!   copied into a backup on the way out. `~/.local/share/uv` is left alone
-//!   for the same reason — the kept venv's interpreter points into it — so
-//!   only its package cache above that goes.
+//!   not declared as one: what lives under `~/.local/state/quickshell` is
+//!   split by what it holds — `user/` and `states.json` travel as companion
+//!   data (backed up, taken away, read back when end4-pC returns), while the
+//!   venv and its bootstrap log are discards, rebuilt by the script on the
+//!   next login; [`crate::shells::end4pc`] argues it out. `~/.local/share/uv`
+//!   is left alone: a general tool's data directory, whose managed interpreter
+//!   the rebuilt venv reuses — only `~/.cache/uv` goes.
 //! - **clean**: those paths, the renders `end4pc.rs` lists, and its
 //!   `discard_paths` — the paths that carry data only once this switch's
 //!   backup reproduces them byte for byte, and the caches on the no-data terms
