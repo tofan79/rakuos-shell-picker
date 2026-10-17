@@ -11,7 +11,8 @@
 //!
 //!   ```text
 //!   1. quickshell-git
-//!   2. ambxst axctl matugen phosphor-icons-fonts mate-polkit
+//!   2. ambxst axctl matugen phosphor-icons-fonts mate-polkit easyeffects
+//!      gpu-screen-recorder
 //!   ```
 //!
 //!   `quickshell-git` is named explicitly because nothing requires it: Ambxst
@@ -23,9 +24,10 @@
 //!
 //!   `axctl` is the companion daemon (`AxctlService.qml`), `matugen` renders the
 //!   theme from the wallpaper, `phosphor-icons-fonts` supplies the icon glyphs
-//!   the shell draws, `mate-polkit` answers its `pkexec` and `easyeffects` runs
-//!   its audio processing. No package requires any of them; nothing but this
-//!   list would put them on the machine.
+//!   the shell draws, `mate-polkit` answers its `pkexec`, `easyeffects` runs its
+//!   audio processing and `gpu-screen-recorder` is the recorder behind the
+//!   skel's `Super+Shift+R` bind (`ambxst run screenrecord`). No package
+//!   requires any of them; nothing but this list would put them on the machine.
 //!
 //! - **uninstall**: one stage over Ambxst's own packages, `quickshell-git`,
 //!   `matugen` and `mate-polkit` included because a switch to a shell that
@@ -33,9 +35,9 @@
 //!   DMS runs on the same runtime and renders with the same matugen, and
 //!   Caelestia starts the same polkit agent — so `switch::uninstall` drops any
 //!   of them the shell being switched to declares in `runtime_packages`. The
-//!   icon font and `easyeffects` are in the plan for the same reason: both were
-//!   installed for this shell, and the guard keeps whichever the target still
-//!   declares.
+//!   icon font, `easyeffects` and `gpu-screen-recorder` are in the plan for the
+//!   same reason: each was installed for this shell, and the guard keeps
+//!   whichever the target still declares.
 //!
 //! - **start**: a direct process, `ambxst`. Ambxst arms its own
 //!   `hyprland.start` hook from the `~/.local/share/ambxst/hyprland.lua` it
@@ -80,6 +82,7 @@ pub const IDENTITY: Identity = Identity {
                 "phosphor-icons-fonts",
                 "mate-polkit",
                 "easyeffects",
+                "gpu-screen-recorder",
             ],
         ],
         program: "pkexec",
@@ -94,8 +97,8 @@ pub const IDENTITY: Identity = Identity {
         // installed. `switch::uninstall` drops any of the shared ones the shell
         // being switched to declares in `runtime_packages`, so a switch to DMS
         // keeps what DMS shares and a switch to Noctalia takes them all. The
-        // icon font and `easyeffects` were installed with Ambxst, so they travel
-        // with it too.
+        // icon font, `easyeffects` and `gpu-screen-recorder` were installed with
+        // Ambxst, so they travel with it too.
         stages: &[&[
             "ambxst",
             "axctl",
@@ -104,6 +107,7 @@ pub const IDENTITY: Identity = Identity {
             "quickshell-git",
             "mate-polkit",
             "easyeffects",
+            "gpu-screen-recorder",
         ]],
         program: "pkexec",
         args: &["rum", "remove", "-y"],

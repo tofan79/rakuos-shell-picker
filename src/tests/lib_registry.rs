@@ -196,14 +196,14 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     let plan = ambxst
         .install_plan
         .expect("ambxst installs from a repository");
-    // Its own package, the runtime in a stage of its own, and the five things
+    // Its own package, the runtime in a stage of its own, and the six things
     // nothing requires: the companion daemon, the theming tool, the icon fonts
-    // the shell draws with, the polkit agent its config starts and the audio
-    // effects daemon.
+    // the shell draws with, the polkit agent its config starts, the audio
+    // effects daemon and the recorder its screen-record bind runs.
     assert_eq!(
         plan.command_line(),
         "pkexec rum install -y --refresh quickshell-git ambxst axctl matugen \
-         phosphor-icons-fonts mate-polkit easyeffects"
+         phosphor-icons-fonts mate-polkit easyeffects gpu-screen-recorder"
     );
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");
