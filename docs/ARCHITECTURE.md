@@ -24,7 +24,7 @@ src/shells/                 satu file per shell — apa shell itu, di compositor
   dms.rs
   caelestia.rs
   ambxst.rs
-  end4pc.rs                 IDENTITY kartu: paket, logo, probe; backend menyusul
+  end4pc.rs                 IDENTITY: paket, plan, probe; skel di port Hyprland
   inir.rs
 
 src/compositor/             satu folder per compositor
@@ -46,7 +46,9 @@ src/compositor/             satu folder per compositor
         mod.rs              PORT: config `.config/ambxst`, state `.local/state/ambxst`
         skel/               config Hyprland, qt6ct, data .local/share/ambxst,
                             launcher (Noctalia, NoDisplay)
-      end4pc/mod.rs         PORT: kartu dulu — config, skel, plan menyusul
+      end4pc/mod.rs + skel    skel: dots ii (`qsConfig=end4-pC`); config: symlink
+                            `~/.config/quickshell/end4-pC` ke payload RPM;
+                            `custom/`: bootstrap venv + default tampilan
   niri/
     mod.rs                  alat khusus Niri (niri msg action load-config-file/quit -s)
     shells/                 satu folder per shell — shell itu DI NIRI
@@ -281,8 +283,8 @@ Benturan dua aturan ini di dua arah yang berbeda adalah disengaja:
   hanya di-stop/start dan tidak pernah di-disable/mask karena tidak ada yang
   meng-enable-nya. Yang kedua: argv agen polkit yang harus dijalankan switch
   **sebelum** tahap `pkexec rum remove` — Caelestia dan Ambxst menjawab polkit
-  lewat `/usr/libexec/polkit-mate-authentication-agent-1`, DMS dan Noctalia
-  menjawab polkit sendiri dan kosong di sini.
+  lewat `/usr/libexec/polkit-mate-authentication-agent-1`; DMS, Noctalia, dan
+  end4-pC menjawab polkit sendiri dan kosong di sini.
 
 Lihat [SWITCH-FLOW.md](SWITCH-FLOW.md) untuk urutan lengkap kedua arah beserta
 daftar file yang masing-masing langkah sentuh.

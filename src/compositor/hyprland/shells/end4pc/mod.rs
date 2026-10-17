@@ -1,34 +1,62 @@
 //! end4-pC on Hyprland.
 //!
 //! Only what is specific to this compositor. What end4-pC is — its package,
-//! its probe pattern, its logo — is in [`crate::shells::end4pc`], and is not
-//! repeated here.
+//! its install plan, its shared runtime — is in [`crate::shells::end4pc`],
+//! and is not repeated here.
 //!
-//! This port is a card first: the fields a switch would execute on are still
-//! empty on purpose, and each one lands with the backend that needs it.
-//!
+//! - **backup**: `~/.config/quickshell/end4-pC` (the symlink into the
+//!   package), `~/.config/matugen` (the theming tool's configuration and
+//!   templates) and the settings directory the shell writes for itself,
+//!   `~/.config/illogical-impulse`, which travels as companion data — plus the
+//!   compositor config every switch saves. The state directory is deliberately
+//!   not declared: `~/.local/state/quickshell` holds the Python venv the
+//!   scripts run in, which is worth more left in place across switches than
+//!   copied into a backup on the way out. `~/.local/share/uv` is left alone
+//!   for the same reason — the kept venv's interpreter points into it — so
+//!   only its package cache above that goes.
+//! - **clean**: those paths, the renders `end4pc.rs` lists, and its
+//!   `discard_paths` — the paths that carry data only once this switch's
+//!   backup reproduces them byte for byte, and the caches on the no-data terms
+//!   that field describes.
 //! - **start**: the compositor's start event, the same mechanism Caelestia
-//!   uses. The Hyprland configuration a switch will install from this shell's
-//!   skel runs `qs -c end4-pC`, and the live switch will run that command
-//!   directly — both roads end in the same process.
-//! - **config**: `None` for now. Which path a switch seeds — the packaged
-//!   payload under `/usr/share/quickshell/end4-pC` or a user copy under
-//!   `~/.config/quickshell/end4-pC` — is a backend decision, and until
-//!   `config_dir` is declared a switch refuses in `Refusal::NoConfig` before
-//!   any backup.
-//! - **skel**: none yet. Nothing is installed to the machine, so a switch has
-//!   nothing to complete with.
+//!   uses. The skel's own `hyprland/execs.lua` runs `qs -c $qsConfig`, with
+//!   `qsConfig` set to `end4-pC` in `hyprland/variables.lua`, and the live
+//!   switch runs `qs -c end4-pC` directly — both roads end in the same process.
+//!
+//! The skel is the base `ii`'s Hyprland configuration, taken from upstream's
+//! dots with `qsConfig` pointed at this fork — the fork ships no compositor
+//! configuration of its own, and upstream's README names exactly that variable
+//! as the way to make it default. `config_dir` is not a directory the switch
+//! writes: the skel carries `~/.config/quickshell/end4-pC` as a **symlink**
+//! into the package's `/usr/share/quickshell/end4-pC` — link and payload are
+//! both spelled the config's way, so the QML has one source and `qs -c
+//! end4-pC` finds it where Quickshell looks for configurations. The venv
+//! bootstrap the fork's colour scripts need rides in
+//! `custom/scripts/end4pc-venv-setup.sh`, called from the skel's
+//! `custom/execs.lua`: idempotent, so every login after the first is a no-op.
+//! `custom/scripts/end4pc-appearance-defaults.sh`, called the same way, seeds
+//! the system appearance the fork expects — icons `Colloid-Dark`, cursor
+//! `Bibata-Modern-Classic` at size 24, `Inter` 11 and `Maple Mono NF` 11 —
+//! only where nothing is set yet, and then applies the cursor that is on
+//! record; it replaces the hardcoded `hyprctl setcursor` line upstream keeps
+//! in `hyprland/execs.lua`, which would undo a choice made in Settings on
+//! every login.
 
 use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::end4pc::IDENTITY;
 
 const PORT: Port = Port {
-    config_dir: None,
+    config_dir: Some(".config/quickshell/end4-pC"),
     state_dir: None,
     systemd_user_unit: None,
     mechanism: StartMechanism::StartEvent,
-    skel_extra_paths: &[],
-    backup_extra_paths: &[],
+    // Matugen reads its configuration and templates from here; the skel is the
+    // only thing that would ever install them, and `backup_extra_paths` is
+    // what keeps the user's copy: "being installed" and "being kept" are not
+    // the same question, and `plan` deduplicates the path so it is not staged
+    // twice.
+    skel_extra_paths: &[".config/matugen"],
+    backup_extra_paths: &[".config/matugen"],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

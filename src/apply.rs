@@ -95,12 +95,22 @@ const START_GRACE: Duration = Duration::from_secs(90);
 /// How long the new shell gets to answer polkit before a privileged stage runs.
 ///
 /// The shell that was running is stopped before this, and the one replacing it
-/// registers its authentication agent only after it is up: DMS brings up a
-/// PolkitService and Noctalia sets `polkit_agent = true`, both a beat after
-/// start. Ask for a password while no agent exists and polkit falls back to
-/// pkexec's textual prompt, which needs a controlling terminal — a window does
-/// not have one, and the stage comes back as dismissed.
+/// registers its authentication agent only after it is up: DMS and end4-pC
+/// bring up a PolkitService and Noctalia sets `polkit_agent = true`, both a
+/// beat after start. Ask for a password while no agent exists and polkit falls
+/// back to pkexec's textual prompt, which needs a controlling terminal — a
+/// window does not have one, and the stage comes back as dismissed.
 const AGENT_GRACE: Duration = Duration::from_secs(5);
+
+/// How often a wait that can hold for a whole grace period says it is still
+/// there.
+///
+/// These waits sit on `START_GRACE`, and a silent minute and a half reads as a
+/// hung switch — it has been closed as one, which leaves the machine halfway
+/// through: the old shell gone, and the rollback that never ran never bringing
+/// it back. One line every ten seconds costs nothing and says the switch is
+/// alive.
+const HEARTBEAT: Duration = Duration::from_secs(10);
 
 /// The three roots a switch reads and writes inside.
 ///
@@ -459,13 +469,13 @@ pub fn apply_with(
             // The compositor is still running the configuration this switch
             // replaced, so it is reloaded first and the new shell's rules are
             // the ones in effect. Then the new shell must have a polkit agent:
-            // shells that answer polkit themselves (DMS, Noctalia) register one
-            // a beat after start, and the ones that lean on `mate-polkit`
-            // (Caelestia, Ambxst) never started it, because a reload does not
-            // run their `exec-once` line. So start that agent if the shell names
-            // one, then give whatever is up time to register — without an agent,
-            // `pkexec` is answered by nobody and falls back to a textual prompt a
-            // window cannot show.
+            // shells that answer polkit themselves (DMS, Noctalia, end4-pC)
+            // register one a beat after start, and the ones that lean on
+            // `mate-polkit` (Caelestia, Ambxst) never started it, because a
+            // reload does not run their `exec-once` line. So start that agent if
+            // the shell names one, then give whatever is up time to register —
+            // without an agent, `pkexec` is answered by nobody and falls back to
+            // a textual prompt a window cannot show.
             match compositor.reload() {
                 Ok(()) => progress(&format!("reloaded {}'s configuration", compositor.label())),
                 Err(detail) => progress(&format!(
@@ -741,7 +751,14 @@ fn pull(
                 origin: Origin::Backup(root.clone()),
             })
         }
-        None if skel.join(&rel).is_dir() || (allow_file && skel.join(&rel).is_file()) => {
+        // A symlink counts even when its target does not exist yet: `copy`
+        // puts the link itself in place, and the package it points at comes
+        // from the install stages that run before this plan reads the skel —
+        // end4-pC's config dir is exactly that link.
+        None if skel.join(&rel).is_dir()
+            || skel.join(&rel).is_symlink()
+            || (allow_file && skel.join(&rel).is_file()) =>
+        {
             progress(&format!(
                 "{rel} comes from the skel, not a backup; no backup kept for this \
                  shell holds it"
@@ -1687,13 +1704,27 @@ fn ensure_polkit_agent(shell: &Shell, progress: &mut dyn FnMut(&str)) {
     }
 }
 
+/// The elapsed seconds a wait has been running, once a heartbeat is due;
+/// `None` while the wait is still young.
+fn heartbeat(start: Instant, next: &mut Duration) -> Option<u64> {
+    let elapsed = start.elapsed();
+    if elapsed < *next {
+        return None;
+    }
+    while *next <= elapsed {
+        *next += HEARTBEAT;
+    }
+    Some(elapsed.as_secs())
+}
+
 /// Check the new shell is really up, not merely launched.
 fn verify(
     shell: &Shell,
     bus_owner_before: Option<u32>,
     progress: &mut dyn FnMut(&str),
 ) -> Result<(), (&'static str, String)> {
-    let deadline = Instant::now() + START_GRACE;
+    let start = Instant::now();
+    let deadline = start + START_GRACE;
 
     if shell.mechanism.uses_systemd_unit() {
         // Asking systemd whether the unit is active is a stronger answer than
@@ -1709,7 +1740,13 @@ fn verify(
         })?;
         let name = format!("{unit}.service");
         progress(&format!("waiting for {name} to report active"));
+        let mut next_tick = HEARTBEAT;
         loop {
+            if let Some(elapsed) = heartbeat(start, &mut next_tick) {
+                progress(&format!(
+                    "still waiting for {name} to report active ({elapsed}s)"
+                ));
+            }
             let out = match run("systemctl", &["--user", "is-active", &name]) {
                 Ok(o) => o,
                 Err(e) => return Err(("verify", format!("cannot query {name}: {e}"))),
@@ -1732,7 +1769,14 @@ fn verify(
         progress(&format!("{name} is active"));
     }
 
+    let mut next_tick = HEARTBEAT;
     loop {
+        if let Some(elapsed) = heartbeat(start, &mut next_tick) {
+            progress(&format!(
+                "still waiting for {} to appear ({elapsed}s)",
+                shell.binary
+            ));
+        }
         if !pids_of(shell.binary, shell.process_match).is_empty() {
             progress(&format!("{} is running", shell.binary));
             break;
@@ -1756,7 +1800,13 @@ fn verify(
     // Directly spawned shells (like noctalia) take a moment to claim the bus, so
     // "nobody owns it yet" is treated as transient while we are still inside the
     // grace period, rather than an immediate failure.
+    let mut next_tick = HEARTBEAT;
     loop {
+        if let Some(elapsed) = heartbeat(start, &mut next_tick) {
+            progress(&format!(
+                "still waiting for {NOTIFICATION_BUS} ({elapsed}s)"
+            ));
+        }
         match (bus_owner_before, notification_owner()) {
             (_, None) => {
                 if Instant::now() >= deadline {

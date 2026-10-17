@@ -1,5 +1,5 @@
 use super::*;
-use crate::compositor::hyprland::shells::{caelestia, dms, noctalia};
+use crate::compositor::hyprland::shells::{caelestia, dms, end4pc, noctalia};
 use crate::compositor::hyprland::Hyprland;
 
 struct Temp(PathBuf);
@@ -663,6 +663,51 @@ fn caelestia_skel_carries_the_config_dir_its_hyprland_bootstrap_needs() {
         config.src.join("hypr-vars.lua").is_file(),
         "hyprland.lua requires hypr-vars, so the skel has to provide it"
     );
+}
+
+#[test]
+fn end4pc_skel_ships_the_symlink_the_shell_starts_with() {
+    // `qs -c end4-pC` resolves `<dir>/quickshell/<name>/shell.qml` by exact
+    // name under the XDG config directories — `/usr/share/quickshell` is not
+    // on that list. So the skel ships `~/.config/quickshell/end4-pC` as a
+    // symlink into the package, and both ends of the link must be spelled the
+    // way the package installs them. Without the link a switch starts `qs`
+    // directly, which finds no config and exits at once; the switch then waits
+    // out the whole notification-bus grace against a shell that is dead.
+    let shell = &end4pc::SHELL;
+    let entries = plan(
+        shell,
+        &Hyprland,
+        Path::new("/nonexistent-backups"),
+        &skel_for("hyprland", "end4pc"),
+        &mut |_| {},
+    )
+    .expect("the real end4pc skel should plan cleanly");
+
+    let config = entries
+        .iter()
+        .find(|e| e.rel == ".config/quickshell/end4-pC")
+        .expect("the skel must carry the config dir the shell starts with");
+    let meta = std::fs::symlink_metadata(&config.src).expect("the link is on disk");
+    assert!(
+        meta.file_type().is_symlink(),
+        "the config dir has to be a symlink into the package"
+    );
+    let target = std::fs::read_link(&config.src).expect("the link points somewhere");
+    assert_eq!(
+        target.as_path(),
+        Path::new("/usr/share/quickshell/end4-pC"),
+        "the link must point at the payload directory the package installs"
+    );
+
+    // And the name it is delivered as is the name `-c` asks for: a symlink
+    // named anything else — `end4-PC` was tried — is invisible to the shell.
+    let name = Path::new(shell.config_dir.expect("end4pc names its config dir"))
+        .file_name()
+        .expect("a config dir has a name")
+        .to_str()
+        .expect("config names are utf-8");
+    assert_eq!(shell.start_argv, &["qs", "-c", name][..]);
 }
 
 #[test]

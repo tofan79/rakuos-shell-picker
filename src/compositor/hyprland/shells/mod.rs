@@ -19,8 +19,9 @@
 //! DMS is installed from a repository and started by a systemd user unit, Caelestia
 //! is installed from a repository and probed by a process pattern, Ambxst is
 //! installed from the same repository and started as a plain process on a runtime
-//! it shares with the others, and end4-pC is the same kind of configuration shell —
-//! its port is a card today, the backend half landing with its skel. What they have
+//! it shares with the others, and end4-pC starts from the compositor's start event
+//! on the same runtime, configured with the base `ii`'s own dots pointed at the
+//! fork. What they have
 //! in common, such as the shared config paths a backup always saves, stays in
 //! `src/switch.rs` so there is one copy of it rather than one per shell.
 

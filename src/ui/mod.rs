@@ -136,6 +136,13 @@ impl Selection {
         crate::logging::info(line);
     }
 
+    /// A new operation starts on an empty panel. The previous operation's
+    /// lines are its own: left in place they read as steps of the new one,
+    /// already done, under a panel that just lit up.
+    fn clear_log(&self) {
+        self.log.buffer().set_text("");
+    }
+
     /// One step of a running operation. Both channels, and the panel is shown.
     pub fn progress(&self, line: &str) {
         log::step(&self.log, &self.panel, line);
@@ -274,6 +281,7 @@ fn begin(
         return;
     }
     shared.borrow().set_locked(true);
+    shared.borrow().clear_log();
 
     let (tx, rx) = std::sync::mpsc::channel::<Line>();
     let home = std::env::var_os("HOME").map(std::path::PathBuf::from);

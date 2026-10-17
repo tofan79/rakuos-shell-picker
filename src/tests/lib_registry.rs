@@ -158,7 +158,7 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         .collect();
     assert_eq!(
         with_plan,
-        BTreeSet::from(["ambxst", "caelestia", "dms", "noctalia"])
+        BTreeSet::from(["ambxst", "caelestia", "dms", "end4pc", "noctalia"])
     );
 
     let dms = super::shell::find("dms").expect("dms registered");
@@ -208,6 +208,33 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");
 
+    let end4pc = super::shell::find("end4pc").expect("end4pc registered");
+    let plan = end4pc
+        .install_plan
+        .expect("end4pc installs from a repository");
+    // Its own package, the runtime in a stage of its own, and the base `ii` it
+    // grew from — `end4-pc` requires it, so naming it changes nothing at
+    // install time; it is named so the uninstall plan can take the base back
+    // out when end4-pC leaves. Then everything the skel or the QML runs that
+    // nothing requires: the theming tool its colour scripts drive; the idle
+    // daemon and lock screen behind `loginctl lock-session`; the audio effects
+    // daemon its equalizer drives; the night light its toggles spawn; the
+    // recorder and annotate tool behind its capture keybinds; the fallback menu
+    // its keybinds use when the shell is not around; the three fonts its
+    // interface is drawn with; and `uv` with `dbus-devel`, which bootstrap the
+    // Python venv (`dbus-python` has no wheel and compiles against the
+    // `dbus-1` headers). No polkit agent: the fork answers polkit from its own
+    // `PolkitService`.
+    assert_eq!(
+        plan.command_line(),
+        "pkexec rum install -y --refresh quickshell-git end4-pc illogical-impulse \
+         matugen hypridle hyprlock google-rubik-fonts cascadia-code-nf-fonts \
+         material-symbols-fonts easyeffects hyprsunset wf-recorder swappy fuzzel \
+         uv dbus-devel"
+    );
+    assert!(plan.packages().contains(&plan.package));
+    assert_eq!(plan.program, "pkexec");
+
     let noctalia = super::shell::find("noctalia").expect("noctalia registered");
     let plan = noctalia
         .install_plan
@@ -227,9 +254,9 @@ fn a_shell_without_an_install_plan_is_not_removable_either() {
     // A removal only makes sense for a package the picker could have put there.
     // A shell the picker cannot install — one that lives in a base image with no
     // repository entry — must therefore not carry a removal plan either, or the
-    // dialog would offer to take off something no switch ever added. The two
-    // card-only ports, iNiR and end4-pC, are the first shells this checks for
-    // real: both are packaged, and both are planless until their backend lands.
+    // dialog would offer to take off something no switch ever added. iNiR is
+    // the shell this checks for real: it is packaged, and it is planless until
+    // its backend lands.
     for compositor in compositor::all() {
         for shell in compositor.shells() {
             if shell.install_plan.is_none() {
@@ -470,7 +497,15 @@ fn every_file_in_a_skel_reaches_the_machine() {
         };
         for entry in entries.flatten() {
             let path = entry.path();
-            if path.is_dir() {
+            // A symlink is one file to a switch: `copy` in `apply` puts the
+            // link itself in place and never walks through it. The walk has to
+            // stop at links for the same reason — end4-pC's config dir is one,
+            // pointing into the installed package, and following it would read
+            // the package's tree instead of the skel's own files.
+            let is_link = std::fs::symlink_metadata(&path)
+                .map(|meta| meta.file_type().is_symlink())
+                .unwrap_or(false);
+            if path.is_dir() && !is_link {
                 collect(&path, base, out);
             } else {
                 let rel = path
@@ -992,9 +1027,9 @@ fn a_compositor_with_no_skel_yet_refuses_every_shell_on_it() {
 
 #[test]
 fn a_skel_is_missing_only_where_the_shell_cannot_be_installed() {
-    // The card-only ports — iNiR and end4-pC — arrived without a skel, so this
-    // now runs for real. It exists because of Niri — see below — and Ambxst's
-    // skel was added exactly to move it into the covered set.
+    // The card-only port iNiR arrived without a skel, so this now runs for
+    // real. It exists because of Niri — see below — and Ambxst's skel was
+    // added exactly to move it into the covered set.
     //
     // Niri had three ports and no skel at all, and that was not deliberate.
     // Two of its shells were installable, so the dialog offered them, and the
@@ -1159,7 +1194,7 @@ fn a_shell_that_runs_on_a_shared_runtime_says_so_and_the_others_do_not() {
     // something real: a shell that runs on quickshell and does not declare it
     // loses its runtime the moment DMS leaves, and Noctalia declaring it would
     // mean switching to Noctalia never cleaned anything of DMS's up.
-    for id in ["dms", "caelestia", "ambxst"] {
+    for id in ["dms", "caelestia", "ambxst", "end4pc"] {
         let shell = super::shell::find(id).expect("registered");
         assert!(
             shell.runtime_packages.contains(&"quickshell-git"),

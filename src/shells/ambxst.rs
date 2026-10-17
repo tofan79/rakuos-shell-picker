@@ -146,11 +146,18 @@ pub const IDENTITY: Identity = Identity {
     // `every_discard_path_is_never_preserved` fails the suite if that ever
     // changes.
     discard_paths: &[".cache/ambxst", ".cache/quickshell"],
-    // The runtime and theming tool Ambxst shares with DMS, and the polkit agent
-    // it shares with Caelestia. All have to be named so a switch between the
-    // shells that use them keeps them, while a switch to a shell that needs none
-    // (Noctalia) takes them away.
-    runtime_packages: &["quickshell", "quickshell-git", "matugen", "mate-polkit"],
+    // The runtime and theming tool Ambxst shares with DMS, the polkit agent it
+    // shares with Caelestia, and the audio effects daemon it shares with
+    // end4-pC. All have to be named so a switch between the shells that use
+    // them keeps them, while a switch to a shell that needs none (Noctalia)
+    // takes them away.
+    runtime_packages: &[
+        "quickshell",
+        "quickshell-git",
+        "matugen",
+        "mate-polkit",
+        "easyeffects",
+    ],
     // Each compositor's skel starts this — from `config/autostart.lua` on
     // Hyprland, from `spawn-at-startup` in the Niri skel's `config.kdl` — and a
     // live switch has to start it itself. See `Identity::polkit_agent`.

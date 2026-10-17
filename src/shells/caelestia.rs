@@ -149,11 +149,19 @@ pub const IDENTITY: Identity = Identity {
         ".local/share/PandoraLauncher/themes/caelestia.json",
         ".local/share/warp-terminal/themes/caelestia.yaml",
     ],
-    // The runtime it is built on, shared with DMS and Ambxst, and the polkit
-    // agent its own config starts, shared with Ambxst. Listed so a switch to
-    // Caelestia or Ambxst keeps them; leaving for a shell that needs neither
+    // The runtime it is built on, shared with DMS and Ambxst, the polkit agent
+    // its own config starts, shared with Ambxst, and the three fonts its
+    // interface is drawn with, shared with end4-pC. Listed so a switch to any
+    // of the three keeps them; leaving for a shell that needs none (Noctalia)
     // takes them away.
-    runtime_packages: &["quickshell", "quickshell-git", "mate-polkit"],
+    runtime_packages: &[
+        "quickshell",
+        "quickshell-git",
+        "mate-polkit",
+        "google-rubik-fonts",
+        "cascadia-code-nf-fonts",
+        "material-symbols-fonts",
+    ],
     // Caelestia's config starts this from `execs.lua`; a live switch has to start
     // it itself. See `Identity::polkit_agent`.
     polkit_agent: &["/usr/libexec/polkit-mate-authentication-agent-1"],

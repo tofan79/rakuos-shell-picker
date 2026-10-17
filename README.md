@@ -14,7 +14,7 @@ Shell yang tersedia berbeda per compositor:
 
 | Compositor | Shell |
 |---|---|
-| Hyprland | Noctalia, DMS, Caelestia, Ambxst |
+| Hyprland | Noctalia, DMS, Caelestia, Ambxst, end4-pC |
 | Niri | DMS, Noctalia, Ambxst |
 
 ## Status

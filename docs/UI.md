@@ -34,12 +34,12 @@ Vertikal, dari atas (jumlah kolom mengikuti lebar window, maks 5):
 |     ...  (scroll ke bawah, window tidak melar)  |
 |                                                  |
 |  +--------------------------------------------+  |
-|  | log, 100px, monospace                      |  |
+|  | log, 400px, monospace                      |  |
 |  +--------------------------------------------+  |
 +--------------------------------------------------+
 ```
 
-Tinggi log tetap 100px; sisa tinggi window dipakai grid. Grid yang grows ke
+Tinggi log tetap 400px; sisa tinggi window dipakai grid. Grid yang grows ke
 bawah, bukan window.
 
 ## Angka tetap
@@ -55,7 +55,7 @@ Semua nilai ini di-pin di Rust, bukan di CSS.
 | `SIDE_MARGIN` | 24 | `ui/grid.rs` | jarak kartu ke tepi window |
 | `CARD_WIDTH` | 160 | `ui/card.rs` | kunci lebar kolom |
 | `CARD_WIDE` | 320 | `ui/grid.rs` | kartu placeholder |
-| `LOG_HEIGHT` | 100 | `ui/log.rs` | tinggi tetap panel, seperdelapan window 800px |
+| `LOG_HEIGHT` | 400 | `ui/log.rs` | tinggi tetap panel: header + ±20 baris monospace, separuh window default |
 | `LOGO_BOX` | 100 | `ui/logo.rs` | kotak logo |
 | `LOGO_SIZE` | 72 | `ui/logo.rs` | panjang sisi artwork |
 
@@ -202,12 +202,17 @@ Caelestia belum punya port Niri, jadi tidak didaftarkan.
 - Sukses → langsung tersembunyi lagi.
 - Gagal → **tetap tampil sampai ditutup** user lewat tombol `✕` di header,
   sehingga alasan gagal tidak hilang sendiri.
-- Tinggi tetap 100px, melekat di bawah.
+- Tinggi tetap 400px, melekat di bawah.
 - Header berisi judul `Progress` dan tombol tutup.
-- `gtk::ScrolledWindow` dengan policy horizontal `Never`, vertikal
-  `Automatic`.
+- `gtk::ScrolledWindow` dengan policy horizontal dan vertikal `Automatic` —
+  baris panjang (daftar paket) digulir menyamping, bukan dipotong.
 - Font monospace, read-only, tanpa cursor.
-- Ditulis dengan `buffer.insert` di `end_iter`, satu baris per panggilan.
+- Ditulis dengan `buffer.insert` di `end_iter`, satu baris per panggilan, lalu
+  `scroll_to_iter` ke ujung buffer supaya langkah terbaru selalu terlihat
+  tanpa digulir manual.
+- Panel dikosongkan saat operasi baru dimulai (`Selection::clear_log`), jadi
+  sisa baris operasi sebelumnya tidak terbaca sebagai langkah yang sudah
+  berjalan.
 - `log::panel()` mengembalikan **`Revealer`**. Versi lama mengembalikan
   `ScrolledWindow` di dalam frame sehingga styling `.log-frame` tidak pernah
   terpakai, dan versi sebelum itu selalu terlihat karena tidak ada cara

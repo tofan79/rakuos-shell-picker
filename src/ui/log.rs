@@ -11,7 +11,11 @@ use gtk4::{Align, Box as GtkBox, Button, Label, Orientation, Revealer, TextView}
 use crate::logging;
 
 /// Fixed height for the log panel at the bottom of the window.
-pub const LOG_HEIGHT: i32 = 100;
+///
+/// Header plus about twenty monospace lines — half the default 800px window.
+/// A switch step list is long (backup, install, apply), and the panel is what
+/// people watch while it runs; a shorter strip showed only its first lines.
+pub const LOG_HEIGHT: i32 = 400;
 
 pub fn build() -> TextView {
     let view = TextView::new();
@@ -82,6 +86,11 @@ fn append(log: &TextView, line: &str) {
     let mut end = buffer.end_iter();
     buffer.insert(&mut end, line);
     buffer.insert(&mut end, "\n");
+    // Nothing scrolls a text view on its own. Without this the panel stayed at
+    // the top of the buffer — the first three steps on screen and every later
+    // one appended below the fold, which is not what "progress" should look
+    // like while an operation is still running.
+    log.scroll_to_iter(&mut end, 0.0, false, 0.0, 1.0);
 }
 
 /// One step of a running operation: application log **and** panel.
