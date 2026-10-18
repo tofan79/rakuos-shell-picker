@@ -51,6 +51,8 @@ return {
     -- Misc
     volumeStep                 = 10,
     volumeMax                  = 100,
+    uiFont                     = "Inter",
+    monoFont                   = "Maple Mono NF",
     cursorTheme                = "Bibata-Modern-Ice",
     cursorSize                 = 24,
     iconTheme                  = "Colloid-Dark",

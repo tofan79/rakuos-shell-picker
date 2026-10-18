@@ -180,12 +180,15 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         .install_plan
         .expect("caelestia installs from a repository");
     // Its own package, the runtime named in a stage of its own (mirroring
-    // DMS), and the three fonts nothing requires at the package level —
-    // without which the shell would start with blank glyphs.
+    // DMS), the three fonts nothing requires at the package level — without
+    // which the shell would start with blank glyphs — and the two tools
+    // nothing else pulls in either: the polkit agent the config starts and
+    // the annotate step behind the area picker's screenshot action.
     assert_eq!(
         plan.command_line(),
         "pkexec rum install -y --refresh quickshell-git caelestia-shell \
-         google-rubik-fonts cascadia-code-nf-fonts material-symbols-fonts mate-polkit"
+         google-rubik-fonts cascadia-code-nf-fonts material-symbols-fonts mate-polkit \
+         swappy"
     );
     // The shell's own package must be among the packages it installs, or the
     // availability check and the install would drift apart.

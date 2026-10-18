@@ -89,6 +89,7 @@ fn leaving_caelestia_takes_the_runtime_unless_the_next_shell_runs_on_it() {
             "google-rubik-fonts",
             "cascadia-code-nf-fonts",
             "material-symbols-fonts",
+            "swappy",
         ],
         "every package the install put there has to be removable"
     );

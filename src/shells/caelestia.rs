@@ -7,7 +7,8 @@
 //!
 //!   ```text
 //!   1. quickshell-git
-//!   2. caelestia-shell google-rubik-fonts cascadia-code-nf-fonts material-symbols-fonts mate-polkit
+//!   2. caelestia-shell google-rubik-fonts cascadia-code-nf-fonts material-symbols-fonts
+//!      mate-polkit swappy
 //!   ```
 //!
 //!   `quickshell-git` is the runtime, named first for the reason DMS names it
@@ -28,24 +29,34 @@
 //!   Nothing requires them at the package level, so they are named here or the
 //!   shell starts with blank glyphs.
 //!
+//!   `swappy` comes with the shell for a reason of the same kind: it is the
+//!   annotate step behind the area picker's screenshot action, it is in the
+//!   shell's own README dependency list, and nothing else would pull it in.
+//!   `power-profiles-daemon`, also in that list, is deliberately left out:
+//!   Fedora ships `tuned`, whose `tuned-ppd` serves the same power profiles
+//!   over the same D-Bus name, and the two packages conflict.
+//!
 //! - **uninstall**: one stage, `pkexec rum remove -y`, naming
-//!   `caelestia-shell`, `quickshell-git`, the three fonts and `mate-polkit` —
-//!   everything Caelestia's install brought in, the runtime included, and for
-//!   DMS's reason: a removal plan is the declaration of what this shell put on
-//!   the machine, and *which* of it may actually go is decided at the moment of
-//!   the switch. `switch::uninstall` drops any package the shell being switched
-//!   **to** declares in [`Self::runtime_packages`]: DMS and Ambxst both declare
+//!   `caelestia-shell`, `quickshell-git`, the three fonts, `mate-polkit` and
+//!   `swappy` — everything Caelestia's install brought in, the runtime
+//!   included, and for DMS's reason: a removal plan is the declaration of what
+//!   this shell put on the machine, and *which* of it may actually go is
+//!   decided at the moment of the switch.
+//!   `switch::uninstall` drops any package the shell being switched **to**
+//!   declares in [`Self::runtime_packages`]: DMS and Ambxst both declare
 //!   `quickshell-git`, so leaving for either keeps the runtime, and Noctalia
-//!   declares nothing, so leaving for it takes the whole of Caelestia — never an
-//!   orphan left for `rum autoremove`. The fonts are in the plan too: they were
-//!   installed for this shell's look, and the guard keeps any the target still
-//!   declares.
+//!   declares nothing, so leaving for it takes the whole of Caelestia — never
+//!   an orphan left for `rum autoremove`. The fonts are in the plan too: they
+//!   were installed for this shell's look, and the guard keeps any the target
+//!   still declares.
 //!
 //!   After the fonts, `mate-polkit` is the other package that leaves with the
 //!   shell: Caelestia's config starts the GTK polkit agent from
 //!   `hypr/hyprland/execs.lua`. The agent is the package-level dependency that
 //!   makes that `exec_cmd` able to run, so it is installed with the shell and
-//!   removed when a switch leaves it behind.
+//!   removed when a switch leaves it behind. `swappy` leaves on the same
+//!   terms: it was installed for the shell's own capture controls rather than
+//!   for the desktop at large.
 //!
 //! - **start**: the compositor's start event. Caelestia's own Hyprland config
 //!   runs `caelestia shell -d` from `hypr/hyprland/execs.lua`, and the live
@@ -85,6 +96,7 @@ pub const IDENTITY: Identity = Identity {
                 "cascadia-code-nf-fonts",
                 "material-symbols-fonts",
                 "mate-polkit",
+                "swappy",
             ],
         ],
         program: "pkexec",
@@ -101,8 +113,9 @@ pub const IDENTITY: Identity = Identity {
         // once `caelestia-shell` is in the same transaction, so leaving it out
         // only ever produced an orphan that `rum autoremove` was left to find.
         // The fonts were installed for this shell's look, so they go with it;
-        // `mate-polkit` is the agent its `execs.lua` starts. The switch's guard
-        // keeps whichever of them the target shell still declares.
+        // `mate-polkit` is the agent its `execs.lua` starts and `swappy` the
+        // annotate step of its area picker. The switch's guard keeps whichever
+        // of them the target shell still declares.
         stages: &[&[
             "caelestia-shell",
             "quickshell-git",
@@ -110,6 +123,7 @@ pub const IDENTITY: Identity = Identity {
             "google-rubik-fonts",
             "cascadia-code-nf-fonts",
             "material-symbols-fonts",
+            "swappy",
         ]],
         program: "pkexec",
         args: &["rum", "remove", "-y"],
@@ -140,12 +154,20 @@ pub const IDENTITY: Identity = Identity {
     discard_paths: &[
         ".cache/caelestia",
         ".cache/quickshell",
+        ".config/BetterDiscord/themes/caelestia.theme.css",
         ".config/btop/themes/caelestia.theme",
         ".config/cava/config",
+        ".config/equibop/themes/caelestia.theme.css",
+        ".config/Equicord/themes/caelestia.theme.css",
         ".config/fuzzel/fuzzel.ini",
+        ".config/htop/htoprc",
+        ".config/legcord/themes/caelestia.theme.css",
         ".config/nvtop/nvtop.colors",
         ".config/qtengine/caelestia.colors",
+        ".config/qtengine/config.json",
         ".config/spicetify/Themes/caelestia",
+        ".config/Vencord/themes/caelestia.theme.css",
+        ".config/vesktop/themes/caelestia.theme.css",
         ".config/zed/themes/caelestia.json",
         ".local/share/PandoraLauncher/themes/caelestia.json",
         ".local/share/warp-terminal/themes/caelestia.yaml",

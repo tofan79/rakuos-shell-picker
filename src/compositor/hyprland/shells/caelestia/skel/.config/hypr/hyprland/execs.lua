@@ -20,6 +20,15 @@ hl.on("hyprland.start", function()
     -- Icons (gsettings is what actually wins for GTK apps such as Nautilus)
     hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme " .. vars.iconTheme)
 
+    -- System fonts (gsettings again: Inter for the UI, Maple Mono NF for mono)
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface font-name '" .. vars.uiFont .. " 11'")
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface monospace-font-name '" .. vars.monoFont .. " 11'")
+
+    -- Qt apps read qtengine's config, which the scheme render rewrites from a
+    -- template whose fonts are the generic names. Re-pin the skel's own values
+    -- once the shell's first apply has settled; a pinned file is left alone.
+    hl.exec_cmd("sleep 5 && python3 ~/.config/hypr/scripts/caelestia-pin-qtengine.py")
+
     -- Location provider and night light
     hl.exec_cmd("/usr/lib/geoclue-2.0/demos/agent")
     hl.exec_cmd("sleep 1 && gammastep")
