@@ -145,11 +145,18 @@ pub const IDENTITY: Identity = Identity {
     // schemes, wallpapers, usage counters and icon caches Ambxst rebuilds on the
     // next start. `~/.cache/quickshell` is the same kind of thing one level out:
     // the QML and pipeline caches written by the Quickshell runtime Ambxst runs
-    // on, which DMS declares too and neither shell needs after a switch. They
-    // live under `~/.cache`, which no backup walks —
+    // on, which DMS declares too and neither shell needs after a switch. The
+    // Vesktop theme is one file inside a program's directory, named rather than
+    // the directory on the same terms DMS names its own render for that client.
+    //
+    // None of it is walked by a backup —
     // `every_discard_path_is_never_preserved` fails the suite if that ever
     // changes.
-    discard_paths: &[".cache/ambxst", ".cache/quickshell"],
+    discard_paths: &[
+        ".cache/ambxst",
+        ".cache/quickshell",
+        ".config/vesktop/themes/ambxst.css",
+    ],
     // The runtime and theming tool Ambxst shares with DMS, the polkit agent it
     // shares with Caelestia, and the audio effects daemon it shares with
     // end4-pC. All have to be named so a switch between the shells that use

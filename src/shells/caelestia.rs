@@ -139,6 +139,7 @@ pub const IDENTITY: Identity = Identity {
     // which is the property `every_discard_path_is_never_preserved` checks.
     discard_paths: &[
         ".cache/caelestia",
+        ".cache/quickshell",
         ".config/btop/themes/caelestia.theme",
         ".config/cava/config",
         ".config/fuzzel/fuzzel.ini",

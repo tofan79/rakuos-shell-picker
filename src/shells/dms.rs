@@ -44,8 +44,8 @@
 //!   DMS wait for it, and DMS looks merely incomplete without it, so it is declared
 //!   rather than left to the skel autostart, which only runs on the next login. The
 //!   live switch starts it in the current session too.
-//! - **companion data**: `dankcalendar-git` and `dgop` own `companion_paths`, and
-//!   DMS is the only shell here with any. Nothing installs those paths — the
+//! - **companion data**: `dankcalendar-git`, `dgop` and `danksearch` own
+//!   `companion_paths`, and DMS is the only shell here with any. Nothing installs those paths — the
 //!   programs write them the first time they run — so the switch neither replaces
 //!   them on the way in nor leaves them behind on the way out: they are backed up
 //!   with DMS, removed only when that backup reproduces them byte for byte, and
@@ -150,9 +150,10 @@ pub const IDENTITY: Identity = Identity {
     // shell would have to remember it.
     autostart_systemd_user_units: &["dsearch"],
     // Where the companions themselves keep their data. `dankcalendar-git` owns
-    // the calendar database and its keyring, and `dgop` owns the palette it
-    // writes; nothing installs any of it, so the skel carries none of it and the
-    // backup is the only thing that can hand it back after DMS has been away.
+    // the calendar database and its keyring, `dgop` owns the palette it writes,
+    // and `danksearch` owns the settings its service reads; nothing installs any
+    // of it, so the skel carries none of it and the backup is the only thing
+    // that can hand it back after DMS has been away.
     //
     // Declared rather than left to `discard_paths`: a calendar database is data.
     // It is backed up with DMS, removed on the way out only when that backup
@@ -162,6 +163,7 @@ pub const IDENTITY: Identity = Identity {
     // between "backed up" and "thrown away without asking" is somebody's data.
     companion_paths: &[
         ".config/dankcal",
+        ".config/danksearch",
         ".config/dgop",
         ".local/share/dankcal",
         ".local/state/dankcal",
@@ -188,17 +190,20 @@ pub const IDENTITY: Identity = Identity {
     ],
     // The rest of matugen's output, which is DMS's own work and nobody's data.
     //
-    // `ghostty` and `zed` get one file each: the directory belongs to the
-    // program and a switch leaves it alone, but the theme inside it is DMS's
-    // render and there is nothing in it worth keeping, so only that file is
-    // named rather than the whole directory. The three colour schemes are the
+    // `ghostty`, `zed`, `vesktop` and `equibop` get one file each: the directory
+    // belongs to the program and a switch leaves it alone, but the theme inside
+    // it is DMS's render and there is nothing in it worth keeping, so only that
+    // file is named rather than the whole directory. The three colour schemes are the
     // same in KDE's own format.
     //
     // The caches go too. `.cache/DankMaterialShell` is several megabytes of
     // regenerated output (`matugen.lock`, `dms-colors.json`), and the two
     // `dankcal` spellings belong to `dankcalendar-git`, which an uninstall
     // takes away with DMS — its shader cache outlives the package only as
-    // rubbish. `.cache/quickshell` is a compiled-QML cache of a few hundred
+    // rubbish. `.cache/danksearch` is the index the search service builds —
+    // close to 200 MiB on this machine — and once that service is masked and
+    // its package gone it is the same kind of rubbish. `.cache/quickshell` is a
+    // compiled-QML cache of a few hundred
     // bytes: the runtime may or may not still be on the machine after this
     // switch (see `runtime_packages`), but whoever runs it next recompiles
     // whatever it needs on the first start, so there is nothing here worth
@@ -210,8 +215,11 @@ pub const IDENTITY: Identity = Identity {
         ".cache/DankMaterialShell",
         ".cache/dankcal",
         ".cache/dank-calendar",
+        ".cache/danksearch",
         ".cache/quickshell",
+        ".config/equibop/themes/dank-discord.css",
         ".config/ghostty/themes/dankcolors",
+        ".config/vesktop/themes/dank-discord.css",
         ".config/zed/themes/dank-zed-theme.json",
         ".local/share/color-schemes/DankMatugen.colors",
         ".local/share/color-schemes/DankMatugenDark.colors",

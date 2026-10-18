@@ -62,9 +62,11 @@ fn switching_away_from_dms_backs_up_what_dms_would_lose() {
             ".local/state/DankMaterialShell",
             ".local/share/applications/dev.noctalia.Noctalia.desktop",
             // and what its companions keep. Nothing installs a calendar
-            // database, so nothing else on the machine would have saved it —
-            // and leaving DMS unannounced would take it with the packages.
+            // database or a search service's settings, so nothing else on the
+            // machine would have saved them — and leaving DMS unannounced would
+            // take them with the packages.
             ".config/dankcal",
+            ".config/danksearch",
             ".config/dgop",
             ".local/share/dankcal",
             ".local/state/dankcal",
