@@ -138,8 +138,8 @@
 //!     the doctor's twenty-five steps failing on every run, which is what a live
 //!     switch reported.
 //!
-//!   Deliberately **not** named, and not because of the image: `khal` (that is
-//!   DMS's calendar), `kdialog`, `swappy`, `gum` and `playerctl` (the shell owns
+//!   Deliberately **not** named, and not because of the image: `khal` (the
+//!   terminal calendar), `kdialog`, `swappy`, `gum` and `playerctl` (the shell owns
 //!   the annotation editor and the menu, its MPRIS is native Quickshell, and the
 //!   file chooser belongs to the session's portal). This is the list of what
 //!   would be missing, not a copy of upstream's installer, which also installs

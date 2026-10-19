@@ -303,11 +303,10 @@ Gambar dibenamkan ke binary (`include_bytes!`) seperti logo. Menambah preview:
    adalah id shell, bukan nama folder asalnya: `end4pc`, bukan `end4-pc`.
 
 Shell yang sudah punya preview: ambxst, end4pc, iNiR, dan noctalia (enam gambar
-masing-masing), lalu caelestia dengan empat. `dms` belum ada gambarnya, jadi ia
-memakai catatan "No preview available yet." Satu gambar tampil apa adanya;
-beberapa gambar tampil sebagai carousel dengan titik penunjuk, berapa pun
-jumlahnya; shell tanpa gambar tidak perlu menunggu screenshot-nya untuk hadir di
-picker.
+masing-masing), lalu caelestia dengan empat dan dms dengan satu. Satu gambar
+tampil apa adanya; beberapa gambar tampil sebagai carousel dengan titik
+penunjuk, berapa pun jumlahnya; shell tanpa gambar memakai catatan "No preview
+available yet." dan tidak perlu menunggu screenshot-nya untuk hadir di picker.
 
 Empat tes menjaga aturan di atas: format harus PNG atau JPEG, tiap file maksimal
 150 KB, id yang dipakai di `image_bytes()` harus id shell yang benar-benar ada,

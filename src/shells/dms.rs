@@ -23,6 +23,11 @@
 //!   calls it from `quickshell/Modules/DankDash`, so the calendar widget is simply
 //!   broken without it, and no rpm dependency would ever have said so.
 //!
+//!   `khal` is deliberately absent. DMS's calendar is DankCalendar, which
+//!   `dankcalendar-git` supplies; the terminal calendar was a second answer to a
+//!   question the shell had already answered, and installing both put two
+//!   calendars on the machine where the widget reads one.
+//!
 //!   The runtime is a stage of its own because that ordering is a safety property,
 //!   not a convenience: if the runtime fails there is then nothing of DMS on the
 //!   machine at all. One transaction would take the shell's own packages down with
@@ -86,7 +91,6 @@ pub const IDENTITY: Identity = Identity {
                 "danksearch",
                 "dankcalendar-git",
                 "matugen",
-                "khal",
             ],
         ],
         program: "pkexec",
@@ -116,7 +120,6 @@ pub const IDENTITY: Identity = Identity {
             "danksearch",
             "dankcalendar-git",
             "matugen",
-            "khal",
             // With the rest rather than in a stage of its own: nothing else on
             // the machine asks for it once `dms` and `dankcalendar-git` are in
             // the same transaction, so leaving it behind only ever produced an

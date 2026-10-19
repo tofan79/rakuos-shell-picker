@@ -168,7 +168,7 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     assert_eq!(
         plan.command_line(),
         "pkexec rum install -y --refresh quickshell-git dms dms-cli dgop \
-         danksearch dankcalendar-git matugen khal"
+         danksearch dankcalendar-git matugen"
     );
     // The password must go to the polkit agent, never through this process.
     assert_eq!(plan.program, "pkexec");

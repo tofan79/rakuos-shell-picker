@@ -38,9 +38,7 @@ pub const HEIGHT: i32 = 236;
 /// Nothing else has to change for it to gain one.
 pub(crate) fn image_bytes(shell_id: &str) -> Vec<&'static [u8]> {
     match shell_id {
-        "dms" => vec![
-            include_bytes!("../../assets/previews/dms-1.png").as_slice(),
-        ],
+        "dms" => vec![include_bytes!("../../assets/previews/dms-1.jpg").as_slice()],
         "ambxst" => vec![
             include_bytes!("../../assets/previews/ambxst-1.jpg").as_slice(),
             include_bytes!("../../assets/previews/ambxst-2.jpg").as_slice(),
@@ -234,6 +232,9 @@ mod tests {
         registered.sort_unstable();
         registered.dedup();
 
-        assert_eq!(registered, ["ambxst", "caelestia", "end4pc", "inir", "noctalia"]);
+        assert_eq!(
+            registered,
+            ["ambxst", "caelestia", "dms", "end4pc", "inir", "noctalia"]
+        );
     }
 }

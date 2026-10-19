@@ -34,7 +34,6 @@ fn the_logged_command_names_every_package_the_plan_stages() {
             "danksearch",
             "dankcalendar-git",
             "matugen",
-            "khal",
         ]
     );
     // Stage 1 is the runtime alone, so a failure there leaves nothing of dms
