@@ -1,0 +1,38 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 50 — Processes spawned at login
+// ─────────────────────────────────────────────────────────────────────────────
+// Each line runs once when Niri starts. For daemons that support it,
+// xdg-desktop-autostart (systemd) is an alternative.
+//
+// Tip: use spawn-sh-at-startup for shell pipelines or variable expansion.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Export XDG_MENU_PREFIX into the systemd user session and rebuild the
+// sycoca database so KDE/Qt apps see the correct .desktop entries.
+spawn-at-startup "bash" "-c" "systemctl --user import-environment XDG_MENU_PREFIX && kbuildsycoca6"
+
+// Clipboard history: wl-paste watches the clipboard and cliphist stores it.
+// Text goes through clipboard-store.py, which strips browser markup: `--type
+// text` is a generic name, so when a page offers only text/html (an image, or
+// rich content out of an editor like ChatGPT's), wl-paste matches that and the
+// raw <meta http-equiv=...> markup is what would land in the history. Asking
+// for text/plain instead would drop those entries entirely.
+// Access via iNiR's clipboard overlay (Mod+V).
+//
+// RakuOS: the scripts ship with the package under /usr/share/quickshell/inir,
+// not in a user copy of the payload, so these paths are absolute. The image's
+// own /usr/share/niri/global.kdl — included first by config.kdl — already
+// starts `wl-paste --watch cliphist store` for text, so a text copy lands in
+// the history twice: once raw from the image's watcher and once stripped from
+// this one. Both lines are kept as they are, because removing the image's is
+// not this skel's to do and dropping this one would give up the stripping that
+// the overlay depends on for browser and editor copies.
+spawn-at-startup "bash" "-c" "wl-paste --no-newline --type text --watch /usr/share/quickshell/inir/scripts/clipboard-store.py &"
+spawn-at-startup "bash" "-c" "wl-paste --type image --watch /usr/share/quickshell/inir/scripts/clipboard-image-store.sh &"
+
+// Polkit: the iNiR shell is the authentication agent (its dialogs follow the
+// family you use). Spawning another agent here would take its place.
+
+// ── iNiR shell ──────────────────────────────────────────────────────────────
+// iNiR is managed by the user systemd service (inir.service).
+// Do not add a compositor startup entry here or you'll get two shells.

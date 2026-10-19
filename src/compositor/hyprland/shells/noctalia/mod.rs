@@ -30,6 +30,7 @@ const PORT: Port = Port {
     config_dir: Some(".config/noctalia"),
     state_dir: Some(".local/state/noctalia"),
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::Autostart,
     // `config_dir` is handled separately, since it comes from a backup when one
     // holds it. The launcher entry is the counterpart to the one the DMS skel

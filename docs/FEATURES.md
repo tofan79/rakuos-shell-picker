@@ -79,13 +79,14 @@ Inti dari proyek. `switch::prepare` (langkah 1–3) dan `apply::apply_with`
 | E8 | Stop shell lama dengan rapi (bukan `kill -9`) | selesai — SIGTERM, tunggu, batas waktu, `kill -KILL` hanya upaya terakhir |
 | E9 | Start shell baru dengan mekanisme yang benar | selesai — `StartMechanism`, dibaca lagi oleh `verify` |
 | E10 | Deteksi shell yang jalan tanpa lewat daftar kita | selesai — `process_running` lewat `/proc` |
-| E11 | Registry shell untuk compositor kedua | selesai — Niri terdaftar dengan port DMS + Noctalia + Ambxst + iNiR (`src/compositor/niri/shells/`) |
+| E11 | Registry shell untuk compositor kedua | selesai — Niri terdaftar dengan port DMS + Noctalia + Ambxst + iNiR yang lengkap (skel, config, probe) di `src/compositor/niri/shells/` |
 | E12 | Cek environment sebelum switch (display, Wayland) | selesai — deteksi menolak kalau tidak ada sesi Wayland, `prepare` langkah 2 menolak target yang tidak bisa jalan |
 | E13 | Guard di backend | selesai — `Refusal::Compositor` di `switch::prepare` langkah 1, arahnya sama dengan guard UI |
 | E14 | Bersih setelah switch: `.pre-*`, config dan state shell keluar | selesai — `apply::clean`, hanya yang direproduksi backup byte untuk byte |
 | E15 | Hapus paket shell yang ditinggalkan | selesai — `switch::uninstall` + `Identity::uninstall_plan`; paket base image tidak pernah dikirim ke package manager, runtime bersama tidak pernah disentuh |
 | E16 | Unit systemd daemon shell mengikuti hidup/matinya | selesai — `Identity::autostart_systemd_user_units`; keluar: `stop`+`disable`+`mask`, masuk: `unmask`+`enable`+`start`; DMS mendeklarasikan `dsearch`, perlakuannya sama di kedua compositor |
-| E17 | Kartu iNiR (Niri) + end4-pC (Hyprland) | sebagian — end4-pC selesai (plan, config_dir symlink ke payload RPM, skel dots ii + `qsConfig=end4-pC`, bootstrap venv + default tampilan di `custom/`, clean: settings shell + matugen + color-schemes + cache uv + venv); iNiR: install/uninstall plan, config_dir, skel, dan pola probe menyusul |
+| E17 | Kartu iNiR (Niri) + end4-pC (Hyprland) | selesai — end4-pC (plan, config_dir symlink ke payload RPM, skel dots ii + `qsConfig=end4-pC`, bootstrap venv + default tampilan di `custom/`, clean: settings shell + matugen + color-schemes + cache uv + venv); iNiR: plan install/uninstall, skel `defaults/niri` upstream (2 adaptasi: platform theme `qt6ct`, path watcher clipboard), config `.config/illogical-impulse`, state `.local/state/inir`, probe `qs -n -p /usr/share/quickshell/inir`, enable lewat `niri.service.wants` |
+| E18 | Enable unit shell yang tidak punya `[Install]` | selesai — `Port::systemd_user_unit_wanted_by`; masuk: symlink `<unit>.service` ke `<target>.wants/` + `daemon-reload`, keluar: semua link itu dihapus (tanpa `disable`/`mask`, karena `disable` justru menolak unit tanpa `[Install]`); iNiR dengan `niri.service` satu-satunya pemakai |
 
 ## G. Logging
 

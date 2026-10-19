@@ -31,6 +31,7 @@ static GHOST: Shell = Shell {
     polkit_agent: &[],
     backup_extra_paths: &[],
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::DirectProcess,
     logo: None,
 };

@@ -56,7 +56,11 @@ src/compositor/             satu folder per compositor
       dms/mod.rs + skel/
       noctalia/mod.rs + skel/
       ambxst/mod.rs + skel/
-      inir/mod.rs           PORT: kartu dulu — unit systemd `inir` sudah; config, skel menyusul
+      inir/mod.rs + skel/    PORT: unit systemd `inir` di-aktifkan lewat symlink
+                            `niri.service.wants/` (unit-nya tanpa `[Install]`);
+                            skel: `defaults/niri` upstream + launcher Noctalia
+                            (NoDisplay); config `.config/illogical-impulse` +
+                            state `.local/state/inir`
   fake.rs                   compositor kedua untuk test, hanya di build test
 
 src/shell.rs                tipe Identity + Port + Shell + InstallPlan +
@@ -83,6 +87,7 @@ yang berubah menurut compositor:
 | `install_plan`, `uninstall_plan`, `companion_systemd_user_units`, `companion_paths`, `generated_paths`, `discard_paths`, `runtime_packages` | `Identity` | — |
 | `config_dir`, `state_dir` | — | `Port` |
 | `systemd_user_unit`, `mechanism` | — | `Port` |
+| `systemd_user_unit_wanted_by` | — | `Port` |
 | `skel_extra_paths`, `backup_extra_paths` | — | `Port` |
 
 `Port` sengaja tidak punya field yang bisa berduplikasi, jadi menyalinnya ke
@@ -190,6 +195,9 @@ const PORT: Port = Port {
     config_dir: Some(".config/nama-baru"),
     state_dir: None,
     systemd_user_unit: None,
+    // Hanya kalau unit-nya tidak punya `[Install]`: nama unit yang `.wants/`-nya
+    // memuat symlink enable-nya (`"niri.service"`).
+    systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::DirectProcess,
     skel_extra_paths: &[],
     backup_extra_paths: &[],
@@ -210,7 +218,7 @@ Ulangi folder itu untuk setiap compositor lain yang menawarkannya.
 `<compositor>/shells/nama_baru/mod.rs` akan berbeda di `mechanism` atau
 `systemd_user_unit` kalau memang begitu, dan identik kalau memang sama.
 
-Delapan field yang sering tertukar:
+Sembilan field yang sering tertukar:
 
 - `skel_extra_paths` — file yang switch **timpa**. Tambah di sini berarti
   menimpa file milik user, jadi harus ada di `backup_extra_paths` atau
@@ -283,8 +291,18 @@ Benturan dua aturan ini di dua arah yang berbeda adalah disengaja:
   hanya di-stop/start dan tidak pernah di-disable/mask karena tidak ada yang
   meng-enable-nya. Yang kedua: argv agen polkit yang harus dijalankan switch
   **sebelum** tahap `pkexec rum remove` — Caelestia dan Ambxst menjawab polkit
-  lewat `/usr/libexec/polkit-mate-authentication-agent-1`; DMS, Noctalia, dan
-  end4-pC menjawab polkit sendiri dan kosong di sini.
+  lewat `/usr/libexec/polkit-mate-authentication-agent-1`; DMS, Noctalia,
+  end4-pC dan iNiR menjawab polkit sendiri dan kosong di sini.
+- `systemd_user_unit_wanted_by` — nama unit yang `.wants/`-nya memuat symlink
+  enable, untuk unit yang **tidak punya `[Install]`**. `systemctl --user enable`
+  menolak unit seperti itu, jadi `apply` menulis sendiri link yang seharusnya
+  ditulis `enable` (`start`: link + `daemon-reload`; `stop_unit`: link itu
+  dihapus, tanpa `disable` — tidak ada `[Install]` untuk dibatalkan — dan tanpa
+  `mask`, karena upstream punya perintah `inir service enable` sendiri yang akan
+  menulis link yang sama). iNiR satu-satunya yang memakainya hari ini, dengan
+  `niri.service`: unit `inir.service` memang dikirim apa adanya dari upstream,
+  yang meng-enable-nya dengan symlink seperti itu. Target-nya di `Port` karena
+  jawabannya unit milik compositor.
 
 Lihat [SWITCH-FLOW.md](SWITCH-FLOW.md) untuk urutan lengkap kedua arah beserta
 daftar file yang masing-masing langkah sentuh.

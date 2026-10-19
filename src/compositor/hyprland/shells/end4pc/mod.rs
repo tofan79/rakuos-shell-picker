@@ -51,6 +51,7 @@ const PORT: Port = Port {
     config_dir: Some(".config/quickshell/end4-pC"),
     state_dir: None,
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::StartEvent,
     // Matugen reads its configuration and templates from here; the skel is the
     // only thing that would ever install them, and `backup_extra_paths` is

@@ -36,6 +36,7 @@ static INSTALLED_IDLE: Shell = Shell {
         args: &["rum", "remove", "-y"],
     }),
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
 
     companion_systemd_user_units: &[],
     autostart_systemd_user_units: &[],
@@ -63,6 +64,7 @@ static NOT_INSTALLED: Shell = Shell {
     install_plan: None,
     uninstall_plan: None,
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
 
     companion_systemd_user_units: &[],
     autostart_systemd_user_units: &[],
@@ -90,6 +92,7 @@ static ALREADY_RUNNING: Shell = Shell {
     install_plan: None,
     uninstall_plan: None,
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
 
     companion_systemd_user_units: &[],
     autostart_systemd_user_units: &[],

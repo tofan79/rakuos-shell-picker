@@ -364,7 +364,7 @@ pub fn apply_with(
     ));
 
     if let Some(shell) = current {
-        if let Err(detail) = stop(shell, progress) {
+        if let Err(detail) = stop(shell, home, progress) {
             let _ = std::fs::remove_dir_all(&staging);
             return Apply::Failed {
                 step: "stop",
@@ -391,7 +391,7 @@ pub fn apply_with(
             // worse than the failure that caused it.
             progress("putting the previous configuration back");
             let configs_back = restore(&asides, home);
-            let old_up = resume(current, progress);
+            let old_up = resume(current, home, progress);
             let _ = std::fs::remove_dir_all(&staging);
             return Apply::Failed {
                 step: "swap",
@@ -403,17 +403,17 @@ pub fn apply_with(
     let _ = std::fs::remove_dir_all(&staging);
 
     if let Err((step, detail)) =
-        start(target, progress).and_then(|()| verify(target, bus_owner_before, progress))
+        start(target, home, progress).and_then(|()| verify(target, bus_owner_before, progress))
     {
         progress(&format!("{step} did not work: {detail}"));
         // Stop it before touching any files. It may already own the notification
         // bus, and starting the old shell back up alongside it means one of the
         // two fails to own it — so the rollback would produce two half-started
         // shells instead of the one working shell the user had before.
-        let stopped = stop(target, progress);
+        let stopped = stop(target, home, progress);
         progress("putting the previous configuration back");
         let configs_back = restore(&asides, home);
-        let old_up = resume(current, progress);
+        let old_up = resume(current, home, progress);
         return Apply::Failed {
             step,
             detail,
@@ -931,9 +931,9 @@ fn stop_plan(shell: &Shell) -> Result<StopPlan, String> {
 /// itself is down by then, and failing a switch over a helper that would not
 /// stop would leave the session with no shell at all — the one outcome worse
 /// than a helper still sitting there.
-fn stop(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), String> {
+fn stop(shell: &Shell, home: &Path, progress: &mut dyn FnMut(&str)) -> Result<(), String> {
     match stop_plan(shell)? {
-        StopPlan::Unit(unit) => stop_unit(shell, unit, progress)?,
+        StopPlan::Unit(unit) => stop_unit(shell, home, unit, progress)?,
         StopPlan::Signals => stop_signals(shell, progress)?,
     }
     stop_companions(shell, progress);
@@ -948,6 +948,7 @@ fn stop(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), String> {
 /// the same claim, and only one of them is observed rather than reported.
 fn stop_unit(
     shell: &Shell,
+    home: &Path,
     unit: &'static str,
     progress: &mut dyn FnMut(&str),
 ) -> Result<(), String> {
@@ -998,7 +999,15 @@ fn stop_unit(
     // doors, and the daemons that autostart with the shell — `dsearch` for DMS,
     // see [`Shell::autostart_systemd_user_units`] — are stopped and held down
     // the same way. `unmask_and_enable` in [`start`] is the exact undo.
-    disable_and_mask(unit, progress);
+    //
+    // A unit that was enabled by a wants link instead — see
+    // [`Port::systemd_user_unit_wanted_by`] — has no `[Install]` for `disable`
+    // to undo, and takes the link away instead. Each branch is the exact mirror
+    // of the one `start` takes for the same shell.
+    match shell.systemd_user_unit_wanted_by {
+        Some(_) => disable_via_wants(home, unit, progress),
+        None => disable_and_mask(unit, progress),
+    }
     for companion in shell.autostart_systemd_user_units {
         stop_and_mask(companion, progress);
     }
@@ -1065,6 +1074,169 @@ fn unmask_and_enable(unit: &str, progress: &mut dyn FnMut(&str)) {
             )),
             Err(err) => progress(&format!("cannot run systemctl to {verb} {name}: {err}")),
         }
+    }
+}
+
+/// Enable a unit that ships no `[Install]` section, by writing the wants link
+/// `systemctl --user enable` would have written itself.
+///
+/// [`Port::systemd_user_unit_wanted_by`] names the unit whose `.wants/`
+/// directory is the right one — the compositor's own service — and upstream iNiR
+/// does exactly this by hand, which is why its unit carries no `[Install]` to
+/// begin with. `enable` refuses such a unit, so the link has to be written here:
+/// without it the switch's work is invisible at the next login, and the machine
+/// boots with no shell at all.
+///
+/// Every step is reported as a line rather than returned, the same shape as
+/// [`disable_and_mask`]: the shell is started by the caller right after this, and
+/// a link that could not be written is worth saying out loud, not worth refusing
+/// a switch over.
+fn enable_via_wants(
+    home: &Path,
+    target: &str,
+    unit: &str,
+    progress: &mut dyn FnMut(&str),
+) {
+    let name = format!("{unit}.service");
+
+    // `unmask` first, for the reason in [`unmask_and_enable`]: a mask shadows
+    // everything under it, including a link written a moment later. Nothing here
+    // masks this unit, but an older picker did and a user may have done it by
+    // hand.
+    match run("systemctl", &["--user", "unmask", &name]) {
+        Ok(out) if out.status.success() => progress(&format!("unmasked {name}")),
+        Ok(out) => progress(&format!(
+            "cannot unmask {name}: {}",
+            String::from_utf8_lossy(&out.stderr).trim()
+        )),
+        Err(err) => progress(&format!("cannot run systemctl to unmask {name}: {err}")),
+    }
+
+    let user_dir = systemd_user_dir(home);
+    let wants_dir = user_dir.join(format!("{target}.wants"));
+
+    // One enablement at a time. A link under another target would start the unit
+    // a second time at login — or under a compositor that is not the one running
+    // — and a stale one is what upstream's `cleanup_stale_wants_links` sweeps up.
+    drop_wants_links(&user_dir, &name, Some(&format!("{target}.wants")), progress);
+
+    if let Err(err) = std::fs::create_dir_all(&wants_dir) {
+        progress(&format!("cannot create {}: {err}", wants_dir.display()));
+        return;
+    }
+
+    // What the link points at, asked rather than guessed: the unit lives under
+    // `/usr/lib/systemd/user` today, and the same command is what upstream's
+    // launcher uses for this symlink, so the answer follows the package.
+    let link_target = unit_fragment_path(&name).unwrap_or_else(|| user_dir.join(&name));
+    let link = wants_dir.join(&name);
+    // The link is ours to replace, so it goes before the new one is made rather
+    // than through `-f`: `symlink` refuses an existing path, and a stale link to
+    // a path that no longer exists is exactly the case this has to survive.
+    let _ = std::fs::remove_file(&link);
+    match std::os::unix::fs::symlink(&link_target, &link) {
+        Ok(()) => progress(&format!(
+            "enabled {name} into {target} ({})",
+            link_target.display()
+        )),
+        Err(err) => progress(&format!(
+            "cannot link {} to {}: {err}",
+            link.display(),
+            link_target.display()
+        )),
+    }
+
+    daemon_reload(progress);
+}
+
+/// Undo [`enable_via_wants`] by taking the link away, and nothing else.
+///
+/// Deliberately not [`disable_and_mask`]. `disable` is the verb that cannot work
+/// here — there is no `[Install]` for it to undo, which is the whole reason the
+/// link exists — and a mask would hold the unit down after upstream's own
+/// `inir service enable` wrote the link back, leaving a shell that never starts
+/// and no error to explain it. The link is the entire enablement, so removing
+/// every one of them is the entire undo.
+fn disable_via_wants(home: &Path, unit: &str, progress: &mut dyn FnMut(&str)) {
+    let name = format!("{unit}.service");
+    // No `keep`: a link under any target is one that would start this unit
+    // without the picker having chosen it.
+    drop_wants_links(&systemd_user_dir(home), &name, None, progress);
+    daemon_reload(progress);
+}
+
+/// The `~/.config/systemd/user` directory a wants link belongs in.
+fn systemd_user_dir(home: &Path) -> PathBuf {
+    home.join(".config/systemd/user")
+}
+
+/// Remove every `*.wants/<name>` link under `user_dir` except, when one is named,
+/// the link under `keep`.
+///
+/// The `*.wants` directories are created by `enable` and by whoever wrote a link
+/// by hand, so they are read rather than listed. A broken link counts: it is a
+/// link, and it is what `systemctl` would try to start.
+fn drop_wants_links(
+    user_dir: &Path,
+    name: &str,
+    keep: Option<&str>,
+    progress: &mut dyn FnMut(&str),
+) {
+    let Ok(entries) = std::fs::read_dir(user_dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let dir = entry.path();
+        let dir_name = entry.file_name();
+        let Some(dir_name) = dir_name.to_str() else {
+            continue;
+        };
+        if !dir_name.ends_with(".wants") || Some(dir_name) == keep || !dir.is_dir() {
+            continue;
+        }
+        let link = dir.join(name);
+        if std::fs::symlink_metadata(&link).is_err() {
+            continue;
+        }
+        match std::fs::remove_file(&link) {
+            Ok(()) => progress(&format!("removed {}", link.display())),
+            Err(err) => progress(&format!("cannot remove {}: {err}", link.display())),
+        }
+    }
+}
+
+/// Where systemd would run a user unit from, or `None` when it cannot say.
+fn unit_fragment_path(name: &str) -> Option<PathBuf> {
+    let out = run(
+        "systemctl",
+        &["--user", "show", "-p", "FragmentPath", "--value", name],
+    )
+    .ok()?;
+    if !out.status.success() {
+        return None;
+    }
+    let path = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    if path.is_empty() {
+        None
+    } else {
+        Some(PathBuf::from(path))
+    }
+}
+
+/// Ask systemd to re-read the user unit directory, after a link changed.
+///
+/// A link written or removed under `~/.config/systemd/user` is invisible until
+/// this runs, which is why upstream's launcher does the same after its own
+/// symlink. A failure is a line, not an error: it costs the link its effect until
+/// the next reload, and the login that follows reloads anyway.
+fn daemon_reload(progress: &mut dyn FnMut(&str)) {
+    match run("systemctl", &["--user", "daemon-reload"]) {
+        Ok(out) if out.status.success() => {}
+        Ok(out) => progress(&format!(
+            "cannot reload systemd: {}",
+            String::from_utf8_lossy(&out.stderr).trim()
+        )),
+        Err(err) => progress(&format!("cannot run systemctl to reload: {err}")),
     }
 }
 
@@ -1593,7 +1765,11 @@ fn start_systemd_unit(
 }
 
 /// Start a shell the way it says it starts.
-fn start(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), (&'static str, String)> {
+fn start(
+    shell: &Shell,
+    home: &Path,
+    progress: &mut dyn FnMut(&str),
+) -> Result<(), (&'static str, String)> {
     // Companions first, in the order the shell declares them. A shell's own unit
     // does not depend on them, so systemd starts it either way and the result is
     // a running shell quietly missing part of its interface.
@@ -1636,8 +1812,16 @@ fn start(shell: &Shell, progress: &mut dyn FnMut(&str)) -> Result<(), (&'static 
             start_systemd_unit(&name, progress)?;
         }
 
-        // The same move for the shell's own unit, after its companions.
-        unmask_and_enable(unit, progress);
+        // The same move for the shell's own unit, after its companions: the
+        // enable verb for a unit that carries its own `[Install]`, and a wants
+        // link for one that does not — see
+        // [`Port::systemd_user_unit_wanted_by`], whose own shell states which of
+        // the two applies. `stop_unit` takes the mirror of whichever branch runs
+        // here.
+        match shell.systemd_user_unit_wanted_by {
+            Some(target) => enable_via_wants(home, target, unit, progress),
+            None => unmask_and_enable(unit, progress),
+        }
         let name = format!("{unit}.service");
         progress(&format!("starting {name}"));
         start_systemd_unit(&name, progress)?;
@@ -1844,10 +2028,10 @@ fn verify(
 }
 
 /// Bring the old shell back after a failed switch.
-fn resume(shell: Option<&'static Shell>, progress: &mut dyn FnMut(&str)) -> bool {
+fn resume(shell: Option<&'static Shell>, home: &Path, progress: &mut dyn FnMut(&str)) -> bool {
     let Some(shell) = shell else { return true };
     progress(&format!("starting {} back", shell.display_name));
-    match start(shell, progress) {
+    match start(shell, home, progress) {
         Ok(()) => true,
         Err((_, detail)) => {
             crate::logging::error(&format!("cannot restart {}: {detail}", shell.id));

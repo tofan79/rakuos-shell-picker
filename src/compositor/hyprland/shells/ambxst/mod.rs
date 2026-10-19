@@ -43,6 +43,7 @@ const PORT: Port = Port {
     config_dir: Some(".config/ambxst"),
     state_dir: Some(".local/state/ambxst"),
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::DirectProcess,
     // The launcher entry is the same counterpart the other shells carry: a
     // switch must not leave Noctalia advertised in the app menu while Ambxst is

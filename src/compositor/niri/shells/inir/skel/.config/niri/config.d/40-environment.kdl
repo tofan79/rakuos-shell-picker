@@ -1,0 +1,45 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 40 — Environment variables
+// ─────────────────────────────────────────────────────────────────────────────
+// These are set for every process spawned by Niri (including spawn-at-startup
+// and keybind commands). They are NOT inherited by TTY/SSH sessions — for
+// those, iNiR's setup writes equivalent exports into ~/.bashrc / fish conf.d.
+// ─────────────────────────────────────────────────────────────────────────────
+
+environment {
+    // Tell apps which compositor is running (used by xdg-desktop-portal, etc.).
+    XDG_CURRENT_DESKTOP "niri"
+
+    // Use Plasma's app-menu prefix so kbuildsycoca6 indexes .desktop files
+    // and Dolphin/Nautilus "Open With" menus work correctly.
+    XDG_MENU_PREFIX "plasma-"
+
+    // Force Qt apps to use Wayland natively (no XWayland fallback).
+    QT_QPA_PLATFORM "wayland"
+
+    // Let Electron apps (Chrome, VS Code, Discord) pick Wayland automatically.
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+
+    // Silence noisy Quickshell D-Bus property logs.
+    QT_LOGGING_RULES "quickshell.dbus.properties=false"
+
+    // Qt theming. Upstream ships "kde" here, which reads colours out of
+    // kdeglobals through plasma-integration; when that is missing, iNiR's own
+    // setup rewrites this line to "qt6ct". RakuOS carries no plasma-integration,
+    // so the skel ships the value that setup would have written: qt6ct reads the
+    // Darkly colour scheme iNiR renders into ~/.config/qt6ct/qt6ct.conf.
+    //
+    // The image's /usr/share/niri/global.kdl sets a gtk3 platform theme of its
+    // own, in a block that is included before this one; this value is the one
+    // that reaches the session. (The `QT_QPA_PLATFORMTHEME_QT6` it also sets is
+    // read by no Qt library — only by DMS's settings — so it is left alone.)
+    QT_QPA_PLATFORMTHEME "qt6ct"
+
+    // Darkly is a modern Qt style that follows the colour scheme it is pointed
+    // at; iNiR renders that scheme as Darkly.colors and qt6ct names it.
+    QT_STYLE_OVERRIDE "Darkly"
+
+    // Python venv used by iNiR scripts (color generation, AI features, translations).
+    INIR_VENV "$HOME/.local/state/quickshell/.venv"
+    ILLOGICAL_IMPULSE_VIRTUAL_ENV "$HOME/.local/state/quickshell/.venv"
+}

@@ -174,6 +174,8 @@ membandingkan isinya.
 | DankMaterialShell (DMS) | ya | ya | diinstal dari repository (multi-stage) |
 | Caelestia Shell | ya | — | diinstal dari repository (quickshell + paket) |
 | Ambxst | ya | ya | diinstal dari repository (quickshell + paket + companion) |
+| end4-pC | ya | — | diinstal dari repository (quickshell + paket); skel dots `ii` |
+| iNiR | — | ya | diinstal dari repository (quickshell + paket); skel `defaults/niri` upstream |
 
 Ambxst ada di repository `rakuos`, jadi ia punya paket, install plan, uninstall
 plan, dan `skel/` sendiri (lokasi config-nya `.config/ambxst`). Karena punya
@@ -184,10 +186,20 @@ seperti biasa. Data yang Ambxst dan companion-nya simpan di luar `config_dir`
 clipboard, `.local/share/ambxst-notes` untuk catatan) ikut tersimpan lewat
 `companion_paths`.
 
+iNiR sama: paket `inir-shell` dari repository, dengan skel Niri milik upstream
+(`~/.config/niri`), config di `~/.config/illogical-impulse` (nama yang dipakai
+runtime QML-nya sendiri) dan state di `~/.local/state/inir`, plus data
+companion di `~/.config/inir` (widget custom) dan
+`~/.local/state/quickshell/{user,states.json}` (todo, catatan, chat, palet yang
+diregenerasi). Yang membedakannya dari shell lain: unit systemd-nya
+(`inir.service`) dikirim upstream tanpa bagian `[Install]`, jadi `systemctl
+--user enable` menolaknya dan switch menulis sendiri symlink
+`niri.service.wants/inir.service` — lihat `Port::systemd_user_unit_wanted_by`.
+
 Aturan yang lebih umum: **skel boleh absen hanya di tempat shell tidak bisa
 diinstal** — diuji
 `a_skel_is_missing_only_where_the_shell_cannot_be_installed`. Niri karena itu
-mendaftarkan shell yang skel-nya sudah ada (DMS, Noctalia, dan Ambxst);
+mendaftarkan shell yang skel-nya sudah ada (DMS, Noctalia, Ambxst, dan iNiR);
 Caelestia belum punya port Niri, jadi tidak didaftarkan.
 
 ## Panel log

@@ -341,6 +341,22 @@ pub struct Port {
     pub state_dir: Option<&'static str>,
     /// The systemd user unit that starts this shell, when it has one.
     pub systemd_user_unit: Option<&'static str>,
+    /// The unit whose `.wants/` directory is where this shell's own unit gets
+    /// enabled, for a unit that ships no `[Install]` section.
+    ///
+    /// `systemctl --user enable` refuses a unit with no `[Install]`, which is
+    /// how iNiR's `inir.service` is written: upstream enables it by hand, with a
+    /// symlink into whichever compositor's `.wants/` directory is the one it
+    /// should start under. Naming that compositor here is the same fact stated
+    /// where the switch can read it, so `apply` writes the link `enable` would
+    /// have written — and on the way out removes it again. Empty means the
+    /// ordinary case: the unit carries its own `[Install]`, and the enable and
+    /// disable verbs do the whole job.
+    ///
+    /// On [`Port`] rather than [`Identity`] because the answer is the
+    /// compositor's own service (`niri.service`), which is exactly the kind of
+    /// fact that changes from compositor to compositor.
+    pub systemd_user_unit_wanted_by: Option<&'static str>,
     pub mechanism: StartMechanism,
     /// Other paths, relative to `$HOME`, that this shell's skel also carries.
     ///
@@ -395,6 +411,11 @@ pub struct Shell {
     /// then carried out of a switch.
     pub state_dir: Option<&'static str>,
     pub systemd_user_unit: Option<&'static str>,
+    /// See [`Port::systemd_user_unit_wanted_by`]. Kept on `Shell` for the same
+    /// reason as the unit name above: `start` and `stop_unit` read the shell they
+    /// are working on through [`Self`], so how its unit gets enabled has to
+    /// travel with it.
+    pub systemd_user_unit_wanted_by: Option<&'static str>,
     /// User services this shell needs before it is worth starting, in order.
     ///
     /// A shell's own unit does not depend on these, so systemd will happily start
@@ -492,7 +513,7 @@ impl Shell {
     /// A doc comment rather than a doctest, because a real snippet needs an
     /// `IDENTITY` and a complete `Port` to mean anything, and a partial one would
     /// have to be `ignore`d to compile — which is a comment with extra steps. The
-    /// declarations this stands for are the seven files under
+    /// declarations this stands for are the files under
     /// `compositor/*/shells/*/`, and those are compiled by the build.
     ///
     /// Takes both halves by value. They are `Copy`, so this is a field-by-field
@@ -521,6 +542,7 @@ impl Shell {
             config_dir: port.config_dir,
             state_dir: port.state_dir,
             systemd_user_unit: port.systemd_user_unit,
+            systemd_user_unit_wanted_by: port.systemd_user_unit_wanted_by,
             mechanism: port.mechanism,
             skel_extra_paths: port.skel_extra_paths,
             backup_extra_paths: port.backup_extra_paths,

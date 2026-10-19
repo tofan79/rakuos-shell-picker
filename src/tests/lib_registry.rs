@@ -158,7 +158,9 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         .collect();
     assert_eq!(
         with_plan,
-        BTreeSet::from(["ambxst", "caelestia", "dms", "end4pc", "noctalia"])
+        BTreeSet::from([
+            "ambxst", "caelestia", "dms", "end4pc", "inir", "noctalia"
+        ])
     );
 
     let dms = super::shell::find("dms").expect("dms registered");
@@ -250,6 +252,27 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         "pkexec rum install -y --refresh noctalia"
     );
     assert_eq!(plan.program, "pkexec");
+
+    let inir = super::shell::find("inir").expect("inir registered");
+    let plan = inir.install_plan.expect("inir installs from a repository");
+    // Its own package, the runtime in a stage of its own (mirroring DMS), the
+    // QML and Qt pieces its interface imports, then every tool the skel or the
+    // QML runs that nothing requires at the package level: the two clipboard
+    // programs behind the watcher the skel starts, the capture tools behind its
+    // screenshot and record keys, the image probe it sizes a wallpaper with, OCR,
+    // the two brightness backends, the idle daemon and the lock screen, the night
+    // light, the Go toolchain its theme modules build with, and the two fonts its
+    // interface is drawn with. No polkit agent: iNiR answers polkit from its own.
+    assert_eq!(
+        plan.command_line(),
+        "pkexec rum install -y --refresh quickshell-git inir-shell qt6-qt5compat \
+         qt6-qtmultimedia qt6-qtimageformats qt6ct darkly kf6-kservice cliphist \
+         wl-clipboard grim slurp wf-recorder ImageMagick tesseract ddcutil \
+         brightnessctl swayidle swaylock wlsunset golang material-symbols-fonts \
+         jetbrainsmono-nerd-fonts"
+    );
+    assert!(plan.packages().contains(&plan.package));
+    assert_eq!(plan.program, "pkexec");
 }
 
 #[test]
@@ -257,9 +280,9 @@ fn a_shell_without_an_install_plan_is_not_removable_either() {
     // A removal only makes sense for a package the picker could have put there.
     // A shell the picker cannot install — one that lives in a base image with no
     // repository entry — must therefore not carry a removal plan either, or the
-    // dialog would offer to take off something no switch ever added. iNiR is
-    // the shell this checks for real: it is packaged, and it is planless until
-    // its backend lands.
+    // dialog would offer to take off something no switch ever added. Every
+    // packaged shell here carries both plans today, so the rule reads as a
+    // formality; it is the shape the pair has to keep as shells are added.
     for compositor in compositor::all() {
         for shell in compositor.shells() {
             if shell.install_plan.is_none() {
@@ -665,6 +688,58 @@ fn a_unit_that_autostarts_with_a_shell_belongs_to_one() {
 }
 
 #[test]
+fn a_unit_with_no_install_section_is_enabled_through_a_wants_link() {
+    // Almost every unit here carries its own `[Install]`, so `systemctl --user
+    // enable` writes the link and the picker never has to know how it got there.
+    // iNiR's `inir.service` is the one that does not: upstream enables it by
+    // hand, with a symlink into the running compositor's own `.wants/`
+    // directory, and `enable` refuses a unit with nothing to install from. That
+    // is what `Port::systemd_user_unit_wanted_by` states, and the two
+    // declarations have to agree or the switch takes the wrong branch: a target
+    // named for a shell that starts some other way sends `apply` writing a link
+    // nothing reads, and a shell whose unit has no `[Install]` but no target
+    // either is left enabled by a verb that cannot have worked.
+    for compositor in super::compositor::all() {
+        for shell in compositor.shells() {
+            if shell.systemd_user_unit_wanted_by.is_none() {
+                continue;
+            }
+            assert!(
+                shell.systemd_user_unit.is_some() && shell.mechanism.uses_systemd_unit(),
+                "{}/{} enables a unit through a wants link, so it has to start \
+                 through a unit of its own",
+                compositor.id(),
+                shell.id
+            );
+        }
+    }
+
+    // Pinned both ways: iNiR on Niri is the only shell whose unit ships no
+    // `[Install]`, and the target it names is the compositor's own service.
+    let inir = super::compositor::NIRI
+        .shells()
+        .iter()
+        .find(|s| s.id == "inir")
+        .expect("inir registered for niri");
+    assert_eq!(inir.systemd_user_unit_wanted_by, Some("niri.service"));
+    for compositor in super::compositor::all() {
+        for shell in compositor.shells() {
+            if shell.id == "inir" {
+                continue;
+            }
+            assert_eq!(
+                shell.systemd_user_unit_wanted_by,
+                None,
+                "{}/{} enables itself through a wants link; only iNiR's unit is \
+                 written without an `[Install]` section today",
+                compositor.id(),
+                shell.id
+            );
+        }
+    }
+}
+
+#[test]
 fn only_a_detached_start_detaches() {
     // The flag belongs to the shells whose launcher waits on the command
     // returning. Every other mechanism either has a unit that never reaches
@@ -1030,9 +1105,10 @@ fn a_compositor_with_no_skel_yet_refuses_every_shell_on_it() {
 
 #[test]
 fn a_skel_is_missing_only_where_the_shell_cannot_be_installed() {
-    // The card-only port iNiR arrived without a skel, so this now runs for
-    // real. It exists because of Niri — see below — and Ambxst's skel was
-    // added exactly to move it into the covered set.
+    // The card-only port used to be the case this ran on for real — iNiR
+    // arrived without a skel, and now ships upstream's `defaults/niri`. Every
+    // port here has one today, so the loop below only fires for a shell that
+    // arrives before its skel does.
     //
     // Niri had three ports and no skel at all, and that was not deliberate.
     // Two of its shells were installable, so the dialog offered them, and the
@@ -1197,7 +1273,7 @@ fn a_shell_that_runs_on_a_shared_runtime_says_so_and_the_others_do_not() {
     // something real: a shell that runs on quickshell and does not declare it
     // loses its runtime the moment DMS leaves, and Noctalia declaring it would
     // mean switching to Noctalia never cleaned anything of DMS's up.
-    for id in ["dms", "caelestia", "ambxst", "end4pc"] {
+    for id in ["dms", "caelestia", "ambxst", "end4pc", "inir"] {
         let shell = super::shell::find(id).expect("registered");
         assert!(
             shell.runtime_packages.contains(&"quickshell-git"),

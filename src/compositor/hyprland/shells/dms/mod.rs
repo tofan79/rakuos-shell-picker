@@ -44,6 +44,7 @@ const PORT: Port = Port {
     config_dir: Some(".config/DankMaterialShell"),
     state_dir: Some(".local/state/DankMaterialShell"),
     systemd_user_unit: Some("dms"),
+    systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::SystemdUserUnit,
     skel_extra_paths: &[
         ".config/gtk-3.0/gtk.css",

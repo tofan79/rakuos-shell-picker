@@ -51,6 +51,7 @@ const PORT: Port = Port {
     config_dir: Some(".config/ambxst"),
     state_dir: Some(".local/state/ambxst"),
     systemd_user_unit: None,
+    systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::DirectProcess,
     // The launcher entry hides Noctalia while Ambxst is the shell: Noctalia's
     // package installs a visible `dev.noctalia.Noctalia.desktop`, and leaving it
