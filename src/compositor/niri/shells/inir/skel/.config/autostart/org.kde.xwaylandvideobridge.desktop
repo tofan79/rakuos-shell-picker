@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Xwayland Video Bridge
+Comment=Disabled: XWayland screen sharing into X11 apps is not needed on this desktop
+Hidden=true

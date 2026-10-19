@@ -107,10 +107,27 @@ const PORT: Port = Port {
     // The launcher entry is the counterpart the other Niri skels carry: a switch
     // must not leave Noctalia advertised in the app menu while iNiR is the shell.
     // This copy ships hidden (`NoDisplay=true`), like DMS's.
-    skel_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
-    // Same file, listed for the second question a switch asks: nothing else would
-    // back it up. The plan deduplicates the path, so it is not staged twice.
-    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    //
+    // The autostart file masks KDE's Xwayland video bridge, which the image
+    // starts from `/etc/xdg/autostart`. Its only job is to put Wayland windows
+    // into the screen-share picker of X11 applications, but it keeps an
+    // undeletable "Wayland to X Recording bridge" window in the compositor's
+    // window list all session. `Hidden=true` in a user autostart file makes
+    // systemd-xdg-autostart-generator skip the entry, so the helper never runs;
+    // Wayland applications share through the portal as before. Deleting the
+    // file brings the bridge back for somebody who does need it.
+    skel_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/autostart/org.kde.xwaylandvideobridge.desktop",
+    ],
+    // Same files, listed for the second question a switch asks: nothing else
+    // would back them up. The plan deduplicates the paths, so none is staged
+    // twice — and because they are backed up, switching away takes the
+    // autostart override with it instead of leaving it for the next shell.
+    backup_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/autostart/org.kde.xwaylandvideobridge.desktop",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);
