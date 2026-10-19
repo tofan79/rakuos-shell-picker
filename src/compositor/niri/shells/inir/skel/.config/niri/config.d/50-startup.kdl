@@ -21,7 +21,8 @@ spawn-at-startup "bash" "-c" "systemctl --user import-environment XDG_MENU_PREFI
 // settings.ini files, kdeglobals, qt6ct) from the same name. The name it starts
 // from is seeded under `.config/illogical-impulse` (see
 // src/compositor/niri/shells/inir/mod.rs): upstream's default is `WhiteSur-dark`,
-// which no repository RakuOS enables carries.
+// which no repository RakuOS enables carries. The same seed names the families
+// of the three fonts the interface is drawn with.
 //
 // This key lives in dconf, and no switch replaces dconf — which is why leaving
 // iNiR with the wrong theme in it is what left every later shell without icons,
@@ -29,6 +30,35 @@ spawn-at-startup "bash" "-c" "systemctl --user import-environment XDG_MENU_PREFI
 //
 // The same line for the same reason is in Caelestia's skel on Hyprland.
 spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "icon-theme" "Colloid-Dark"
+
+// The Python environment iNiR's own scripts run in. Colour generation from the
+// wallpaper's palette, thumbnails and the AI features go through
+// `$INIR_VENV` — `~/.local/state/quickshell/.venv`, the path
+// `config.d/40-environment.kdl` exports — and the package's requirements for it
+// ship as data (`/usr/share/quickshell/inir/sdata/uv/requirements.txt`), since
+// upstream builds the venv in its own installer, which nobody runs on a machine
+// this picker set up.
+//
+// The script beside this file in the skel (`scripts/inir-venv-setup.sh`) is
+// that step, at login: it creates the venv with `uv` and installs the
+// requirements, idempotently — the second login and every one after it exits on
+// a marker file the first success leaves. Its log and the venv itself are
+// declared in the identity's `discard_paths`, so leaving iNiR takes both away
+// and the next installation builds them again.
+//
+// It sits here, in the compositor's own tree, and not under the shell's
+// `~/.config/illogical-impulse`, for the reason `apply::plan` gives: this
+// directory is installed from the skel on every switch, while a shell's config
+// directory comes from that shell's own backup when one exists — so a script
+// under it would silently never arrive on a machine that has run iNiR before,
+// and the line below would call a file that is not there. Both halves are in the
+// skel tree, so they cannot disagree.
+//
+// Nothing here is required for the shell to appear: until the environment
+// exists (or if `uv` is missing, or the build fails and the next login retries)
+// iNiR runs with the parts that need Python degraded, and the failure is in
+// `~/.local/state/quickshell/venv-setup.log` rather than silent.
+spawn-at-startup "bash" "-c" "$HOME/.config/niri/scripts/inir-venv-setup.sh"
 
 // Clipboard history: wl-paste watches the clipboard and cliphist stores it.
 // Access via iNiR's clipboard overlay (Mod+V).

@@ -25,7 +25,8 @@
 //!   1. quickshell-git
 //!   2. end4-pc illogical-impulse matugen hypridle hyprlock
 //!      google-rubik-fonts cascadia-code-nf-fonts material-symbols-fonts
-//!      easyeffects hyprsunset wf-recorder swappy fuzzel uv dbus-devel
+//!      easyeffects hyprsunset wf-recorder swappy fuzzel uv cairo-devel
+//!      cairo-gobject-devel gobject-introspection-devel dbus-devel
 //!   ```
 //!
 //!   `illogical-impulse` is the base `ii` this fork grew from. `end4-pc`
@@ -43,9 +44,12 @@
 //!   region-capture keybinds, `swappy` the annotate step of a screenshot, and
 //!   `fuzzel` the fallback menu those keybinds use when the shell is not
 //!   around. The three fonts are what the interface is drawn with. `uv`
-//!   bootstraps the Python venv the colour and thumbnail helpers run in, and
-//!   `dbus-devel` serves that bootstrap alone: the venv's `dbus-python` has no
-//!   wheel and compiles against the `dbus-1` headers. No polkit agent is
+//!   bootstraps the Python venv the colour and thumbnail helpers run in, and the
+//!   four `-devel` packages serve that bootstrap alone: `pycairo` and `pygobject`
+//!   have no Linux wheel and compile against `cairo-devel` and
+//!   `gobject-introspection-devel`, `pygobject`'s cairo binding includes
+//!   `cairo-gobject.h` from `cairo-gobject-devel`, and the venv's `dbus-python`
+//!   compiles against the `dbus-1` headers from `dbus-devel`. No polkit agent is
 //!   installed: the fork answers polkit from its own `PolkitService`, which
 //!   registers with polkitd when the shell starts — see `polkit_agent` below.
 //!
@@ -96,6 +100,9 @@ pub const IDENTITY: Identity = Identity {
                 "swappy",
                 "fuzzel",
                 "uv",
+                "cairo-devel",
+                "cairo-gobject-devel",
+                "gobject-introspection-devel",
                 "dbus-devel",
             ],
         ],
@@ -126,6 +133,9 @@ pub const IDENTITY: Identity = Identity {
             "swappy",
             "fuzzel",
             "uv",
+            "cairo-devel",
+            "cairo-gobject-devel",
+            "gobject-introspection-devel",
             "dbus-devel",
         ]],
         program: "pkexec",

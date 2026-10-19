@@ -226,8 +226,10 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     // daemon its equalizer drives; the night light its toggles spawn; the
     // recorder and annotate tool behind its capture keybinds; the fallback menu
     // its keybinds use when the shell is not around; the three fonts its
-    // interface is drawn with; and `uv` with `dbus-devel`, which bootstrap the
-    // Python venv (`dbus-python` has no wheel and compiles against the
+    // interface is drawn with; and `uv` with the four `-devel` packages, which
+    // bootstrap the Python venv (`pycairo` and `pygobject` compile against
+    // `cairo-devel` and `gobject-introspection-devel`, `pygobject`'s cairo
+    // binding includes `cairo-gobject.h`, and `dbus-python` compiles against the
     // `dbus-1` headers). No polkit agent: the fork answers polkit from its own
     // `PolkitService`.
     assert_eq!(
@@ -235,7 +237,7 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         "pkexec rum install -y --refresh quickshell-git end4-pc illogical-impulse \
          matugen hypridle hyprlock google-rubik-fonts cascadia-code-nf-fonts \
          material-symbols-fonts easyeffects hyprsunset wf-recorder swappy fuzzel \
-         uv dbus-devel"
+         uv cairo-devel cairo-gobject-devel gobject-introspection-devel dbus-devel"
     );
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");
@@ -260,19 +262,26 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     // and `swaylock` is one the image removes. What is left is the shell plus
     // every tool the skel or the QML runs that nothing requires at the package
     // level: the QML and Qt pieces its interface imports, the style its skel
-    // overrides with, the sycoca builder, the clipboard store the overlay reads,
-    // the capture tools behind its screenshot and record keys, the image probe it
-    // sizes a wallpaper with, OCR, the panel's brightness backend, the idle
-    // daemon, the night light, the Go toolchain its theme modules build with, and
-    // the icon font its interface is drawn with. The mono font is left out: no
-    // repository carries the family its config names, and the system's monospace
-    // is a Nerd Font already. No polkit agent: iNiR answers polkit from its own.
+    // overrides with, the platform theme beside it, the sycoca builder, the
+    // clipboard store the overlay reads, the capture tools behind its screenshot
+    // and record keys, the image probe it sizes a wallpaper with, OCR, the
+    // panel's brightness backend, the idle daemon, the night light, the Go
+    // toolchain its theme modules build with, the Python toolchain and the
+    // headers its venv's C extensions are built against, the icon font its
+    // interface is drawn with, and the two families its doctor counts as
+    // important — `Gabarito` and `Oxanium`, which no repository RakuOS enables
+    // carries and which upstream otherwise downloads per user. The families the
+    // skel *seeds* are a different statement: those are the image's, so the
+    // config points at them (see `inir_names_the_theme_and_fonts_this_machine_has`).
+    // No polkit agent: iNiR answers polkit from its own.
     assert_eq!(
         plan.command_line(),
         "pkexec rum install -y --refresh inir-shell qt6-qt5compat \
-         qt6-qtmultimedia qt6-qtimageformats darkly kf6-kservice cliphist grim \
-         slurp wf-recorder ImageMagick tesseract brightnessctl swayidle wlsunset \
-         golang material-symbols-fonts"
+         qt6-qtmultimedia qt6-qtimageformats darkly plasma-integration \
+         kf6-kservice cliphist grim slurp wf-recorder ImageMagick tesseract \
+         brightnessctl swayidle wlsunset golang uv cairo-devel \
+         cairo-gobject-devel gobject-introspection-devel dbus-devel \
+         material-symbols-fonts gabarito-fonts oxanium-fonts"
     );
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");
@@ -287,30 +296,38 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
 }
 
 #[test]
-fn inir_names_the_icon_theme_this_machine_has() {
-    // iNiR's own default for `appearance.iconTheme` is `WhiteSur-dark`, a family
-    // in no repository RakuOS enables, and the shell renders the name it holds
-    // into gsettings and into every Qt/GTK app's settings file
-    // (`gtk-3.0`/`gtk-4.0/settings.ini`, `kdeglobals`, `qt6ct`). A GTK app asked
-    // for a theme that is not installed draws its fallback, which reads as
+fn inir_names_the_theme_and_fonts_this_machine_has() {
+    // iNiR's own defaults for `appearance.iconTheme` and the three
+    // `appearance.typography` families are `WhiteSur-dark`, `Roboto Flex`,
+    // `Gabarito` and `JetBrainsMono Nerd Font` — the first, second and last in no
+    // repository RakuOS enables, and the third only because the install plan now
+    // carries `gabarito-fonts` (the doctor counts that family as important; see
+    // the plan test above). The shell renders the names it holds into gsettings and
+    // into every Qt/GTK app's settings file (`gtk-3.0`/`gtk-4.0/settings.ini`,
+    // `kdeglobals`, `qt6ct`), so a name that is not installed is a desktop of
     // missing icons — in iNiR, and in whichever shell comes after it, because
-    // the name is one dconf key and no switch replaces dconf. So the Niri skel
-    // seeds that one key with the theme `rakuos-branding` installs (the same name
-    // DMS's and Caelestia's skels render) and states it at login as well.
+    // the icon theme is one dconf key and no switch replaces dconf — or, for a
+    // font, a session where every toolkit falls back on its own. So the Niri skel
+    // seeds the icon theme `rakuos-branding` installs (the same name DMS's and
+    // Caelestia's skels render) and the sans and monospace the image already sets
+    // system-wide, and states the icon theme at login as well.
     //
-    // The seed is pinned whole rather than key by key: one key is the entire
-    // point, and a JSON file is the one skel file nothing else in this suite
-    // would catch going bad — `every_toml_in_a_skel_parses` parses the TOML and
-    // the KDL is checked by hand, but a JSON the shell cannot read is a shell
+    // The seed is pinned whole rather than key by key: naming these names is the
+    // entire point, and a JSON file is the one skel file nothing else in this
+    // suite would catch going bad — `every_toml_in_a_skel_parses` parses the TOML
+    // and the KDL is checked by hand, but a JSON the shell cannot read is a shell
     // that comes up without its configuration. Whitespace is normalised so a
     // reformat is not a failure; a key, a value or a brace that stops parsing is.
     let skel = crate::apply::skel_for("niri", "inir");
     let seed = std::fs::read_to_string(skel.join(".config/illogical-impulse/config.json"))
         .expect("the iNiR Niri skel seeds iNiR's own config");
     let compact: String = seed.chars().filter(|c| !c.is_whitespace()).collect();
+    // Whitespace is stripped on both sides, so the multi-word font names appear
+    // here without their spaces.
     assert_eq!(
-        compact, r#"{"appearance":{"iconTheme":"Colloid-Dark"}}"#,
-        "the seeded icon theme has to be the one this image installs"
+        compact,
+        r#"{"appearance":{"iconTheme":"Colloid-Dark","typography":{"mainFont":"Inter","titleFont":"Inter","monospaceFont":"MapleMonoNF"}}}"#,
+        "the seeded names have to be the ones this image installs"
     );
 
     let startup = std::fs::read_to_string(skel.join(".config/niri/config.d/50-startup.kdl"))
@@ -321,6 +338,96 @@ fn inir_names_the_icon_theme_this_machine_has() {
         ),
         "a session has to say which icon theme it uses, or GTK apps open on a \
          fallback"
+    );
+}
+
+#[test]
+fn inir_builds_its_python_environment_at_login() {
+    // The palette iNiR generates from a wallpaper, the thumbnails and the AI
+    // features run on upstream's Python requirements, which the package ships as
+    // data: upstream builds the venv in its own installer, and nobody runs that
+    // on a machine this picker set up. So the skel has to carry the step itself —
+    // a script that builds the venv with `uv`, and a startup line that runs it
+    // every login, idempotent — and the plan has to install the builder and the
+    // headers upstream's requirements compile against, or the build stops at the
+    // first one that cannot build and the palette generation never arrives
+    // either. `cairo-gobject-devel` and `dbus-devel` are the entries only a live
+    // bootstrap could find: `pygobject`'s cairo binding includes
+    // `cairo-gobject.h`, and `dbus-python` — which `kde-material-you-colors`
+    // pulls in — builds against `dbus-1.pc`; upstream's list installs in one
+    // step, so either one missing holds the wheels back.
+    //
+    // Where the script sits is part of the test: it has to be in the compositor's
+    // tree, not under the shell's `~/.config/illogical-impulse`. `apply::plan`
+    // installs the compositor's directory from the skel on every switch, while a
+    // shell's config directory comes from that shell's own backup whenever there
+    // is one — so a script under it would never arrive on a machine that has run
+    // iNiR before, and the startup line would call a file that is not there.
+    use std::os::unix::fs::PermissionsExt;
+
+    let skel = crate::apply::skel_for("niri", "inir");
+    let script = std::fs::read_to_string(skel.join(".config/niri/scripts/inir-venv-setup.sh"))
+        .expect("the iNiR Niri skel bootstraps the venv its scripts run in");
+    assert!(
+        script.contains("/usr/share/quickshell/inir/sdata/uv/requirements.txt"),
+        "the bootstrap has to install the requirements the package ships, not a \
+         list of its own"
+    );
+    assert!(
+        script.contains("command -v uv"),
+        "the bootstrap has to leave quietly when there is no `uv` to build with"
+    );
+    assert!(
+        script.contains("UV_PYTHON_DOWNLOADS=automatic"),
+        "Fedora's uv refuses interpreter downloads by default, and Fedora 44 \
+         ships no Python 3.12 to build upstream's requirements on"
+    );
+    let mode = std::fs::metadata(skel.join(".config/niri/scripts/inir-venv-setup.sh"))
+        .unwrap()
+        .permissions()
+        .mode();
+    assert_eq!(
+        mode & 0o777,
+        0o755,
+        "the startup line runs the script itself, so it has to stay executable"
+    );
+
+    let startup = std::fs::read_to_string(skel.join(".config/niri/config.d/50-startup.kdl"))
+        .expect("the iNiR Niri skel starts the session");
+    assert!(
+        startup.contains(
+            r#"spawn-at-startup "bash" "-c" "$HOME/.config/niri/scripts/inir-venv-setup.sh""#
+        ),
+        "nothing else runs the bootstrap, so a switch would leave the venv \
+         unbuilt until someone read the module comment"
+    );
+
+    let inir = super::shell::find("inir").expect("inir registered");
+    let plan = inir.install_plan.expect("inir installs from a repository");
+    for package in [
+        "uv",
+        "cairo-devel",
+        "cairo-gobject-devel",
+        "gobject-introspection-devel",
+        "dbus-devel",
+    ] {
+        assert!(
+            plan.packages().contains(&package),
+            "`{package}` is what the bootstrap needs to finish, so the plan has \
+             to put it there"
+        );
+    }
+    assert!(
+        plan.packages().contains(&"plasma-integration"),
+        "iNiR's rendered colours reach Qt applications through the KDE platform \
+         theme, and iNiR's own doctor names this package when it is missing"
+    );
+    let discard = inir.discard_paths;
+    assert!(
+        discard.contains(&".local/state/quickshell/venv-setup.log")
+            && discard.contains(&".local/state/quickshell/.venv"),
+        "the venv and the log of the build that made it are mine to throw away, \
+         and a backup should carry neither"
     );
 }
 

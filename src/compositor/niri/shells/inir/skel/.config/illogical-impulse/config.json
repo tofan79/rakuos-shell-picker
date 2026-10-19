@@ -1,5 +1,10 @@
 {
     "appearance": {
-        "iconTheme": "Colloid-Dark"
+        "iconTheme": "Colloid-Dark",
+        "typography": {
+            "mainFont": "Inter",
+            "titleFont": "Inter",
+            "monospaceFont": "Maple Mono NF"
+        }
     }
 }

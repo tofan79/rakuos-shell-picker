@@ -7,8 +7,10 @@
 //!
 //!   ```text
 //!   inir-shell qt6-qt5compat qt6-qtmultimedia qt6-qtimageformats darkly
-//!   kf6-kservice cliphist grim slurp wf-recorder ImageMagick tesseract
-//!   brightnessctl swayidle wlsunset golang material-symbols-fonts
+//!   plasma-integration kf6-kservice cliphist grim slurp wf-recorder ImageMagick
+//!   tesseract brightnessctl swayidle wlsunset golang uv cairo-devel
+//!   cairo-gobject-devel gobject-introspection-devel dbus-devel
+//!   material-symbols-fonts gabarito-fonts oxanium-fonts
 //!   ```
 //!
 //!   Unlike the other quickshell shells here, there is no stage of its own for
@@ -37,6 +39,10 @@
 //!   - `darkly`: the Qt style the skel's `QT_STYLE_OVERRIDE` names, which iNiR
 //!     points at the colour scheme it renders. (The platform theme beside it,
 //!     `qt6ct`, is the image's.)
+//!   - `plasma-integration`: the KDE platform theme for Qt6, which is what
+//!     actually hands iNiR's rendered colours to Qt applications — the image
+//!     does not carry it either, so iNiR's own doctor names it as the reason a
+//!     Qt app would come up in the wrong colours.
 //!   - `kf6-kservice`: `kbuildsycoca6`, which the skel's `spawn-at-startup` runs
 //!     so that `XDG_MENU_PREFIX=plasma-` means something and the launchers and
 //!     "Open With" menus are populated.
@@ -65,6 +71,24 @@
 //!   - `golang`: `go build`. Three theming modules compile their own generator
 //!     from the payload at the moment a theme is applied — editor themes, the
 //!     system24 palette, washi — instead of shipping a binary per architecture.
+//!   - `uv`, `cairo-devel`, `cairo-gobject-devel`, `gobject-introspection-devel`,
+//!     `dbus-devel`: the Python environment behind the palette iNiR generates out
+//!     of a wallpaper, the thumbnails, and the AI features. `uv` is what builds
+//!     it; `cairo-devel` and `gobject-introspection-devel` are what `pycairo` and
+//!     `pygobject` compile against once it does, because neither has a Linux
+//!     wheel on PyPI and both land in upstream's own Fedora dependency list for
+//!     that reason; `cairo-gobject-devel` is `cairo-gobject.h`, which
+//!     `pygobject`'s cairo binding includes — a package of its own, and one a
+//!     machine can lose to a dependency cascade without `cairo-devel` following
+//!     it; `dbus-devel` is `dbus-1.pc`, which `dbus-python` — pulled in by
+//!     `kde-material-you-colors` — needs to build. The last two were found by
+//!     running the bootstrap on a machine and reading its log, which is what the
+//!     live test is for. The venv is not an install step here:
+//!     the Niri skel carries a script that builds it at login
+//!     (`scripts/inir-venv-setup.sh` in the compositor's own tree — see the port
+//!     for why it is not under the shell's config directory), so a machine that
+//!     loses the venv to a switch away — and it does, the venv is declared as
+//!     discard — rebuilds it by logging in.
 //!   - `material-symbols-fonts`: the icon font the whole interface is drawn
 //!     with. Nothing requires it at the package level, and an icon font has no
 //!     fallback worth the name — its glyphs are private-use codepoints, so a
@@ -73,17 +97,24 @@
 //!     unowned file an earlier setup left in `~/.local/share/fonts`, which a
 //!     fresh install will not have.
 //!
-//!     The mono font in iNiR's config is deliberately **not** named:
-//!     `JetBrainsMono Nerd Font` is in no repository RakuOS enables, and the
-//!     fallback is the family the image already sets as monospace, Maple Mono NF
-//!     — a Nerd Font as well, so the glyphs the interface asks it for are there.
-//!     `mainFont`/`titleFont` (`Roboto Flex`, `Gabarito`) are missing for the
-//!     same reason and resolve to Inter, the system sans. Nothing is seeded for
-//!     them: a font has a fallback, so the missing family renders in the system's
-//!     own and costs a typeface, not the interface.
+//!     The three font families **are** seeded, in the same file: `mainFont` and
+//!     `titleFont` `Inter`, `monospaceFont` `Maple Mono NF` — the sans and the
+//!     monospace the image already sets system-wide, and where upstream's
+//!     defaults (`Roboto Flex`, `Gabarito`, `JetBrainsMono Nerd Font`) end up
+//!     anyway on a machine that has none of the three. A font has a fallback, so
+//!     a missing family costs a typeface rather than the interface — but iNiR
+//!     also *writes* the names it holds into gsettings, both GTK settings files
+//!     and kdeglobals, because `syncWithSystem` is on: the family the shell holds
+//!     is the family every other application in the session reads. Naming the
+//!     ones this machine has is the difference between a desktop that renders in
+//!     one typeface and one where every toolkit quietly picks its own — the same
+//!     reach the icon theme has, and the reason both are named rather than left
+//!     to resolve. `Maple Mono NF` is a Nerd Font besides, so the glyphs the
+//!     interface asks its mono family for are there; a package for the family
+//!     upstream names would carry a second copy of a font nobody picked.
 //!
-//!     The icon theme is the one name of iNiR's that **is** seeded, and for the
-//!     opposite reason: an icon theme has no fallback worth the name. Upstream's
+//!     The icon theme is seeded for a stronger reason yet: an icon theme has no
+//!     fallback worth the name. Upstream's
 //!     default, `WhiteSur-dark`, is in no repository here either, and iNiR writes
 //!     whichever name it holds into gsettings and into every Qt/GTK app's
 //!     settings file — so the same absence surfaces as a desktop of missing
@@ -92,6 +123,20 @@
 //!     (the theme `rakuos-branding` installs, and the name DMS's and Caelestia's
 //!     skels render) and states it at login as well; the reasoning is in
 //!     `src/compositor/niri/shells/inir/mod.rs`.
+//!
+//!   - `gabarito-fonts` and `oxanium-fonts`: the two families iNiR's own doctor
+//!     counts as *important* — the first is a typography default of the shell,
+//!     the second is named by its interface — and the two it reports missing on a
+//!     machine that has neither, reading `fc-list : family`. Neither is in
+//!     Fedora nor in RakuOS, and upstream's own answer is to download them per
+//!     user into `~/.local/share/fonts` from google/fonts, where both are OFL
+//!     files. Both are packaged in the maintainer's repository (Mindset-Apps)
+//!     from that same file, so they arrive as packages: system-wide, removed
+//!     with the rest of the plan, and no copy of a font left in one user's home
+//!     that a switch would neither install nor take away. Missing, they are not
+//!     the interface falling over — a font has a fallback — but they are two of
+//!     the doctor's twenty-five steps failing on every run, which is what a live
+//!     switch reported.
 //!
 //!   Deliberately **not** named, and not because of the image: `khal` (that is
 //!   DMS's calendar), `kdialog`, `swappy`, `gum` and `playerctl` (the shell owns
@@ -156,20 +201,33 @@
 //! - **discard**: the caches and the regenerated files. `~/.cache/quickshell` is
 //!   the compiled QML and the media caches the runtime rebuilds on the next
 //!   start; `~/.cache/inir` is window previews and downloaded dictionaries;
+//!   `~/.cache/uv` is the venv bootstrap's download cache — the wheels, and the
+//!   interpreter archive when the machine has no Python 3.12 to build on;
 //!   `~/.local/share/inir/tessdata` is the OCR models the OCR runner downloads
-//!   again when it needs them; `~/.local/state/quickshell/.venv` is the Python
-//!   environment, tens of megabytes that upstream's own installer builds from
-//!   nothing; and `~/.local/share/color-schemes/Darkly.colors` is the Qt style
-//!   colour scheme iNiR renders, which `qt6ct` reads and which is rebuilt the
-//!   next time a colour is applied. None of them holds anything a person wrote,
-//!   and none of them sits inside a path a backup walks — which is the test that
-//!   keeps this list honest.
+//!   again when it needs them; `~/.local/state/quickshell/.venv`, and the
+//!   `venv-setup.log` beside it, are the Python environment that the skel's
+//!   bootstrap script builds and the record of how that build went;
+//!   `~/.local/share/color-schemes/Darkly.colors` is the Qt style colour scheme
+//!   iNiR renders, which `qt6ct` reads and which is rebuilt the next time a
+//!   colour is applied. None of them holds anything a person wrote, and none of
+//!   them sits inside a path a backup walks — which is the test that keeps this
+//!   list honest.
 //!
-//!   The venv is worth stating plainly as a limit: this picker does not build it.
-//!   A switch to iNiR gives a machine that runs the shell, and the parts of iNiR
-//!   that go through the venv — colour generation, translations, the AI features
-//!   — stay degraded until the environment is built by hand or by upstream's own
-//!   setup.
+//!   The venv is the one step a switch deliberately does not take. Installing a
+//!   shell is packages and a process, and a Python environment is minutes of
+//!   building; putting it in the switch would make the user wait for it or watch
+//!   it fail. The shell does it instead — `scripts/inir-venv-setup.sh` in the
+//!   Niri skel's own tree, called by one `spawn-at-startup` line beside it,
+//!   idempotent, everything it says in a log — so a switch arrives at a machine
+//!   that runs iNiR, and the parts that go through the venv (colour generation,
+//!   thumbnails, the AI features) come up degraded for as long as the first
+//!   build takes and are there from the login after.
+//!   `uv` and the two headers that build needs are in the plan; see the package
+//!   list below.
+//!
+//!   `~/.local/share/uv` is deliberately absent from this list: that is the
+//!   interpreter a general tool manages for every program that asks it for one,
+//!   not this shell's to take, and the next bootstrap reuses it.
 //!
 //! - **polkit**: iNiR answers polkit from its own agent, like DMS and the
 //!   `illogical-impulse` fork it grew from, so no external agent is started here.
@@ -183,7 +241,8 @@ use crate::shell::{Identity, InstallPlan, UninstallPlan};
 
 /// The packages a switch installs, in the order `rum` is handed them: the shell,
 /// the QML and Qt pieces its interface needs, the session tools, the theming
-/// toolchain, and the icon font last.
+/// toolchain, the Python toolchain its palette generation runs on, and the icon
+/// font last.
 ///
 /// Only what the image does not already bring, because the same list is the
 /// uninstall plan: naming a package the base image owns buys nothing (the
@@ -210,10 +269,11 @@ use crate::shell::{Identity, InstallPlan, UninstallPlan};
 ///
 /// Left out for a different reason — no repository RakuOS enables carries it:
 ///
-/// - `jetbrainsmono-nerd-fonts` — the monospace family iNiR's config names. The
-///   family the image sets as monospace, Maple Mono NF, is a Nerd Font too, so
-///   the fallback already has the glyphs the interface asks for, and the package
-///   would only add a second copy of a font nobody picked.
+/// - `jetbrainsmono-nerd-fonts` — the monospace family iNiR's config names by
+///   default. The skel seeds `monospaceFont` as `Maple Mono NF` instead: the
+///   Nerd Font the image already sets as monospace, so the glyphs the interface
+///   asks for are there, and the package would only add a second copy of a font
+///   nobody picked.
 ///
 /// `ImageMagick` and `qt6-qtmultimedia` stay in the list even though the
 /// running image happens to have them: the first arrives as a dependency of the
@@ -223,12 +283,29 @@ use crate::shell::{Identity, InstallPlan, UninstallPlan};
 /// for the video wallpaper, and a shell that installs cleanly on a machine
 /// where an incidental dependency changed is worth two entries that are
 /// usually no-ops.
+///
+/// `uv` and the headers beside it are for the Python environment the skel's
+/// bootstrap script builds at login, not for the shell's first paint. `uv` is
+/// the builder; `cairo-devel` and `gobject-introspection-devel` are what
+/// `pycairo` and `pygobject` compile against, because neither has a Linux wheel
+/// on PyPI, and upstream's own Fedora dependency list names both for exactly
+/// that build. `cairo-gobject-devel` and `dbus-devel` are the same kind of entry
+/// one step further in, and only a live bootstrap could find them:
+/// `pygobject`'s cairo binding includes `cairo-gobject.h`, and
+/// `kde-material-you-colors` depends on `dbus-python`, which builds against
+/// `dbus-1.pc`. Upstream's requirements are one list installed in one step, so
+/// none of them is an extra for the thumbnails and the AI features: without them
+/// the install stops at the first one that cannot build, and the palette
+/// generation — the part that needs only wheels — does not arrive either.
+/// Nothing runs at install time, since a switch installs packages and starts a
+/// shell, so a machine whose user never changes a wallpaper never notices them.
 const PACKAGES: &[&str] = &[
     "inir-shell",
     "qt6-qt5compat",
     "qt6-qtmultimedia",
     "qt6-qtimageformats",
     "darkly",
+    "plasma-integration",
     "kf6-kservice",
     "cliphist",
     "grim",
@@ -240,7 +317,14 @@ const PACKAGES: &[&str] = &[
     "swayidle",
     "wlsunset",
     "golang",
+    "uv",
+    "cairo-devel",
+    "cairo-gobject-devel",
+    "gobject-introspection-devel",
+    "dbus-devel",
     "material-symbols-fonts",
+    "gabarito-fonts",
+    "oxanium-fonts",
 ];
 
 pub const IDENTITY: Identity = Identity {
@@ -310,21 +394,25 @@ pub const IDENTITY: Identity = Identity {
     discard_paths: &[
         ".cache/inir",
         ".cache/quickshell",
+        ".cache/uv",
         ".local/share/color-schemes/Darkly.colors",
         ".local/share/inir/tessdata",
         ".local/state/quickshell/.venv",
+        ".local/state/quickshell/venv-setup.log",
     ],
     // What iNiR runs on rather than what it is: the shared Quickshell runtime,
-    // the icon font the whole interface is drawn with, and the recorder behind
-    // its screen-record controls. Named so a switch *to* iNiR keeps them —
-    // Caelestia's and end4-pC's removal plans name all three, and DMS's and
-    // Ambxst's name the runtime. The mono font is not here: iNiR does not
-    // install it and the system's own monospace stands in for it.
+    // the icon font the whole interface is drawn with, the recorder behind its
+    // screen-record controls, and the builder of its Python environment. Named
+    // so a switch *to* iNiR keeps them — Caelestia's and end4-pC's removal plans
+    // name all three of the first, DMS's and Ambxst's name the runtime, and
+    // end4-pC also names `uv`, which is what builds the venv the bootstrap
+    // script would otherwise have nothing to build with.
     runtime_packages: &[
         "quickshell",
         "quickshell-git",
         "material-symbols-fonts",
         "wf-recorder",
+        "uv",
     ],
     // iNiR is its own polkit agent. See `Identity::polkit_agent`.
     polkit_agent: &[],

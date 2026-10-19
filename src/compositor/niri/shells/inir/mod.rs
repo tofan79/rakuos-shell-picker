@@ -28,35 +28,70 @@
 //!   `/usr/share/niri/global.kdl` first, so the image's session-wide environment
 //!   and rules are in force under every shell here, and the two files that adapt
 //!   the skel to this machine are `40-environment.kdl` (the Qt platform theme)
-//!   and `50-startup.kdl` (the clipboard watchers' paths, and the icon theme
-//!   GTK apps read). Both carry a comment saying what changed and why.
+//!   and `50-startup.kdl` (the clipboard watchers' paths, the icon theme GTK
+//!   apps read, and the Python environment iNiR's own scripts run in). Both
+//!   carry a comment saying what changed and why.
 //! - **clean**: `~/.config/niri` comes from the backup taken before every switch,
 //!   and iNiR's rendered themes and caches are declared in the identity. Nothing
 //!   here is left to the next shell.
 //!
-//! The skel also seeds one file of iNiR's own configuration,
-//! `~/.config/illogical-impulse/config.json`, with a single key: the icon theme.
-//! The shell creates that file itself on its first run, out of defaults compiled
-//! into its `modules/common/Config.qml`, and upstream's default is
-//! `WhiteSur-dark` — a family no repository RakuOS enables packages. iNiR then
-//! renders whatever name it holds into gsettings, `gtk-3.0`/`gtk-4.0/settings.ini`,
-//! `kdeglobals` and `qt6ct`, and takes the icons of the session with it: a GTK
-//! app asked for a theme that is not installed draws its fallback, which reads as
-//! missing icons rather than a different look. Seeding the file with
-//! `Colloid-Dark` — the theme `rakuos-branding` installs, and the name DMS's and
-//! Caelestia's skels already render — is what holds the shell, and every session
-//! after it, on an icon theme this machine has. It matters outside the session
-//! too: the name is one dconf key, and no switch replaces dconf, so a switch away
-//! carries it to the next shell.
+//! The skel also seeds two files of iNiR's own: the shell's configuration,
+//! `~/.config/illogical-impulse/config.json` — the path its own
+//! `Directories.shellConfig` resolves to, old name and all — with the icon theme
+//! and the three font families, and `scripts/inir-venv-setup.sh`, the bootstrap
+//! of the Python environment iNiR's scripts run in.
 //!
-//! One key is enough because the shell reads the file as a set of properties
-//! ([`JsonAdapter`](https://quickshell.org/docs/types/Quickshell.Io/JsonAdapter/)):
+//! The configuration file holds names iNiR would otherwise take from defaults
+//! compiled into its `modules/common/Config.qml`, and those defaults are the
+//! reason it is seeded at all. `appearance.iconTheme` starts as `WhiteSur-dark`,
+//! a family no repository RakuOS enables packages. iNiR renders whatever name it
+//! holds into gsettings, `gtk-3.0`/`gtk-4.0/settings.ini`, `kdeglobals` and
+//! `qt6ct`, and takes the icons of the session with it: a GTK app asked for a
+//! theme that is not installed draws its fallback, which reads as missing icons
+//! rather than a different look. Seeding `Colloid-Dark` — the theme
+//! `rakuos-branding` installs, and the name DMS's and Caelestia's skels already
+//! render — is what holds the shell, and every session after it, on an icon theme
+//! this machine has. It matters outside the session too: the name is one dconf
+//! key, and no switch replaces dconf, so a switch away carries it to the next
+//! shell.
+//!
+//! The three families are the quieter half of the same story. `Roboto Flex`,
+//! `Gabarito` and `JetBrainsMono Nerd Font` are no more available here than
+//! `WhiteSur-dark` is, and iNiR writes the names it holds into those same
+//! settings files (`syncWithSystem` is on), so what the shell holds is what the
+//! rest of the desktop reads: `Inter` and `Maple Mono NF`, the sans and the
+//! monospace the image already sets system-wide, are what a session gets instead
+//! of each toolkit quietly falling back on its own.
+//!
+//! A handful of keys is enough because the shell reads the file as a set of
+//! properties ([`JsonAdapter`](https://quickshell.org/docs/types/Quickshell.Io/JsonAdapter/)):
 //! every key the file does not carry keeps the value the QML declares, so seeding
-//! this one neither freezes upstream's defaults at the version this skel was
-//! written against nor survives past what the user chooses in the shell's own
-//! settings, which grep the file back into shape. Everything else in the path is
-//! still the shell's own, and the path is declared, so a switch away carries
-//! whatever is in it.
+//! these neither freezes upstream's defaults at the version this skel was written
+//! against nor survives past what the user chooses in the shell's own settings,
+//! which grep the file back into shape. Everything else in the path is still the
+//! shell's own, and the path is declared, so a switch away carries whatever is in
+//! it.
+//!
+//! The script is the one step a switch does not take. Upstream builds the venv
+//! from its own installer — `./setup install`, or `./setup doctor` to repair it —
+//! and nobody runs that on a machine this picker set up; the package ships the
+//! requirements as data and the venv as something to make. So `50-startup.kdl`
+//! runs the script at login instead: idempotent, everything it says in a log
+//! beside the venv, and declared in the identity's `discard_paths` so it leaves
+//! with the venv the moment iNiR is left and returns at the next login that has
+//! iNiR again. Nothing about it is required for the shell to appear — the parts
+//! that need Python (the palette from a wallpaper, the thumbnails, the AI
+//! features) are simply degraded until the first build finishes.
+//!
+//! It lives in this tree rather than under the shell's own config directory, and
+//! the distinction is the one [`apply::plan`] draws: this directory is installed
+//! from the skel on every switch, while a shell's configuration comes from that
+//! shell's own backup when there is one, skel only as the fallback. A script
+//! under `~/.config/illogical-impulse` would therefore never arrive on a machine
+//! that has run iNiR before — the backup would be the whole of that directory,
+//! minus a file added after it was taken — while the startup line that calls it
+//! comes from this tree either way. Both halves on the same side of the rule is
+//! what keeps a login from calling a file that is not there.
 
 use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::inir::IDENTITY;

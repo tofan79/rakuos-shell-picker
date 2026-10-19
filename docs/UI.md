@@ -191,10 +191,22 @@ iNiR sama: paket `inir-shell` dari repository, dengan skel Niri milik upstream
 runtime QML-nya sendiri) dan state di `~/.local/state/inir`, plus data
 companion di `~/.config/inir` (widget custom) dan
 `~/.local/state/quickshell/{user,states.json}` (todo, catatan, chat, palet yang
-diregenerasi). Satu kunci config-nya ikut di-seed — tema ikon `Colloid-Dark`,
-karena default upstream (`WhiteSur-dark`) tidak dipaketkan repo mana pun di sini
-dan nama itu ditulis iNiR ke gsettings serta ke settings GTK/Qt setiap app,
-termasuk di sesi shell berikutnya. Yang membedakannya dari shell lain: unit systemd-nya
+diregenerasi). Beberapa kunci config-nya ikut di-seed: tema ikon `Colloid-Dark`
+dan tiga keluarga font (`Inter`, `Inter`, `Maple Mono NF`). Sebabnya sama untuk
+keduanya — default upstream (`WhiteSur-dark`, `Roboto Flex`,
+`JetBrainsMono Nerd Font`) tidak dipaketkan repo mana pun di sini, dan nama yang
+dipegang iNiR itulah yang ditulisnya ke gsettings serta ke settings GTK/Qt
+setiap app, termasuk di sesi shell berikutnya; ikon tanpa tema itu jatuh ke
+kotak kosong, font hanya jatuh ke keluarga lain. Dua keluarga lain yang
+dokternya hitung penting — `Gabarito` (default `titleFont` upstream) dan
+`Oxanium` — tidak ikut di-seed karena keduanya kini dipaketkan sendiri
+(`gabarito-fonts` dan `oxanium-fonts`, dibangun di repo COPR pemelihara dari
+file OFL google/fonts yang sama dengan fallback dokternya) dan masuk install
+plan. Skel-nya juga yang membangun
+venv Python iNiR (`~/.config/niri/scripts/inir-venv-setup.sh`, satu `spawn-at-startup`, idempoten, log di
+`~/.local/state/quickshell/venv-setup.log`) — warna dari wallpaper, thumbnail,
+dan fitur AI bergantung padanya, sementara switch sendiri hanya memasang paket
+dan menjalankan shell. Yang membedakannya dari shell lain: unit systemd-nya
 (`inir.service`) dikirim upstream tanpa bagian `[Install]`, jadi `systemctl
 --user enable` menolaknya dan switch menulis sendiri symlink
 `niri.service.wants/inir.service` — lihat `Port::systemd_user_unit_wanted_by`.

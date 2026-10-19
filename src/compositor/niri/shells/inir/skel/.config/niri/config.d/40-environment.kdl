@@ -23,17 +23,22 @@ environment {
     // Silence noisy Quickshell D-Bus property logs.
     QT_LOGGING_RULES "quickshell.dbus.properties=false"
 
-    // Qt theming. Upstream ships "kde" here, which reads colours out of
-    // kdeglobals through plasma-integration; when that is missing, iNiR's own
-    // setup rewrites this line to "qt6ct". RakuOS carries no plasma-integration,
-    // so the skel ships the value that setup would have written: qt6ct reads the
-    // Darkly colour scheme iNiR renders into ~/.config/qt6ct/qt6ct.conf.
+    // Qt theming. "kde" reads colours out of kdeglobals through
+    // plasma-integration, which upstream already carried when this skel was
+    // written and the install plan now puts there as well (see
+    // src/shells/inir.rs): with the package present this is the value iNiR's own
+    // setup wants, and its doctor rewrites the line to "kde" whenever it finds
+    // anything else — including in this file, which it edits in place. Without
+    // plasma-integration iNiR falls back to qt6ct, which reads the Darkly scheme
+    // it renders into ~/.config/qt6ct/qt6ct.conf; that is still what the image's
+    // own session files (~/.config/uwsm/env, environment.d) say, but Qt only
+    // ever looks at the variable below.
     //
     // The image's /usr/share/niri/global.kdl sets a gtk3 platform theme of its
     // own, in a block that is included before this one; this value is the one
     // that reaches the session. (The `QT_QPA_PLATFORMTHEME_QT6` it also sets is
     // read by no Qt library — only by DMS's settings — so it is left alone.)
-    QT_QPA_PLATFORMTHEME "qt6ct"
+    QT_QPA_PLATFORMTHEME "kde"
 
     // Darkly is a modern Qt style that follows the colour scheme it is pointed
     // at; iNiR renders that scheme as Darkly.colors and qt6ct names it.
