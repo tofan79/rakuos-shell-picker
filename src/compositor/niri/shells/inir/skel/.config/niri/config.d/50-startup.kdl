@@ -12,22 +12,31 @@
 spawn-at-startup "bash" "-c" "systemctl --user import-environment XDG_MENU_PREFIX && kbuildsycoca6"
 
 // Clipboard history: wl-paste watches the clipboard and cliphist stores it.
-// Text goes through clipboard-store.py, which strips browser markup: `--type
-// text` is a generic name, so when a page offers only text/html (an image, or
-// rich content out of an editor like ChatGPT's), wl-paste matches that and the
-// raw <meta http-equiv=...> markup is what would land in the history. Asking
-// for text/plain instead would drop those entries entirely.
 // Access via iNiR's clipboard overlay (Mod+V).
 //
+// The image's own /usr/share/niri/global.kdl — included first by config.kdl —
+// already starts that watcher: `wl-paste --watch cliphist store`, with no
+// `--type`, so it takes whatever the source offers, text or image. That is the
+// watcher this session runs on, and the one iNiR's overlay reads.
+//
+// The image watcher below stays on, because it is the one that keeps iNiR's own
+// window-preview frames out of the history: it checks the marker the compositor
+// drops while it captures a preview and swallows that frame instead of storing
+// it. It stores the same bytes the image's watcher does, and cliphist looks back
+// through its last 100 entries for a duplicate, so that copy stays one entry.
+//
+// The text watcher is off. It is the same store with `--type text` piped
+// through clipboard-store.py, which strips the markup when a copy offers only
+// text/html — rich text out of Discord, Slack, VS Code, or a page editor like
+// ChatGPT's. Running it beside the image's watcher is what put a copy in the
+// history twice: the two payloads differ, so cliphist cannot collapse them, and
+// the entry showed up once with its `<meta http-equiv=...>` header and once
+// without. With it commented out every copy lands once, raw. Uncomment it if
+// that stripping is worth the duplicate.
+//
 // RakuOS: the scripts ship with the package under /usr/share/quickshell/inir,
-// not in a user copy of the payload, so these paths are absolute. The image's
-// own /usr/share/niri/global.kdl — included first by config.kdl — already
-// starts `wl-paste --watch cliphist store` for text, so a text copy lands in
-// the history twice: once raw from the image's watcher and once stripped from
-// this one. Both lines are kept as they are, because removing the image's is
-// not this skel's to do and dropping this one would give up the stripping that
-// the overlay depends on for browser and editor copies.
-spawn-at-startup "bash" "-c" "wl-paste --no-newline --type text --watch /usr/share/quickshell/inir/scripts/clipboard-store.py &"
+// not in a user copy of the payload, so these paths are absolute.
+// spawn-at-startup "bash" "-c" "wl-paste --no-newline --type text --watch /usr/share/quickshell/inir/scripts/clipboard-store.py &"
 spawn-at-startup "bash" "-c" "wl-paste --type image --watch /usr/share/quickshell/inir/scripts/clipboard-image-store.sh &"
 
 // Polkit: the iNiR shell is the authentication agent (its dialogs follow the

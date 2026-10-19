@@ -264,14 +264,15 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     // the capture tools behind its screenshot and record keys, the image probe it
     // sizes a wallpaper with, OCR, the panel's brightness backend, the idle
     // daemon, the night light, the Go toolchain its theme modules build with, and
-    // the two fonts its interface is drawn with. No polkit agent: iNiR answers
-    // polkit from its own.
+    // the icon font its interface is drawn with. The mono font is left out: no
+    // repository carries the family its config names, and the system's monospace
+    // is a Nerd Font already. No polkit agent: iNiR answers polkit from its own.
     assert_eq!(
         plan.command_line(),
         "pkexec rum install -y --refresh inir-shell qt6-qt5compat \
          qt6-qtmultimedia qt6-qtimageformats darkly kf6-kservice cliphist grim \
          slurp wf-recorder ImageMagick tesseract brightnessctl swayidle wlsunset \
-         golang material-symbols-fonts jetbrainsmono-nerd-fonts"
+         golang material-symbols-fonts"
     );
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");

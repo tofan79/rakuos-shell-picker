@@ -9,7 +9,6 @@
 //!   inir-shell qt6-qt5compat qt6-qtmultimedia qt6-qtimageformats darkly
 //!   kf6-kservice cliphist grim slurp wf-recorder ImageMagick tesseract
 //!   brightnessctl swayidle wlsunset golang material-symbols-fonts
-//!   jetbrainsmono-nerd-fonts
 //!   ```
 //!
 //!   Unlike the other quickshell shells here, there is no stage of its own for
@@ -41,9 +40,12 @@
 //!   - `kf6-kservice`: `kbuildsycoca6`, which the skel's `spawn-at-startup` runs
 //!     so that `XDG_MENU_PREFIX=plasma-` means something and the launchers and
 //!     "Open With" menus are populated.
-//!   - `cliphist`: clipboard history. The overlay `Mod+V` shows it and the
-//!     watcher the skel starts fills it; the Hyprland image has this one, the
-//!     Niri image does not. (`wl-clipboard`, the watcher itself, is the image's.)
+//!   - `cliphist`: clipboard history, which the overlay `Mod+V` shows and the
+//!     image's `spawn-at-startup "wl-paste --watch cliphist store"` fills. The
+//!     watcher is the image's and so is `wl-clipboard` behind it, but `cliphist`
+//!     itself is only in the Hyprland image; the Niri image has neither the
+//!     store nor anything that writes to it. The skel starts one watcher of its
+//!     own, for images, and explains there why the text one is off.
 //!   - `grim`, `slurp`: the region selector's capture. `wf-recorder`: screen
 //!     recording, which the recorder scripts and the pill both drive. All three
 //!     are Hyprland-image packages; none is in the Niri image.
@@ -63,11 +65,21 @@
 //!   - `golang`: `go build`. Three theming modules compile their own generator
 //!     from the payload at the moment a theme is applied — editor themes, the
 //!     system24 palette, washi — instead of shipping a binary per architecture.
-//!   - `material-symbols-fonts` and `jetbrainsmono-nerd-fonts`: the icon font the
-//!     whole interface is drawn with and the monospace font in its config.
-//!     Nothing requires them at the package level, so the shell would start with
-//!     blank glyphs. The second is a Hyprland-image package; the first is in
-//!     neither image.
+//!   - `material-symbols-fonts`: the icon font the whole interface is drawn
+//!     with. Nothing requires it at the package level, and an icon font has no
+//!     fallback worth the name — its glyphs are private-use codepoints, so a
+//!     missing family is a grid of empty boxes rather than a different
+//!     typeface. It is in neither image, and the only copy on this machine is an
+//!     unowned file an earlier setup left in `~/.local/share/fonts`, which a
+//!     fresh install will not have.
+//!
+//!     The mono font in iNiR's config is deliberately **not** named:
+//!     `JetBrainsMono Nerd Font` is in no repository RakuOS enables, and the
+//!     fallback is the family the image already sets as monospace, Maple Mono NF
+//!     — a Nerd Font as well, so the glyphs the interface asks it for are there.
+//!     `mainFont`/`titleFont` (`Roboto Flex`, `Gabarito`) are missing for the
+//!     same reason and resolve to Inter, the system sans. All three names live in
+//!     the package's own `defaults/config.json`, which a switch does not write.
 //!
 //!   Deliberately **not** named, and not because of the image: `khal` (that is
 //!   DMS's calendar), `kdialog`, `swappy`, `gum` and `playerctl` (the shell owns
@@ -80,7 +92,7 @@
 //!   install plan put there, and nothing else. It runs at the very end of a
 //!   switch away, once the new shell has proved itself alive, and leaves whatever
 //!   the incoming shell declares in its own `runtime_packages` — see
-//!   `switch::uninstall`. That is why iNiR names the runtime, its two fonts and
+//!   `switch::uninstall`. That is why iNiR names the runtime, its icon font and
 //!   `wf-recorder` there: DMS, Caelestia, Ambxst and end4-pC all remove
 //!   `quickshell-git` on their way out, and the last two also remove
 //!   `material-symbols-fonts` and `wf-recorder`, all of which iNiR runs on.
@@ -159,7 +171,7 @@ use crate::shell::{Identity, InstallPlan, UninstallPlan};
 
 /// The packages a switch installs, in the order `rum` is handed them: the shell,
 /// the QML and Qt pieces its interface needs, the session tools, the theming
-/// toolchain, and the two fonts last.
+/// toolchain, and the icon font last.
 ///
 /// Only what the image does not already bring, because the same list is the
 /// uninstall plan: naming a package the base image owns buys nothing (the
@@ -183,6 +195,13 @@ use crate::shell::{Identity, InstallPlan, UninstallPlan};
 /// - `swaylock` — the image takes it off on purpose. iNiR has its own session
 ///   lock and only reaches for `swaylock` as a fallback; putting it back would
 ///   be arguing with the image about which shell owns locking.
+///
+/// Left out for a different reason — no repository RakuOS enables carries it:
+///
+/// - `jetbrainsmono-nerd-fonts` — the monospace family iNiR's config names. The
+///   family the image sets as monospace, Maple Mono NF, is a Nerd Font too, so
+///   the fallback already has the glyphs the interface asks for, and the package
+///   would only add a second copy of a font nobody picked.
 ///
 /// `ImageMagick` and `qt6-qtmultimedia` stay in the list even though the
 /// running image happens to have them: the first arrives as a dependency of the
@@ -210,7 +229,6 @@ const PACKAGES: &[&str] = &[
     "wlsunset",
     "golang",
     "material-symbols-fonts",
-    "jetbrainsmono-nerd-fonts",
 ];
 
 pub const IDENTITY: Identity = Identity {
@@ -285,15 +303,15 @@ pub const IDENTITY: Identity = Identity {
         ".local/state/quickshell/.venv",
     ],
     // What iNiR runs on rather than what it is: the shared Quickshell runtime,
-    // the two fonts the whole interface is drawn with, and the recorder behind
+    // the icon font the whole interface is drawn with, and the recorder behind
     // its screen-record controls. Named so a switch *to* iNiR keeps them —
-    // Caelestia's and end4-pC's removal plans name all four, and DMS's and
-    // Ambxst's name the runtime.
+    // Caelestia's and end4-pC's removal plans name all three, and DMS's and
+    // Ambxst's name the runtime. The mono font is not here: iNiR does not
+    // install it and the system's own monospace stands in for it.
     runtime_packages: &[
         "quickshell",
         "quickshell-git",
         "material-symbols-fonts",
-        "jetbrainsmono-nerd-fonts",
         "wf-recorder",
     ],
     // iNiR is its own polkit agent. See `Identity::polkit_agent`.
