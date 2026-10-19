@@ -285,10 +285,11 @@ Klik kartu membuka dialog konfirmasi. Di dialog itu preview tampil lebih dulu
 
 Gambar dibenamkan ke binary (`include_bytes!`) seperti logo. Menambah preview:
 
-1. Siapkan enam screenshot: bar plus dock, sebuah panel, launcher atau app grid,
-   jendela settings, sekumpulan widget, dan desktop polos. Enam desktop yang
-   berbeda lebih menjual daripada enam tampilan dari satu desktop, dan totalnya
-   tetap sekitar satu megabyte. Kecilkan ke lebar 720 px, JPEG kualitas ~82:
+1. Siapkan sampai enam screenshot: bar plus dock, sebuah panel, launcher atau
+   app grid, jendela settings, sekumpulan widget, dan desktop polos. Enam
+   desktop yang berbeda lebih menjual daripada enam tampilan dari satu desktop,
+   dan totalnya tetap sekitar satu megabyte. Kecilkan ke lebar 720 px, JPEG
+   kualitas ~82:
 
    ```sh
    magick asli.png -auto-orient -resize '720x>' -strip -quality 82 \
@@ -301,17 +302,18 @@ Gambar dibenamkan ke binary (`include_bytes!`) seperti logo. Menambah preview:
 2. Daftarkan di `image_bytes()` di `preview.rs`, satu blok per shell. Kuncinya
    adalah id shell, bukan nama folder asalnya: `end4pc`, bukan `end4-pc`.
 
-Shell yang sudah punya preview: ambxst, end4pc, iNiR, dan noctalia. `caelestia`
-dan `dms` belum ada gambarnya. Satu gambar tampil apa adanya; beberapa gambar
-tampil sebagai carousel dengan titik penunjuk; shell tanpa gambar menampilkan
-"No preview available yet.", jadi menambah shell tidak perlu menunggu
-screenshot-nya.
+Shell yang sudah punya preview: ambxst, end4pc, iNiR, dan noctalia (enam gambar
+masing-masing), lalu caelestia dengan empat. `dms` belum ada gambarnya, jadi ia
+memakai catatan "No preview available yet." Satu gambar tampil apa adanya;
+beberapa gambar tampil sebagai carousel dengan titik penunjuk, berapa pun
+jumlahnya; shell tanpa gambar tidak perlu menunggu screenshot-nya untuk hadir di
+picker.
 
-Tiga tes menjaga aturan di atas: format harus PNG atau JPEG, tiap file maksimal
-150 KB, dan id yang dipakai di `image_bytes()` harus id shell yang benar-benar
-ada, dengan jumlah enam gambar per shell (nol pun boleh: belum ada screenshot).
-Ketiganya jalan di `cargo test`, jadi screenshot yang salah format atau
-kebesaran ketahuan sebelum masuk commit.
+Empat tes menjaga aturan di atas: format harus PNG atau JPEG, tiap file maksimal
+150 KB, id yang dipakai di `image_bytes()` harus id shell yang benar-benar ada,
+dan satu shell tidak boleh membawa lebih dari enam gambar (nol pun boleh: belum
+ada screenshot). Keempatnya jalan di `cargo test`, jadi screenshot yang salah
+format atau kebesaran ketahuan sebelum masuk commit.
 
 Frame preview memakai `ScrolledWindow` dengan kebijakan `External`. Kebijakan
 `Never` membuat GTK mengabaikan `min-content-width/height` sehingga frame

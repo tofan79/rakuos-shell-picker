@@ -30,12 +30,13 @@ pub const HEIGHT: i32 = 236;
 /// Six shots per shell is the working rule: the bar and the dock, a panel, the
 /// launcher or an app grid, a settings window, a widget set, and the desktop
 /// bare. Six different desktops sell the shell better than six views of one, and
-/// the dots still read at a glance. The files are the ones from
-/// `assets/previews/` re-encoded to 720 px wide; see the module comment for the
-/// format rules the tests enforce.
+/// the dots still read at a glance. Caelestia starts with four and gains the
+/// rest over time — the carousel does not care how many it gets. The files are
+/// the ones from `assets/previews/` re-encoded to 720 px wide; see the module
+/// comment for the format rules the tests enforce.
 ///
-/// `caelestia` and `dms` have no screenshots yet, so they get the "no preview"
-/// note instead. Nothing else has to change for them to gain one.
+/// `dms` has no screenshots yet, so it gets the "no preview" note instead.
+/// Nothing else has to change for it to gain one.
 pub(crate) fn image_bytes(shell_id: &str) -> Vec<&'static [u8]> {
     match shell_id {
         "ambxst" => vec![
@@ -45,6 +46,12 @@ pub(crate) fn image_bytes(shell_id: &str) -> Vec<&'static [u8]> {
             include_bytes!("../../assets/previews/ambxst-4.jpg").as_slice(),
             include_bytes!("../../assets/previews/ambxst-5.jpg").as_slice(),
             include_bytes!("../../assets/previews/ambxst-6.jpg").as_slice(),
+        ],
+        "caelestia" => vec![
+            include_bytes!("../../assets/previews/caelestia-1.jpg").as_slice(),
+            include_bytes!("../../assets/previews/caelestia-2.jpg").as_slice(),
+            include_bytes!("../../assets/previews/caelestia-3.jpg").as_slice(),
+            include_bytes!("../../assets/previews/caelestia-4.jpg").as_slice(),
         ],
         "end4pc" => vec![
             include_bytes!("../../assets/previews/end4pc-1.jpg").as_slice(),
@@ -173,17 +180,16 @@ mod tests {
         }
     }
 
-    /// Six shots is what the guide asks for: enough to show the bar and the
-    /// dock, a panel, the launcher, settings and the desktop bare. A shell with
-    /// none is fine; a shell with two is a half-filled preview.
+    /// Six is the ceiling, not a quota: the carousel takes whatever it is given
+    /// (Caelestia has four), and a shell with none still gets the note.
     #[test]
-    fn every_shell_with_screenshots_offers_six() {
+    fn no_shell_carries_more_than_six_screenshots() {
         for compositor in compositor::all() {
             for shell in compositor.shells() {
                 let shots = image_bytes(shell.id).len();
                 assert!(
-                    shots == 0 || shots == 6,
-                    "{}: {shots} screenshots, expected six",
+                    shots <= 6,
+                    "{}: {shots} screenshots, more than the six the guide allows",
                     shell.id
                 );
             }
@@ -226,6 +232,6 @@ mod tests {
         registered.sort_unstable();
         registered.dedup();
 
-        assert_eq!(registered, ["ambxst", "end4pc", "inir", "noctalia"]);
+        assert_eq!(registered, ["ambxst", "caelestia", "end4pc", "inir", "noctalia"]);
     }
 }
