@@ -191,7 +191,10 @@ iNiR sama: paket `inir-shell` dari repository, dengan skel Niri milik upstream
 runtime QML-nya sendiri) dan state di `~/.local/state/inir`, plus data
 companion di `~/.config/inir` (widget custom) dan
 `~/.local/state/quickshell/{user,states.json}` (todo, catatan, chat, palet yang
-diregenerasi). Yang membedakannya dari shell lain: unit systemd-nya
+diregenerasi). Satu kunci config-nya ikut di-seed — tema ikon `Colloid-Dark`,
+karena default upstream (`WhiteSur-dark`) tidak dipaketkan repo mana pun di sini
+dan nama itu ditulis iNiR ke gsettings serta ke settings GTK/Qt setiap app,
+termasuk di sesi shell berikutnya. Yang membedakannya dari shell lain: unit systemd-nya
 (`inir.service`) dikirim upstream tanpa bagian `[Install]`, jadi `systemctl
 --user enable` menolaknya dan switch menulis sendiri symlink
 `niri.service.wants/inir.service` — lihat `Port::systemd_user_unit_wanted_by`.

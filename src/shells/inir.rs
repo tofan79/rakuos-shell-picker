@@ -78,8 +78,20 @@
 //!     fallback is the family the image already sets as monospace, Maple Mono NF
 //!     — a Nerd Font as well, so the glyphs the interface asks it for are there.
 //!     `mainFont`/`titleFont` (`Roboto Flex`, `Gabarito`) are missing for the
-//!     same reason and resolve to Inter, the system sans. All three names live in
-//!     the package's own `defaults/config.json`, which a switch does not write.
+//!     same reason and resolve to Inter, the system sans. Nothing is seeded for
+//!     them: a font has a fallback, so the missing family renders in the system's
+//!     own and costs a typeface, not the interface.
+//!
+//!     The icon theme is the one name of iNiR's that **is** seeded, and for the
+//!     opposite reason: an icon theme has no fallback worth the name. Upstream's
+//!     default, `WhiteSur-dark`, is in no repository here either, and iNiR writes
+//!     whichever name it holds into gsettings and into every Qt/GTK app's
+//!     settings file — so the same absence surfaces as a desktop of missing
+//!     icons, in iNiR and in whichever shell comes after it, because the name is
+//!     one dconf key that no switch replaces. The Niri skel seeds `Colloid-Dark`
+//!     (the theme `rakuos-branding` installs, and the name DMS's and Caelestia's
+//!     skels render) and states it at login as well; the reasoning is in
+//!     `src/compositor/niri/shells/inir/mod.rs`.
 //!
 //!   Deliberately **not** named, and not because of the image: `khal` (that is
 //!   DMS's calendar), `kdialog`, `swappy`, `gum` and `playerctl` (the shell owns

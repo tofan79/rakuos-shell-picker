@@ -11,6 +11,25 @@
 // sycoca database so KDE/Qt apps see the correct .desktop entries.
 spawn-at-startup "bash" "-c" "systemctl --user import-environment XDG_MENU_PREFIX && kbuildsycoca6"
 
+// The icon theme GTK apps read. The image ships Colloid (rakuos-branding) and no
+// WhiteSur, and nothing in it writes this key, so a GTK app that opens before
+// iNiR has applied its own theme has only its fallback. Saying it here makes the
+// value right from the first second of the session.
+//
+// iNiR states it again a moment later, from the theme its own service renders —
+// and that service writes every other place a Qt/GTK app looks (the two
+// settings.ini files, kdeglobals, qt6ct) from the same name. The name it starts
+// from is seeded under `.config/illogical-impulse` (see
+// src/compositor/niri/shells/inir/mod.rs): upstream's default is `WhiteSur-dark`,
+// which no repository RakuOS enables carries.
+//
+// This key lives in dconf, and no switch replaces dconf — which is why leaving
+// iNiR with the wrong theme in it is what left every later shell without icons,
+// and why the value has to be the one this machine actually has installed.
+//
+// The same line for the same reason is in Caelestia's skel on Hyprland.
+spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "icon-theme" "Colloid-Dark"
+
 // Clipboard history: wl-paste watches the clipboard and cliphist stores it.
 // Access via iNiR's clipboard overlay (Mod+V).
 //

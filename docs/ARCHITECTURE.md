@@ -59,7 +59,8 @@ src/compositor/             satu folder per compositor
       inir/mod.rs + skel/    PORT: unit systemd `inir` di-aktifkan lewat symlink
                             `niri.service.wants/` (unit-nya tanpa `[Install]`);
                             skel: `defaults/niri` upstream + launcher Noctalia
-                            (NoDisplay); config `.config/illogical-impulse` +
+                            (NoDisplay) + seed config (tema ikon Colloid-Dark);
+                            config `.config/illogical-impulse` +
                             state `.local/state/inir`
   fake.rs                   compositor kedua untuk test, hanya di build test
 

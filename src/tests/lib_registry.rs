@@ -287,6 +287,44 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
 }
 
 #[test]
+fn inir_names_the_icon_theme_this_machine_has() {
+    // iNiR's own default for `appearance.iconTheme` is `WhiteSur-dark`, a family
+    // in no repository RakuOS enables, and the shell renders the name it holds
+    // into gsettings and into every Qt/GTK app's settings file
+    // (`gtk-3.0`/`gtk-4.0/settings.ini`, `kdeglobals`, `qt6ct`). A GTK app asked
+    // for a theme that is not installed draws its fallback, which reads as
+    // missing icons — in iNiR, and in whichever shell comes after it, because
+    // the name is one dconf key and no switch replaces dconf. So the Niri skel
+    // seeds that one key with the theme `rakuos-branding` installs (the same name
+    // DMS's and Caelestia's skels render) and states it at login as well.
+    //
+    // The seed is pinned whole rather than key by key: one key is the entire
+    // point, and a JSON file is the one skel file nothing else in this suite
+    // would catch going bad — `every_toml_in_a_skel_parses` parses the TOML and
+    // the KDL is checked by hand, but a JSON the shell cannot read is a shell
+    // that comes up without its configuration. Whitespace is normalised so a
+    // reformat is not a failure; a key, a value or a brace that stops parsing is.
+    let skel = crate::apply::skel_for("niri", "inir");
+    let seed = std::fs::read_to_string(skel.join(".config/illogical-impulse/config.json"))
+        .expect("the iNiR Niri skel seeds iNiR's own config");
+    let compact: String = seed.chars().filter(|c| !c.is_whitespace()).collect();
+    assert_eq!(
+        compact, r#"{"appearance":{"iconTheme":"Colloid-Dark"}}"#,
+        "the seeded icon theme has to be the one this image installs"
+    );
+
+    let startup = std::fs::read_to_string(skel.join(".config/niri/config.d/50-startup.kdl"))
+        .expect("the iNiR Niri skel starts the session");
+    assert!(
+        startup.contains(
+            r#"spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "icon-theme" "Colloid-Dark""#
+        ),
+        "a session has to say which icon theme it uses, or GTK apps open on a \
+         fallback"
+    );
+}
+
+#[test]
 fn a_shell_without_an_install_plan_is_not_removable_either() {
     // A removal only makes sense for a package the picker could have put there.
     // A shell the picker cannot install — one that lives in a base image with no

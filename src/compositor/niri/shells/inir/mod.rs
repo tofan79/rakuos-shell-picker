@@ -28,17 +28,35 @@
 //!   `/usr/share/niri/global.kdl` first, so the image's session-wide environment
 //!   and rules are in force under every shell here, and the two files that adapt
 //!   the skel to this machine are `40-environment.kdl` (the Qt platform theme)
-//!   and `50-startup.kdl` (the clipboard watchers' paths). Both carry a comment
-//!   saying what changed and why.
+//!   and `50-startup.kdl` (the clipboard watchers' paths, and the icon theme
+//!   GTK apps read). Both carry a comment saying what changed and why.
 //! - **clean**: `~/.config/niri` comes from the backup taken before every switch,
 //!   and iNiR's rendered themes and caches are declared in the identity. Nothing
 //!   here is left to the next shell.
 //!
-//! A fresh switch seeds no configuration of its own: `~/.config/illogical-impulse`
-//! is not in the skel because the shell creates it and writes `config.json` from
-//! its own defaults on the first run, exactly as it does on upstream's own
-//! install. The path is still declared, so a switch away carries whatever the
-//! user had configured there.
+//! The skel also seeds one file of iNiR's own configuration,
+//! `~/.config/illogical-impulse/config.json`, with a single key: the icon theme.
+//! The shell creates that file itself on its first run, out of defaults compiled
+//! into its `modules/common/Config.qml`, and upstream's default is
+//! `WhiteSur-dark` — a family no repository RakuOS enables packages. iNiR then
+//! renders whatever name it holds into gsettings, `gtk-3.0`/`gtk-4.0/settings.ini`,
+//! `kdeglobals` and `qt6ct`, and takes the icons of the session with it: a GTK
+//! app asked for a theme that is not installed draws its fallback, which reads as
+//! missing icons rather than a different look. Seeding the file with
+//! `Colloid-Dark` — the theme `rakuos-branding` installs, and the name DMS's and
+//! Caelestia's skels already render — is what holds the shell, and every session
+//! after it, on an icon theme this machine has. It matters outside the session
+//! too: the name is one dconf key, and no switch replaces dconf, so a switch away
+//! carries it to the next shell.
+//!
+//! One key is enough because the shell reads the file as a set of properties
+//! ([`JsonAdapter`](https://quickshell.org/docs/types/Quickshell.Io/JsonAdapter/)):
+//! every key the file does not carry keeps the value the QML declares, so seeding
+//! this one neither freezes upstream's defaults at the version this skel was
+//! written against nor survives past what the user chooses in the shell's own
+//! settings, which grep the file back into shape. Everything else in the path is
+//! still the shell's own, and the path is declared, so a switch away carries
+//! whatever is in it.
 
 use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::inir::IDENTITY;
