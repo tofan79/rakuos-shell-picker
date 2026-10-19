@@ -243,6 +243,7 @@ pub const CANCEL: &str = "cancel";
 pub fn confirm_switch(
     parent: &ApplicationWindow,
     from: Option<&str>,
+    shell_id: &str,
     to: &str,
     install: bool,
     on_response: impl Fn(bool) + 'static,
@@ -252,7 +253,14 @@ pub fn confirm_switch(
         None => "No registered shell is running.".to_string(),
     };
 
-    let dialog = AlertDialog::new(Some(&format!("Switch to {to}?")), Some(&body));
+    // A shell that has to be installed says so in the title and on the button,
+    // so the person who sees a preview and presses the button knows what it does.
+    let heading = if install {
+        format!("Install {to}?")
+    } else {
+        format!("Switch to {to}?")
+    };
+    let dialog = AlertDialog::new(Some(&heading), Some(&body));
     // Say so before the click, not after: installing is the only step here that
     // changes the system, and it happens after the backup, not before.
     let extra = if install {
@@ -260,9 +268,20 @@ pub fn confirm_switch(
     } else {
         "Configuration is backed up and never deleted.".to_string()
     };
-    dialog.set_extra_child(Some(&markup_label(&extra)));
+
+    // The preview comes first, so it is the first thing seen before deciding.
+    let content = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
+    content.append(&super::preview::build(shell_id));
+    content.append(&markup_label(&extra));
+    dialog.set_extra_child(Some(&content));
+
     dialog.add_response(CANCEL, "Cancel");
-    dialog.add_response(SWITCH, &format!("Switch to {to}"));
+    let action = if install {
+        format!("Install {to}")
+    } else {
+        format!("Switch to {to}")
+    };
+    dialog.add_response(SWITCH, &action);
     dialog.set_response_appearance(SWITCH, ResponseAppearance::Suggested);
     dialog.set_default_response(Some(CANCEL));
     dialog.set_close_response(CANCEL);

@@ -171,3 +171,23 @@ window.picker {
 .dim-fallback {
   color: #6b6577;
 }
+
+/* Preview in the install / switch confirmation. */
+.preview-frame {
+  border-radius: 10px;
+  background: #0d0c12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Lifts the frame off the dialog background so the screenshot reads as a
+     picture of another desktop, not as part of this one. */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+.preview-dots {
+  margin-top: 2px;
+}
+
+.preview-empty {
+  color: #8b8494;
+  font-size: 0.85em;
+  font-style: italic;
+}

@@ -13,6 +13,7 @@ pub mod dialog;
 pub mod grid;
 pub mod log;
 pub mod logo;
+pub mod preview;
 pub mod tabbar;
 
 use std::cell::RefCell;
@@ -196,19 +197,26 @@ impl Selection {
             let owned = shared.clone();
             let marks = shared.clone();
             let decided = action.clone();
-            dialog::confirm_switch(&window, from.as_deref(), to, install, move |confirmed| {
-                // Every ending arrives here, so this is the only place that
-                // can take the mark back on the ones where no switch starts.
-                // Leaving it to the confirm arm is what used to strand it:
-                // the mark outlived a cancelled dialog, and a card left
-                // active swallows the next click on it.
-                if !dialog::keeps_mark(&decided, confirmed) {
-                    marks.borrow_mut().clear_highlight();
-                }
-                if confirmed {
-                    begin(&owned, compositor, current.clone(), shell);
-                }
-            });
+            dialog::confirm_switch(
+                &window,
+                from.as_deref(),
+                shell.id,
+                to,
+                install,
+                move |confirmed| {
+                    // Every ending arrives here, so this is the only place that
+                    // can take the mark back on the ones where no switch starts.
+                    // Leaving it to the confirm arm is what used to strand it:
+                    // the mark outlived a cancelled dialog, and a card left
+                    // active swallows the next click on it.
+                    if !dialog::keeps_mark(&decided, confirmed) {
+                        marks.borrow_mut().clear_highlight();
+                    }
+                    if confirmed {
+                        begin(&owned, compositor, current.clone(), shell);
+                    }
+                },
+            );
             return;
         }
 

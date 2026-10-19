@@ -273,3 +273,49 @@ Semua warna lewat class CSS di `src/style.css`.
 - Placeholder `Logo DE` di wireframe lama sudah diganti logo shell sungguhan.
 - Wireframe lama menyebut 8 kartu; yang benar 4 kartu per compositor, dan
   jumlah itu boleh bertambah tanpa mengubah layout.
+
+## Preview sebelum install / switch
+
+Klik kartu membuka dialog konfirmasi. Di dialog itu preview tampil lebih dulu
+(`src/ui/preview.rs`), baru tombol aksi:
+
+- Shell belum terpasang: judul **Install X?**, tombol **Install X**.
+- Shell sudah terpasang: judul **Switch to X?**, tombol **Switch to X**.
+- Batal tetap respons default, jadi Enter tidak menjalankan apa pun.
+
+Gambar dibenamkan ke binary (`include_bytes!`) seperti logo. Menambah preview:
+
+1. Siapkan enam screenshot: bar plus dock, sebuah panel, launcher atau app grid,
+   jendela settings, sekumpulan widget, dan desktop polos. Enam desktop yang
+   berbeda lebih menjual daripada enam tampilan dari satu desktop, dan totalnya
+   tetap sekitar satu megabyte. Kecilkan ke lebar 720 px, JPEG kualitas ~82:
+
+   ```sh
+   magick asli.png -auto-orient -resize '720x>' -strip -quality 82 \
+     -sampling-factor 4:2:0 assets/previews/<id shell>-1.jpg
+   ```
+
+   Rasio 16:9 lebih rapi, tapi bukan syarat: `Picture` memakai `ContentFit::Contain`,
+   jadi rasio lain tinggal menyisakan sedikit ruang di sisi. **Jangan WebP**:
+   loader-nya tidak dijamin ada di sistem target.
+2. Daftarkan di `image_bytes()` di `preview.rs`, satu blok per shell. Kuncinya
+   adalah id shell, bukan nama folder asalnya: `end4pc`, bukan `end4-pc`.
+
+Shell yang sudah punya preview: ambxst, end4pc, iNiR, dan noctalia. `caelestia`
+dan `dms` belum ada gambarnya. Satu gambar tampil apa adanya; beberapa gambar
+tampil sebagai carousel dengan titik penunjuk; shell tanpa gambar menampilkan
+"No preview available yet.", jadi menambah shell tidak perlu menunggu
+screenshot-nya.
+
+Tiga tes menjaga aturan di atas: format harus PNG atau JPEG, tiap file maksimal
+150 KB, dan id yang dipakai di `image_bytes()` harus id shell yang benar-benar
+ada, dengan jumlah enam gambar per shell (nol pun boleh: belum ada screenshot).
+Ketiganya jalan di `cargo test`, jadi screenshot yang salah format atau
+kebesaran ketahuan sebelum masuk commit.
+
+Frame preview memakai `ScrolledWindow` dengan kebijakan `External`. Kebijakan
+`Never` membuat GTK mengabaikan `min-content-width/height` sehingga frame
+runtuh jadi beberapa piksel, dan tanpa frame tetap, `Picture` melebarkan dialog
+sebesar ukuran asli gambarnya. `overflow: hidden` lewat `set_overflow()` yang
+memotong sudut gambar mengikuti `border-radius` CSS; `border-radius` sendiri
+hanya membulatkan latar di belakang gambar.
