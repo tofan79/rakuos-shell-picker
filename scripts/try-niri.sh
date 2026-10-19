@@ -2,7 +2,7 @@
 # Jalankan picker dari sesi Niri: build, lihat rencana switch tanpa mengubah
 # apa pun, lalu buka GUI-nya.
 #
-#   ./scripts/try-niri.sh          # dry-run DMS + Noctalia, lalu buka GUI
+#   ./scripts/try-niri.sh          # dry-run DMS + Noctalia + iNiR, lalu buka GUI
 #   ./scripts/try-niri.sh --dry    # berhenti setelah dry-run
 #
 # Dry-run tidak menyentuh apa pun — hanya membaca config di $HOME dan mencetak
@@ -19,7 +19,7 @@ echo "== cargo build =="
 cargo build || exit 1
 
 rc=0
-for shell in dms noctalia; do
+for shell in dms noctalia inir; do
   echo
   echo "== dry-run: niri $shell =="
   if ! "$bin" --dry-run niri "$shell"; then

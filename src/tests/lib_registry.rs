@@ -255,24 +255,34 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
 
     let inir = super::shell::find("inir").expect("inir registered");
     let plan = inir.install_plan.expect("inir installs from a repository");
-    // Its own package, the runtime in a stage of its own (mirroring DMS), the
-    // QML and Qt pieces its interface imports, then every tool the skel or the
-    // QML runs that nothing requires at the package level: the two clipboard
-    // programs behind the watcher the skel starts, the capture tools behind its
-    // screenshot and record keys, the image probe it sizes a wallpaper with, OCR,
-    // the two brightness backends, the idle daemon and the lock screen, the night
-    // light, the Go toolchain its theme modules build with, and the two fonts its
-    // interface is drawn with. No polkit agent: iNiR answers polkit from its own.
+    // One stage, and only what the niri image does not already bring: the
+    // runtime, `qt6ct`, `wl-clipboard`, `ddcutil` and `matugen` are the image's,
+    // and `swaylock` is one the image removes. What is left is the shell plus
+    // every tool the skel or the QML runs that nothing requires at the package
+    // level: the QML and Qt pieces its interface imports, the style its skel
+    // overrides with, the sycoca builder, the clipboard store the overlay reads,
+    // the capture tools behind its screenshot and record keys, the image probe it
+    // sizes a wallpaper with, OCR, the panel's brightness backend, the idle
+    // daemon, the night light, the Go toolchain its theme modules build with, and
+    // the two fonts its interface is drawn with. No polkit agent: iNiR answers
+    // polkit from its own.
     assert_eq!(
         plan.command_line(),
-        "pkexec rum install -y --refresh quickshell-git inir-shell qt6-qt5compat \
-         qt6-qtmultimedia qt6-qtimageformats qt6ct darkly kf6-kservice cliphist \
-         wl-clipboard grim slurp wf-recorder ImageMagick tesseract ddcutil \
-         brightnessctl swayidle swaylock wlsunset golang material-symbols-fonts \
-         jetbrainsmono-nerd-fonts"
+        "pkexec rum install -y --refresh inir-shell qt6-qt5compat \
+         qt6-qtmultimedia qt6-qtimageformats darkly kf6-kservice cliphist grim \
+         slurp wf-recorder ImageMagick tesseract brightnessctl swayidle wlsunset \
+         golang material-symbols-fonts jetbrainsmono-nerd-fonts"
     );
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");
+    // The runtime the shell runs on, but does not install: the image has it and
+    // protects it, and `runtime_packages` is where the uninstall guard reads it.
+    assert!(
+        !plan.packages().contains(&"quickshell-git"),
+        "quickshell-git is the niri image's, so the plan neither installs nor \
+         removes it"
+    );
+    assert!(inir.runtime_packages.contains(&"quickshell-git"));
 }
 
 #[test]

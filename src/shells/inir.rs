@@ -3,71 +3,78 @@
 //!
 //! What is the same wherever it runs (today that is Niri only):
 //!
-//! - **install**: two privileged stages, in this order:
+//! - **install**: one privileged stage:
 //!
 //!   ```text
-//!   1. quickshell-git
-//!   2. inir-shell qt6-qt5compat qt6-qtmultimedia qt6-qtimageformats qt6ct
-//!      darkly kf6-kservice cliphist wl-clipboard grim slurp wf-recorder
-//!      ImageMagick tesseract ddcutil brightnessctl swayidle swaylock
-//!      wlsunset golang material-symbols-fonts jetbrainsmono-nerd-fonts
+//!   inir-shell qt6-qt5compat qt6-qtmultimedia qt6-qtimageformats darkly
+//!   kf6-kservice cliphist grim slurp wf-recorder ImageMagick tesseract
+//!   brightnessctl swayidle wlsunset golang material-symbols-fonts
+//!   jetbrainsmono-nerd-fonts
 //!   ```
 //!
-//!   `quickshell-git` is named explicitly rather than left to the solver, for
-//!   the reason DMS's plan states: the repository also carries `noctalia-qs`,
-//!   which provides `quickshell` as well, and that is the legacy Noctalia build.
-//!   It is a stage of its own because that ordering is a safety property — if the
-//!   runtime fails there is then nothing of iNiR on the machine at all.
+//!   Unlike the other quickshell shells here, there is no stage of its own for
+//!   the runtime: the RakuOS niri image installs `quickshell-git` *and* lists it
+//!   in `protected-packages.txt`, so it cannot be missing and cannot be removed.
+//!   Naming it would be stating what the image already guarantees. The niri
+//!   build files are the reference for the rest of the list too — what the image
+//!   carries is not repeated here, because the same list is the uninstall plan
+//!   and a package the base image owns is one a switch neither installed nor may
+//!   take away. So `qt6ct` (the image installs `qt6ct-kde`, which provides it),
+//!   `wl-clipboard`, `ddcutil` and `matugen` are left out, and `swaylock` is
+//!   left out for the opposite reason: the image removes it on purpose.
+//!   `runtime_packages` still names the runtime — that is a different statement,
+//!   about what a switch *to* iNiR must not let another shell's removal take.
 //!
-//!   Everything after `inir-shell` is a package nothing requires and the shell
-//!   would be visibly broken or silently incomplete without:
+//!   Everything listed is a package nothing requires and the shell would be
+//!   visibly broken or silently incomplete without:
 //!
 //!   - `qt6-qt5compat` and `qt6-qtmultimedia`: the QML imports behind the bar's
 //!     blur and the video wallpaper. A missing QML module is a component that
-//!     fails to load, so this is the first pair that has to be named.
+//!     fails to load, so this is the first pair that has to be named. Neither is
+//!     in the niri image's own list, and only the first is in the Hyprland
+//!     image's.
 //!   - `qt6-qtimageformats`: the Qt image plugins that make webp, avif and gif
 //!     wallpapers load at all.
-//!   - `qt6ct` and `darkly`: the platform theme and style the session's own
-//!     `QT_QPA_PLATFORMTHEME=qt6ct` / `QT_STYLE_OVERRIDE=Darkly` name. The
-//!     Niri skel sets both, and without the packages every Qt app falls back to
-//!     a default look while the shell writes colour schemes for it to read.
+//!   - `darkly`: the Qt style the skel's `QT_STYLE_OVERRIDE` names, which iNiR
+//!     points at the colour scheme it renders. (The platform theme beside it,
+//!     `qt6ct`, is the image's.)
 //!   - `kf6-kservice`: `kbuildsycoca6`, which the skel's `spawn-at-startup` runs
 //!     so that `XDG_MENU_PREFIX=plasma-` means something and the launchers and
 //!     "Open With" menus are populated.
-//!   - `cliphist` and `wl-clipboard`: clipboard history, which is the watcher the
-//!     skel starts and the overlay `Mod+V` opens. `cliphist` alone is a binary
-//!     with nothing feeding it; `wl-clipboard` is what watches.
+//!   - `cliphist`: clipboard history. The overlay `Mod+V` shows it and the
+//!     watcher the skel starts fills it; the Hyprland image has this one, the
+//!     Niri image does not. (`wl-clipboard`, the watcher itself, is the image's.)
 //!   - `grim`, `slurp`: the region selector's capture. `wf-recorder`: screen
-//!     recording, which the recorder scripts and the pill both drive.
+//!     recording, which the recorder scripts and the pill both drive. All three
+//!     are Hyprland-image packages; none is in the Niri image.
 //!   - `ImageMagick`: `/usr/bin/magick identify`, which the background reads to
-//!     size every wallpaper before it shows it.
+//!     size every wallpaper before it shows it. The running image has it as a
+//!     dependency of the base image's `braille-printer-app`, which is not a
+//!     promise the niri build files make.
 //!   - `tesseract`: OCR of a selected region. Its language models are the one
 //!     thing here that is not a package: `scripts/ocr-runner.sh` symlinks the
 //!     distro's data and downloads what is missing into
 //!     `~/.local/share/inir/tessdata`, so the English model inside `tesseract`
 //!     is enough to start with.
-//!   - `ddcutil` and `brightnessctl`: brightness on an external monitor and on
-//!     the panel, both of which `Brightness.qml` drives directly.
+//!   - `brightnessctl`: brightness on the panel, which `Brightness.qml` drives
+//!     directly. (`ddcutil` beside it, for external monitors, is the image's.)
 //!   - `swayidle`: the idle service does not reimplement idle handling, it runs
-//!     this. `swaylock`: the fallback the lock screen falls back to when the
-//!     shell's own session lock cannot take the seat — a session that cannot be
-//!     locked is worth a second path. `wlsunset`: the night-light toggle on
-//!     Niri, spawned by path.
+//!     this. `wlsunset`: the night-light toggle on Niri, spawned by path.
 //!   - `golang`: `go build`. Three theming modules compile their own generator
 //!     from the payload at the moment a theme is applied — editor themes, the
 //!     system24 palette, washi — instead of shipping a binary per architecture.
 //!   - `material-symbols-fonts` and `jetbrainsmono-nerd-fonts`: the icon font the
 //!     whole interface is drawn with and the monospace font in its config.
 //!     Nothing requires them at the package level, so the shell would start with
-//!     blank glyphs.
+//!     blank glyphs. The second is a Hyprland-image package; the first is in
+//!     neither image.
 //!
-//!   Deliberately **not** named: `matugen` (iNiR generates its own palettes; the
-//!   tool only appears in its distribution-specific extras), `khal` (that is
+//!   Deliberately **not** named, and not because of the image: `khal` (that is
 //!   DMS's calendar), `kdialog`, `swappy`, `gum` and `playerctl` (the shell owns
-//!   the annotation editor, the menu and MPRIS, and the file chooser is the
-//!   session's portal). This is the list of what would be missing, not a copy of
-//!   upstream's installer, which also installs things only its own setup flow
-//!   reads.
+//!   the annotation editor and the menu, its MPRIS is native Quickshell, and the
+//!   file chooser belongs to the session's portal). This is the list of what
+//!   would be missing, not a copy of upstream's installer, which also installs
+//!   things only its own setup flow reads.
 //!
 //! - **uninstall**: one stage, `pkexec rum remove -y` over every package the
 //!   install plan put there, and nothing else. It runs at the very end of a
@@ -150,31 +157,56 @@
 
 use crate::shell::{Identity, InstallPlan, UninstallPlan};
 
-/// The packages a switch installs, in the order the stages run and in the order
-/// `rum` is handed them: the shell, the QML and Qt pieces its interface needs,
-/// the session tools, the theming toolchain, and the two fonts last.
+/// The packages a switch installs, in the order `rum` is handed them: the shell,
+/// the QML and Qt pieces its interface needs, the session tools, the theming
+/// toolchain, and the two fonts last.
 ///
-/// One list rather than two, because the uninstall plan is exactly this list —
-/// see the module comment for why that is safe.
+/// Only what the image does not already bring, because the same list is the
+/// uninstall plan: naming a package the base image owns buys nothing (the
+/// install is a no-op and `switch::uninstall` drops base-image packages before
+/// the package manager sees them) and says the wrong thing — that a switch put
+/// it there.
+///
+/// Left out because the RakuOS niri image already carries them, with the
+/// `rakuos-niri` build files as the reference:
+///
+/// - `quickshell-git` — installed *and* listed in `protected-packages.txt`, so
+///   it cannot be taken off the machine at all. The other quickshell shells
+///   here name it in a stage of its own; iNiR, which is only offered on niri,
+///   would be stating a fact the image already guarantees. It is still in
+///   [`Identity::runtime_packages`], which is a different statement: what a
+///   switch *to* iNiR must not let another shell's removal take away.
+/// - `qt6ct` — the image installs `qt6ct-kde`, which provides it.
+/// - `wl-clipboard`, `ddcutil` — in the image's own install list.
+/// - `matugen` — the image has it, and iNiR does not call it: it makes its own
+///   palettes.
+/// - `swaylock` — the image takes it off on purpose. iNiR has its own session
+///   lock and only reaches for `swaylock` as a fallback; putting it back would
+///   be arguing with the image about which shell owns locking.
+///
+/// `ImageMagick` and `qt6-qtmultimedia` stay in the list even though the
+/// running image happens to have them: the first arrives as a dependency of the
+/// base image's `braille-printer-app` and the second is required by nothing at
+/// all, so neither is something the niri build files promise. iNiR reads
+/// `/usr/bin/magick` directly to size a wallpaper and imports `QtMultimedia`
+/// for the video wallpaper, and a shell that installs cleanly on a machine
+/// where an incidental dependency changed is worth two entries that are
+/// usually no-ops.
 const PACKAGES: &[&str] = &[
     "inir-shell",
     "qt6-qt5compat",
     "qt6-qtmultimedia",
     "qt6-qtimageformats",
-    "qt6ct",
     "darkly",
     "kf6-kservice",
     "cliphist",
-    "wl-clipboard",
     "grim",
     "slurp",
     "wf-recorder",
     "ImageMagick",
     "tesseract",
-    "ddcutil",
     "brightnessctl",
     "swayidle",
-    "swaylock",
     "wlsunset",
     "golang",
     "material-symbols-fonts",
@@ -191,7 +223,9 @@ pub const IDENTITY: Identity = Identity {
     process_match: &["-p", "/usr/share/quickshell/inir"],
     install_plan: Some(InstallPlan {
         package: "inir-shell",
-        stages: &[&["quickshell-git"], PACKAGES],
+        // One stage: see the module comment for why the runtime is not a stage
+        // of its own here as it is for the other quickshell shells.
+        stages: &[PACKAGES],
         program: "pkexec",
         // `--refresh` because a cached copy of the metadata is only known to be
         // young, not known to be current. See `switch::install`.
@@ -199,11 +233,11 @@ pub const IDENTITY: Identity = Identity {
     }),
     uninstall_plan: Some(UninstallPlan {
         package: "inir-shell",
-        // Everything iNiR installed behind it, the runtime included. `rum remove`
-        // also refuses any package another package still requires, and
-        // `switch::uninstall` drops whatever the incoming shell declares in its
-        // own `runtime_packages`, so the solver and the guard between them cover
-        // the two ways this list could reach too far.
+        // Exactly what the install plan put there. `rum remove` also refuses any
+        // package another package still requires, and `switch::uninstall` drops
+        // whatever the incoming shell declares in its own `runtime_packages`, so
+        // the solver and the guard between them cover the two ways this list
+        // could reach too far.
         stages: &[PACKAGES],
         program: "pkexec",
         args: &["rum", "remove", "-y"],
