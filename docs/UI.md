@@ -303,7 +303,7 @@ Gambar dibenamkan ke binary (`include_bytes!`) seperti logo. Menambah preview:
    adalah id shell, bukan nama folder asalnya: `end4pc`, bukan `end4-pc`.
 
 Shell yang sudah punya preview: ambxst, end4pc, iNiR, dan noctalia (enam gambar
-masing-masing), lalu caelestia dengan empat dan dms dengan satu. Satu gambar
+masing-masing), lalu caelestia dengan empat dan dms dengan enam. Satu gambar
 tampil apa adanya; beberapa gambar tampil sebagai carousel dengan titik
 penunjuk, berapa pun jumlahnya; shell tanpa gambar memakai catatan "No preview
 available yet." dan tidak perlu menunggu screenshot-nya untuk hadir di picker.
