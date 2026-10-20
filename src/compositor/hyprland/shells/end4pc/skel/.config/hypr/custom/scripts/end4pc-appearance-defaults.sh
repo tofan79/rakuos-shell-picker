@@ -20,13 +20,27 @@ kread() {
     kreadconfig6 --file "$1" --group "$2" --key "$3" 2>/dev/null
 }
 
-# Ikon: hanya kalau temanya benar-benar ada di mesin, supaya mesin tanpa
-# Colloid tidak berakhir dengan set ikon yang tidak resolve.
-if [ -z "$(kread kdeglobals Icons Theme)" ] &&
-    { [ -d /usr/share/icons/Colloid-Dark ] ||
-        [ -d "$HOME/.local/share/icons/Colloid-Dark" ] ||
-        [ -d "$HOME/.icons/Colloid-Dark" ]; }; then
+# Ikon: Colloid-Dark hanya dipakai kalau temanya ada, dan hanya ketika tema
+# yang tersimpan kosong atau tidak resolve — mis. sisa folder kosong bernama
+# sama dari shell lain, yang membuat Qt berhenti di situ. Pilihan pengguna
+# yang sah tidak ditimpa.
+icon_theme=$(kread kdeglobals Icons Theme)
+theme_ok=0
+if [ -n "$icon_theme" ]; then
+    for dir in /usr/share/icons "${XDG_DATA_HOME:-$HOME/.local/share}/icons" "$HOME/.icons"; do
+        if [ -f "$dir/$icon_theme/index.theme" ]; then
+            theme_ok=1
+            break
+        fi
+    done
+fi
+if [ "$theme_ok" -eq 0 ] && [ -d /usr/share/icons/Colloid-Dark ]; then
     "$SAP" --set-icons Colloid-Dark
+    # SAP writes kdeglobals and gsettings; GTK, xsettingsd and rofi read the
+    # same setting through their own files.
+    [ -x /usr/share/quickshell/end4-pC/scripts/theming/set-icon-theme.sh ] &&
+        /usr/share/quickshell/end4-pC/scripts/theming/set-icon-theme.sh Colloid-Dark \
+            >/dev/null 2>&1
 fi
 
 # Font: Qt (kdeglobals) dan GTK (gsettings) sekaligus.

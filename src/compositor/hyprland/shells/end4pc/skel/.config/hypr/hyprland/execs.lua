@@ -19,11 +19,4 @@ hl.on("hyprland.start", function ()
     --hl.exec_cmd("wl-paste --watch cliphist store")
     hl.exec_cmd("wl-paste --type text --watch bash -c 'cliphist store && qs -c $qsConfig ipc call cliphistService update'")
     hl.exec_cmd("wl-paste --type image --watch bash -c 'cliphist store && qs -c $qsConfig ipc call cliphistService update'")
-
-    -- Cursor: applied from Settings -> General -> System Appearance by
-    -- custom/scripts/end4pc-appearance-defaults.sh. The hardcoded setcursor
-    -- that used to sit here undid a cursor theme chosen in Settings on every
-    -- login.
-    hl.exec_cmd("$HOME/.config/hypr/custom/scripts/end4pc-appearance-defaults.sh")
-    hl.exec_cmd("$HOME/.config/hypr/custom/scripts/end4pc-venv-setup.sh")
 end)

@@ -9,7 +9,11 @@ hl.env("XDG_DATA_DIRS", home_dir .. "/.local/share/flatpak/exports/share:/var/li
 
 -- Themes
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
-hl.env("QT_QPA_PLATFORMTHEME", "kde")
+-- qt6ct, not kde: the kde platform theme lives in plasma-integration, whose
+-- dependency chain drags in all of plasma-workspace (127 packages, 400 MB).
+-- qt6ct is already on the image and reads icon_theme from
+-- ~/.config/qt6ct/qt6ct.conf, which is where Colloid-Dark is written.
+hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 hl.env("XDG_MENU_PREFIX", "plasma-")
 
 -- Virtual environment

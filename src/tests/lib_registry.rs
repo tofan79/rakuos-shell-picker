@@ -230,7 +230,10 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     // bootstrap the Python venv (`pycairo` and `pygobject` compile against
     // `cairo-devel` and `gobject-introspection-devel`, `pygobject`'s cairo
     // binding includes `cairo-gobject.h`, and `dbus-python` compiles against the
-    // `dbus-1` headers). No polkit agent: the fork answers polkit from its own
+    // `dbus-1` headers). No `plasma-integration`: it drags in all of
+    // plasma-workspace (127 packages), and `QT_QPA_PLATFORMTHEME=qt6ct` reads the
+    // icon theme from qt6ct.conf just as well. No polkit agent: the fork
+    // answers polkit from its own
     // `PolkitService`.
     assert_eq!(
         plan.command_line(),
