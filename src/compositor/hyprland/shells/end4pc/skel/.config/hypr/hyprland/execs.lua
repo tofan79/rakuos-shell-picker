@@ -7,7 +7,10 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("$HOME/.config/hypr/custom/scripts/__restore_video_wallpaper.sh")
 
     -- Core components (authentication, lock screen, notification daemon)
-    hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
+    -- rakuos-base owns org.freedesktop.secrets through oo7-daemon, which its
+    -- session enables; starting gnome-keyring's secret service here only races
+    -- it for the same bus name. Left commented until the image ships oo7.
+    -- hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("dbus-update-activation-environment --all")
     hl.exec_cmd("sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP") -- Some fix idk

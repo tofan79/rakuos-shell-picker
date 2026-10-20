@@ -3,7 +3,10 @@ local fn   = require("utils.functions")
 
 hl.on("hyprland.start", function()
     -- Keyring and auth
-    hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
+    -- rakuos-base owns org.freedesktop.secrets through oo7-daemon, which its
+    -- session enables; starting gnome-keyring's secret service here only races
+    -- it for the same bus name. Left commented until the image ships oo7.
+    -- hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
     hl.exec_cmd("/usr/libexec/polkit-mate-authentication-agent-1")
     -- Clipboard history
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
