@@ -1695,7 +1695,12 @@ fn clean(
     // exists.
     for rel in outgoing.discard_paths {
         let live = home.join(rel);
-        if !live.exists() {
+        // `exists()` follows the link, so a symlink whose target is already gone
+        // reads as absent and the loop walks straight past it. That is exactly
+        // the case this list names: DMS 2.0 left `.cache/DankMaterialShell`
+        // pointing at `.cache/dms`, the entry discarded just above it, so the
+        // link used to survive every switch away and dangle in the user's home.
+        if !live.exists() && !live.is_symlink() {
             continue;
         }
 

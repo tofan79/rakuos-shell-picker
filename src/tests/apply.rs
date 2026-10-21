@@ -1044,6 +1044,49 @@ fn something_with_no_data_in_it_is_discarded_without_a_backup() {
 }
 
 #[test]
+fn a_dangling_symlink_in_discard_paths_is_still_discarded() {
+    // The pre-2.0 spelling DMS 2.0 leaves behind is a symlink to the directory
+    // discarded just above it in the list, so by the time the loop reaches it the
+    // target is already gone. `Path::exists()` follows the link and reports "not
+    // there", which quietly turned the entry into a dead letter: the link stayed
+    // in the home, dangling, after every switch away.
+    let t = Temp::new("discard-dangling");
+    let home = t.path().join("home");
+    let backup = t.path().join("backups/20261021-hyprland-dms");
+
+    std::fs::create_dir_all(home.join(".cache")).unwrap();
+    std::os::unix::fs::symlink("dms", home.join(".cache/DankMaterialShell")).unwrap();
+    assert!(
+        !home.join(".cache/DankMaterialShell").exists(),
+        "the setup is only interesting while the link points at nothing"
+    );
+
+    let mut said = Vec::new();
+    assert_eq!(
+        clean(
+            &dms::SHELL,
+            &noctalia::SHELL,
+            &home,
+            backup.parent().unwrap(),
+            &backup,
+            &mut |line| { said.push(line.to_string()) }
+        ),
+        (1, 0),
+        "a link with no target holds nothing, so it needs no copy either"
+    );
+    assert!(
+        home
+            .join(".cache/DankMaterialShell")
+            .symlink_metadata()
+            .is_err(),
+        "the entry is in the registry, so leaving the shell has to take it away"
+    );
+    assert!(said
+        .iter()
+        .any(|l| l.contains("discarded .cache/DankMaterialShell")));
+}
+
+#[test]
 fn a_path_the_backup_does_not_reproduce_is_kept_when_the_shell_leaves() {
     // The shell was running when the backup was taken and was stopped a moment
     // later, so it can easily have written something in between. Deleting on a
