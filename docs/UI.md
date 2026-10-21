@@ -171,7 +171,7 @@ membandingkan isinya.
 | Shell | hyprland | niri | catatan |
 |---|---|---|---|
 | Noctalia | ya | ya | di base image Hyprland; dipasang di Niri |
-| DankMaterialShell (DMS) | ya | ya | diinstal dari repository (multi-stage) |
+| Dux Shell (DMS) | ya | ya | diinstal dari repository (multi-stage) |
 | Caelestia Shell | ya | — | diinstal dari repository (quickshell + paket) |
 | Ambxst | ya | ya | diinstal dari repository (quickshell + paket + companion) |
 | end4-pC | ya | — | diinstal dari repository (quickshell + paket); skel dots `ii` |

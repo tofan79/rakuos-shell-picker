@@ -1,5 +1,5 @@
-//! DMS (DankMaterialShell), and the only shell here that is not already in the
-//! base image.
+//! Dux Shell (DMS; formerly DankMaterialShell), and the only shell here that is
+//! not already in the base image.
 //!
 //! What is the same wherever it runs:
 //!
@@ -71,8 +71,8 @@ use crate::shell::{Identity, InstallPlan, UninstallPlan};
 
 pub const IDENTITY: Identity = Identity {
     id: "dms",
-    display_name: "DankMaterialShell",
-    upstream: "AvengeMedia/DankMaterialShell",
+    display_name: "Dux Shell",
+    upstream: "duxlabs-dev/dux-shell",
     package: Some("dms"),
     binary: "dms",
     start_argv: &["dms", "run"],

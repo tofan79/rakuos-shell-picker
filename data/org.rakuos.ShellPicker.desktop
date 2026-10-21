@@ -8,6 +8,6 @@ Exec=rakuos-shell-picker
 Icon=org.rakuos.ShellPicker
 Terminal=false
 Categories=Settings;DesktopSettings;Utility;
-Keywords=shell;desktop;hyprland;niri;picker;rakuos;dms;noctalia;caelestia;ambxst;inir;end4pc;
+Keywords=shell;desktop;hyprland;niri;picker;rakuos;dms;dux;noctalia;caelestia;ambxst;inir;end4pc;
 StartupNotify=true
 StartupWMClass=org.rakuos.ShellPicker

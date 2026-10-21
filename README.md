@@ -14,10 +14,10 @@ Shell yang tersedia berbeda per compositor:
 
 | Compositor | Shell | Jumlah |
 |---|---|---|
-| Hyprland | Noctalia, DMS, Caelestia, Ambxst, end4-pC | 5 |
-| Niri | DMS, Noctalia, Ambxst, iNiR | 4 |
+| Hyprland | Noctalia, Dux Shell, Caelestia, Ambxst, end4-pC | 5 |
+| Niri | Dux Shell, Noctalia, Ambxst, iNiR | 4 |
 
-DMS, Noctalia, dan Ambxst tersedia di kedua compositor. **Caelestia** dan
+Dux Shell, Noctalia, dan Ambxst tersedia di kedua compositor. **Caelestia** dan
 **end4-pC** hanya ada di Hyprland, sementara **iNiR** hanya ada di Niri.
 
 ## Status
@@ -69,7 +69,7 @@ Aturan singkat: **menambah shell tidak boleh menyentuh `ui/`**. Detailnya di
 | [docs/FEATURES.md](docs/FEATURES.md) | fitur, status, syarat selesai |
 | [docs/LOGGING.md](docs/LOGGING.md) | tiga saluran log, lokasi, format, rotasi |
 | [docs/SAFETY.md](docs/SAFETY.md) | jaminan backup & rollback |
-| [docs/SWITCH-FLOW.md](docs/SWITCH-FLOW.md) | urutan langkah switch Noctalia ⇄ DMS |
+| [docs/SWITCH-FLOW.md](docs/SWITCH-FLOW.md) | urutan langkah switch Noctalia ⇄ Dux Shell |
 | [docs/UI.md](docs/UI.md) | spesifikasi layout & angka tetap |
 
 Sebelum mulai coding, cek environment:

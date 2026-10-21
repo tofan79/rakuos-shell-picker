@@ -1297,7 +1297,7 @@ fn a_companions_data_comes_back_from_the_backup_when_the_shell_returns() {
     assert!(!entries.iter().any(|e| e.rel == ".config/dankcal"));
     assert!(
         said.iter()
-            .any(|l| l.contains("DankMaterialShell starts without it")),
+            .any(|l| l.contains("Dux Shell starts without it")),
         "the panel has to say the companion data was not brought back: {said:?}"
     );
 }
