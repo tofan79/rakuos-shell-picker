@@ -1,11 +1,50 @@
--- Placeholder shipped by the skel. DMS rewrites this file on every start.
+-- Look and feel. DMS writes its own gaps, border and rounding here once it has
+-- run; these are the values the first load after a switch uses.
 --
--- config/decorations.lua requires it, so it has to exist before DMS runs:
--- apply::swap replaces ~/.config/hypr wholesale, which throws away whatever DMS
--- wrote last, and Hyprland reads hyprland.lua before autostart.lua gets DMS
--- started. A require() that fails trips emergency mode -- no binds at all --
--- which would also stop DMS from ever starting to recreate this file.
---
--- Nothing belongs here. The baseline gaps, border and rounding live in
--- config/decorations.lua and are what the first load after a switch uses; DMS
--- overwrites them with its own settings as soon as it starts.
+-- The layout type and window behaviour live in rakuos.lua, because DMS has no
+-- setting for them and rewrites this file from its own.
+hl.config({
+    general = {
+        gaps_in = 5,
+        gaps_out = 10,
+        border_size = 2,
+        extend_border_grab_area = 10,
+        resize_on_border = true,
+        allow_tearing = true,
+    },
+    group = {
+        groupbar = {
+            font_family               = "Maple Mono NF",
+            font_size                 = 10,
+            gradients                 = true,
+            gradient_round_only_edges = false,
+            gradient_rounding         = 5,
+            height                    = 18,
+            indicator_height          = 0,
+            gaps_in                   = 3,
+            gaps_out                  = 3,
+        },
+    },
+    decoration = {
+        dim_special = 0.3,
+        rounding = 12,
+        active_opacity = 0.9,
+        inactive_opacity = 0.7,
+        fullscreen_opacity = 1.0,
+        blur = {
+            enabled = true,
+            size = 3,
+            passes = 2,
+            special = true,
+            new_optimizations = true,
+            ignore_opacity = true,
+            xray = true,
+        },
+        shadow = {
+            enabled = true,
+            range = 30,
+            render_power = 3,
+            color = "0x66000000",
+        },
+    },
+})

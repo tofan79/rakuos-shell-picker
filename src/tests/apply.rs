@@ -112,15 +112,15 @@ fn a_shells_own_config_comes_from_the_newest_backup_kept_for_it() {
     make_backup(
         &backups,
         "20260101-hyprland-dms",
-        &[".config/DankMaterialShell"],
+        &[".config/dms"],
     );
     make_backup(
         &backups,
         "20260202-hyprland-dms",
-        &[".config/DankMaterialShell"],
+        &[".config/dms"],
     );
     write(
-        &skel.join(".config/DankMaterialShell/settings.json"),
+        &skel.join(".config/dms/settings.json"),
         "from skel",
     );
 
@@ -129,7 +129,7 @@ fn a_shells_own_config_comes_from_the_newest_backup_kept_for_it() {
     let entries = plan(&dms::SHELL, &Hyprland, &backups, &skel, &mut |_| {}).unwrap();
     let own = entries
         .iter()
-        .find(|e| e.rel == ".config/DankMaterialShell")
+        .find(|e| e.rel == ".config/dms")
         .unwrap();
 
     match &own.origin {
@@ -141,7 +141,7 @@ fn a_shells_own_config_comes_from_the_newest_backup_kept_for_it() {
             );
             assert_eq!(
                 marker(&own.src),
-                "20260202-hyprland-dms:.config/DankMaterialShell"
+                "20260202-hyprland-dms:.config/dms"
             );
         }
         Origin::Skel => panic!("a backup holding it exists, so the skel must not be used"),
@@ -215,7 +215,7 @@ fn a_shell_falls_back_to_the_skel_when_no_backup_holds_its_config() {
     // A backup exists, but only of the shell being replaced.
     make_backup(&backups, "20260101-000000-001", &[".config/noctalia"]);
     write(
-        &skel.join(".config/DankMaterialShell/settings.json"),
+        &skel.join(".config/dms/settings.json"),
         "from skel",
     );
     write(&skel.join(".config/hypr/config/autostart.lua"), "dms");
@@ -223,7 +223,7 @@ fn a_shell_falls_back_to_the_skel_when_no_backup_holds_its_config() {
     let entries = plan(&dms::SHELL, &Hyprland, &backups, &skel, &mut |_| {}).unwrap();
     let own = entries
         .iter()
-        .find(|e| e.rel == ".config/DankMaterialShell")
+        .find(|e| e.rel == ".config/dms")
         .unwrap();
     assert_eq!(own.origin, Origin::Skel);
     assert_eq!(
@@ -249,7 +249,7 @@ fn a_shell_with_no_config_anywhere_still_switches_on_its_defaults() {
     })
     .expect("a missing shell config must not block the switch");
 
-    assert!(!entries.iter().any(|e| e.rel == ".config/DankMaterialShell"));
+    assert!(!entries.iter().any(|e| e.rel == ".config/dms"));
     assert!(
         said.iter().any(|l| l.contains("on its own defaults")),
         "silently dropping a config would hide what the user is getting: {said:?}"
@@ -300,7 +300,7 @@ fn staging_counts_what_it_copied_and_the_swap_leaves_the_old_copy_aside() {
     );
     // A second path that does not exist yet, so one swap covers both cases:
     // something replaced and something created.
-    write(&skel.join(".config/DankMaterialShell/settings.json"), "{}");
+    write(&skel.join(".config/dms/settings.json"), "{}");
 
     let entries = plan(&dms::SHELL, &Hyprland, &backups, &skel, &mut |_| {}).unwrap();
     let staging = stage(&entries, &home, "dms", "20260101-000000-000").unwrap();
@@ -359,7 +359,7 @@ fn staging_counts_what_it_copied_and_the_swap_leaves_the_old_copy_aside() {
         "rollback did not put the original back"
     );
     assert!(
-        !home.join(".config/DankMaterialShell").exists(),
+        !home.join(".config/dms").exists(),
         "rollback left the path it created in place"
     );
 }
@@ -374,11 +374,11 @@ fn a_path_that_did_not_exist_before_is_removed_again_on_rollback() {
     let home = t.path().join("home");
     let skel = t.path().join("skel");
     std::fs::create_dir_all(&home).unwrap();
-    write(&skel.join(".config/DankMaterialShell/settings.json"), "{}");
+    write(&skel.join(".config/dms/settings.json"), "{}");
 
     let entries = vec![Entry {
-        rel: ".config/DankMaterialShell".to_string(),
-        src: skel.join(".config/DankMaterialShell"),
+        rel: ".config/dms".to_string(),
+        src: skel.join(".config/dms"),
         origin: Origin::Skel,
     }];
     let staging = stage(&entries, &home, "dms", "20260101-000000-000").unwrap();
@@ -402,12 +402,12 @@ fn a_path_that_did_not_exist_before_is_removed_again_on_rollback() {
         "nothing was displaced, so there is nothing to put back"
     );
     assert!(home
-        .join(".config/DankMaterialShell/settings.json")
+        .join(".config/dms/settings.json")
         .is_file());
 
     assert!(restore(&asides, &home));
     assert!(
-        !home.join(".config/DankMaterialShell").exists(),
+        !home.join(".config/dms").exists(),
         "rollback left the created configuration in place: {:?}",
         std::fs::read_dir(home.join(".config")).map(|d| d
             .filter_map(|e| e.ok())
@@ -476,7 +476,7 @@ fn the_backup_check_rejects_a_directory_with_no_manifest() {
 fn both_shell_definitions_the_plan_is_tested_against_are_the_ones_registered() {
     // Guards against the tests drifting onto a different shell than the one
     // a switch actually uses.
-    assert_eq!(dms::SHELL.config_dir, Some(".config/DankMaterialShell"));
+    assert_eq!(dms::SHELL.config_dir, Some(".config/dms"));
     assert_eq!(dms::SHELL.systemd_user_unit, Some("dms"));
     assert_eq!(noctalia::SHELL.systemd_user_unit, None);
     assert_eq!(Hyprland.config_dir(), ".config/hypr");
@@ -749,12 +749,12 @@ fn dms_state_and_theme_paths_reach_the_plan_from_the_real_skel() {
     // Individual files, not the gtk directories: the plan is what decides how
     // much of the user's desktop gets replaced, and this list is the contract.
     for rel in [
-        ".config/DankMaterialShell",
+        ".config/dms",
         ".config/hypr",
         ".config/gtk-3.0/settings.ini",
         ".config/gtk-4.0/settings.ini",
         ".config/gtk-4.0/gtk.css",
-        ".local/state/DankMaterialShell",
+        ".local/state/dms",
         LAUNCHER,
     ] {
         assert!(
@@ -821,7 +821,7 @@ fn an_aside_is_discarded_only_when_a_backup_reproduces_it_byte_for_byte() {
             kept: Some(unbacked.clone()),
         },
         Aside {
-            rel: ".config/DankMaterialShell".to_string(),
+            rel: ".config/dms".to_string(),
             kept: None,
         },
     ];
@@ -943,19 +943,19 @@ fn the_outgoing_shells_own_files_are_cleaned_once_the_backup_reproduces_them() {
     let backup = t.path().join("backups/20261006-hyprland-noctalia");
 
     write(
-        &home.join(".config/DankMaterialShell/settings.json"),
+        &home.join(".config/dms/settings.json"),
         "the setup",
     );
     write(
-        &home.join(".local/state/DankMaterialShell/session.json"),
+        &home.join(".local/state/dms/session.json"),
         "the session",
     );
     write(
-        &backup.join("home/.config/DankMaterialShell/settings.json"),
+        &backup.join("home/.config/dms/settings.json"),
         "the setup",
     );
     write(
-        &backup.join("home/.local/state/DankMaterialShell/session.json"),
+        &backup.join("home/.local/state/dms/session.json"),
         "the session",
     );
 
@@ -974,22 +974,22 @@ fn the_outgoing_shells_own_files_are_cleaned_once_the_backup_reproduces_them() {
     );
 
     assert!(
-        !home.join(".config/DankMaterialShell").exists(),
+        !home.join(".config/dms").exists(),
         "the config of the shell just left must not survive it"
     );
     assert!(
-        !home.join(".local/state/DankMaterialShell").exists(),
+        !home.join(".local/state/dms").exists(),
         "nor its state"
     );
     assert!(
         backup
-            .join("home/.config/DankMaterialShell/settings.json")
+            .join("home/.config/dms/settings.json")
             .exists(),
         "cleaning must not touch the backup it is relying on"
     );
     assert!(said
         .iter()
-        .any(|l| l.contains("removed .config/DankMaterialShell")));
+        .any(|l| l.contains("removed .config/dms")));
 }
 
 #[test]
@@ -1003,7 +1003,7 @@ fn something_with_no_data_in_it_is_discarded_without_a_backup() {
     let home = t.path().join("home");
     let backup = t.path().join("backups/20261007-hyprland-dms");
 
-    write(&home.join(".cache/DankMaterialShell/dms-colors.json"), "{}");
+    write(&home.join(".cache/dms/dms-colors.json"), "{}");
     write(&home.join(".config/ghostty/themes/dankcolors"), "palette");
     write(
         &home.join(".local/share/color-schemes/DankMatugenDark.colors"),
@@ -1025,7 +1025,7 @@ fn something_with_no_data_in_it_is_discarded_without_a_backup() {
     );
 
     for gone in [
-        ".cache/DankMaterialShell",
+        ".cache/dms",
         ".config/ghostty/themes/dankcolors",
         ".local/share/color-schemes/DankMatugenDark.colors",
     ] {
@@ -1040,7 +1040,7 @@ fn something_with_no_data_in_it_is_discarded_without_a_backup() {
     );
     assert!(said
         .iter()
-        .any(|l| l.contains("discarded .cache/DankMaterialShell")));
+        .any(|l| l.contains("discarded .cache/dms")));
 }
 
 #[test]
@@ -1054,19 +1054,19 @@ fn a_path_the_backup_does_not_reproduce_is_kept_when_the_shell_leaves() {
     let backup = t.path().join("backups/20261006-hyprland-noctalia");
 
     write(
-        &home.join(".config/DankMaterialShell/settings.json"),
+        &home.join(".config/dms/settings.json"),
         "the setup",
     );
     write(
-        &home.join(".local/state/DankMaterialShell/session.json"),
+        &home.join(".local/state/dms/session.json"),
         "written after the backup",
     );
     write(
-        &backup.join("home/.config/DankMaterialShell/settings.json"),
+        &backup.join("home/.config/dms/settings.json"),
         "the setup",
     );
     write(
-        &backup.join("home/.local/state/DankMaterialShell/session.json"),
+        &backup.join("home/.local/state/dms/session.json"),
         "written before the backup",
     );
 
@@ -1083,15 +1083,15 @@ fn a_path_the_backup_does_not_reproduce_is_kept_when_the_shell_leaves() {
         (1, 1),
         "only the path the backup still describes may go"
     );
-    assert!(!home.join(".config/DankMaterialShell").exists());
+    assert!(!home.join(".config/dms").exists());
     assert!(
-        home.join(".local/state/DankMaterialShell/session.json")
+        home.join(".local/state/dms/session.json")
             .exists(),
         "a state the backup no longer matches is the last copy"
     );
     assert!(said
         .iter()
-        .any(|l| l.contains("kept .local/state/DankMaterialShell")));
+        .any(|l| l.contains("kept .local/state/dms")));
 }
 
 #[test]
@@ -1105,16 +1105,16 @@ fn a_shell_never_cleans_a_path_the_shell_being_switched_to_owns() {
     let backup = t.path().join("backups/20261006-hyprland-noctalia");
 
     write(
-        &home.join(".config/DankMaterialShell/settings.json"),
+        &home.join(".config/dms/settings.json"),
         "shared",
     );
     write(
-        &backup.join("home/.config/DankMaterialShell/settings.json"),
+        &backup.join("home/.config/dms/settings.json"),
         "shared",
     );
 
     let thief = Shell {
-        config_dir: Some(".config/DankMaterialShell"),
+        config_dir: Some(".config/dms"),
         state_dir: None,
         ..dms::SHELL
     };
@@ -1131,7 +1131,7 @@ fn a_shell_never_cleans_a_path_the_shell_being_switched_to_owns() {
         (0, 1)
     );
     assert!(
-        home.join(".config/DankMaterialShell/settings.json")
+        home.join(".config/dms/settings.json")
             .exists(),
         "the path the target owns must be left for the target to write"
     );

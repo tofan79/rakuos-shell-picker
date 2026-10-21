@@ -1,0 +1,8 @@
+-- Placeholder shipped by the skel. DMS writes optional per-user keybind
+-- overrides here, after its own set, exactly as upstream does.
+--
+-- It has to exist before DMS runs: see the note in layout.lua for why a failing
+-- require is not survivable.
+--
+-- The desktop's shortcuts are in dms/binds.lua; lid and GloView are in
+-- rakuos.lua so DMS rewriting binds.lua cannot take them away.

@@ -58,8 +58,8 @@ fn switching_away_from_dms_backs_up_what_dms_would_lose() {
             ".config/qt5ct",
             ".config/qt6ct",
             ".config/hypr",
-            ".config/DankMaterialShell",
-            ".local/state/DankMaterialShell",
+            ".config/dms",
+            ".local/state/dms",
             ".local/share/applications/dev.noctalia.Noctalia.desktop",
             // and what its companions keep. Nothing installs a calendar
             // database or a search service's settings, so nothing else on the
@@ -163,7 +163,7 @@ fn the_shell_being_switched_to_is_saved_too_so_nothing_is_left_aside() {
     // `backup_sources_for` adds the target's paths, so the aside is reproduced
     // too and dropped like the rest.
     let outgoing_only = relative_list(Some(&AMBXST));
-    assert!(!outgoing_only.contains(&".config/DankMaterialShell".to_string()));
+    assert!(!outgoing_only.contains(&".config/dms".to_string()));
 
     let for_dms: Vec<String> =
         backup_sources_for(&home(), &crate::compositor::HYPRLAND, Some(&AMBXST), &DMS)
@@ -175,8 +175,8 @@ fn the_shell_being_switched_to_is_saved_too_so_nothing_is_left_aside() {
                     .into_owned()
             })
             .collect();
-    assert!(for_dms.contains(&".config/DankMaterialShell".to_string()));
-    assert!(for_dms.contains(&".local/state/DankMaterialShell".to_string()));
+    assert!(for_dms.contains(&".config/dms".to_string()));
+    assert!(for_dms.contains(&".local/state/dms".to_string()));
     // and the target's companion data, which the swap would otherwise displace
     assert!(for_dms.contains(&".local/share/dankcal".to_string()));
     // Shared paths the outgoing half already saved must not be listed twice.
@@ -213,10 +213,10 @@ fn the_shell_being_left_behind_is_the_one_that_gets_backed_up() {
     // Only the outgoing shell's directories. DMS's config is not backed up
     // while Noctalia is running, because nothing is touching it yet.
     let dms_only = relative_list(Some(&DMS));
-    assert!(dms_only.contains(&".config/DankMaterialShell".to_string()));
+    assert!(dms_only.contains(&".config/dms".to_string()));
     assert!(!dms_only.contains(&".config/noctalia".to_string()));
 
     let caelestia_only = relative_list(Some(&CAELESTIA));
     assert!(caelestia_only.contains(&".config/caelestia".to_string()));
-    assert!(!caelestia_only.contains(&".config/DankMaterialShell".to_string()));
+    assert!(!caelestia_only.contains(&".config/dms".to_string()));
 }

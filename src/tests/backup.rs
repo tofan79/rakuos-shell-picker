@@ -412,13 +412,13 @@ fn a_missing_source_is_recorded_rather_than_failing() {
     let backup = Backup::create(
         &root.join("backups"),
         "1-hyprland-dms",
-        &[home.join(".config/DankMaterialShell")],
+        &[home.join(".config/dms")],
         &home,
     )
     .unwrap();
 
     assert_eq!(backup.file_count(), 0);
-    assert_eq!(backup.manifest.absent, [".config/DankMaterialShell"]);
+    assert_eq!(backup.manifest.absent, [".config/dms"]);
 }
 
 #[test]

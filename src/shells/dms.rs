@@ -61,7 +61,7 @@
 //! same on both; the Hyprland page additionally carries the launcher entry that
 //! hides Noctalia while DMS is the shell.
 //!
-//! Its state directory is `~/.local/state/DankMaterialShell`, declared as
+//! Its state directory is `~/.local/state/dms`, declared as
 //! [`Port::state_dir`] rather than as one more extra path: it is DMS's own state
 //! rather than something the skel hands out, so it belongs to the same question as
 //! the config — saved before a switch, cleaned after one, and read back from the
@@ -199,7 +199,7 @@ pub const IDENTITY: Identity = Identity {
     // file is named rather than the whole directory. The three colour schemes are the
     // same in KDE's own format.
     //
-    // The caches go too. `.cache/DankMaterialShell` is several megabytes of
+    // The caches go too. `.cache/dms` is several megabytes of
     // regenerated output (`matugen.lock`, `dms-colors.json`), and the two
     // `dankcal` spellings belong to `dankcalendar-git`, which an uninstall
     // takes away with DMS — its shader cache outlives the package only as
@@ -215,6 +215,9 @@ pub const IDENTITY: Identity = Identity {
     // Nothing here is walked by the backup, and `every_discard_path_is_
     // never_preserved` fails the suite if any of it ever is.
     discard_paths: &[
+        ".cache/dms",
+        // The pre-2.0 spelling. DMS leaves it behind as a symlink to
+        // `.cache/dms`; discarding both keeps the old link from dangling.
         ".cache/DankMaterialShell",
         ".cache/dankcal",
         ".cache/dank-calendar",

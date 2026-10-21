@@ -8,12 +8,15 @@
 //!   package. Nothing here enables that unit globally, so the enablement a
 //!   switch writes when DMS comes in — unmask, enable and start, with `dsearch`
 //!   alongside — is what starts DMS at the next login; leaving DMS stops,
-//!   disables and masks both again. The skel's autostart no longer starts DMS
-//!   itself, only the `dcal` companion its calendar widgets come from.
-//! - **clean**: `~/.config/DankMaterialShell` and
-//!   `~/.local/state/DankMaterialShell`, the same two the backup takes. The
-//!   launcher entry is not among them — the Noctalia skel writes its own copy on
-//!   the way in, so it is already replaced rather than left over.
+//!   disables and masks both again. The startup block in `hyprland.lua` does
+//!   not start DMS itself, only the `dcal` companion its calendar widgets come
+//!   from and the clipboard watcher.
+//! - **clean**: `~/.config/dms` and `~/.local/state/dms`, the same two the
+//!   backup takes. DMS 2.0 renamed both from `DankMaterialShell` and keeps the
+//!   old spellings only as compatibility symlinks, so the picker follows the
+//!   real directories rather than the links. The launcher entry is not among
+//!   them — the Noctalia skel writes its own copy on the way in, so it is
+//!   already replaced rather than left over.
 //! - **verify**: a process named `dms` is alive.
 //!
 //! The Hyprland page also carries the Noctalia launcher entry with `NoDisplay`,
@@ -31,8 +34,20 @@
 //! goes for `qt6ct/qt6ct.conf`, which holds `color_scheme_path` — matugen writes
 //! the palette it points at and never the pointer.
 //!
-//! The four placeholders under `.config/hypr/dms/` are not here. They belong to
-//! the compositor's own `config_dir`, which `plan` takes from the skel whole.
+//! The placeholders under `.config/hypr/dms/` are not here. They belong to the
+//! compositor's own `config_dir`, which `plan` takes from the skel whole. There
+//! is one for every module DMS 2.0 deploys — colours, cursor, input, layout,
+//! outputs, binds, binds-user and window rules — because each one is loaded with
+//! `require()` before DMS gets a chance to write it, and a missing file would
+//! trip emergency mode instead. `dms/rakuos.lua` sits beside them and holds what
+//! DMS must not rewrite: startup, layout type, behaviour, workspaces, window
+//! rules, lid switch and GloView.
+//!
+//! The rest of that page is deliberately small: `hyprland.lua` and `dms/`, the
+//! same two pieces the Niri skel keeps (`config.kdl` and `dms/`). What used to
+//! be split across `config/*.lua` now lives in the matching `dms/` file, and the
+//! scripts, layouts and animation presets are gone with it. `xdph.conf` stays
+//! because the preview share picker reads it; it is not Hyprland config.
 //!
 //! The theme files `dms.rs` lists as `generated_paths` are the counterpart:
 //! matugen renders those, so nothing here installs them.
@@ -41,8 +56,8 @@ use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::dms::IDENTITY;
 
 const PORT: Port = Port {
-    config_dir: Some(".config/DankMaterialShell"),
-    state_dir: Some(".local/state/DankMaterialShell"),
+    config_dir: Some(".config/dms"),
+    state_dir: Some(".local/state/dms"),
     systemd_user_unit: Some("dms"),
     systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::SystemdUserUnit,

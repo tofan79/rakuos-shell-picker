@@ -311,7 +311,7 @@ dibedakan dari "hilang".
 Yang bertanda `shell` di kolom ketiga — `config_dir` dan `state_dir` — persis
 daftar yang dibersihkan setelah switch (langkah 12). Satu deklarasi, tiga
 kegunaan: di-backup, dihapus saat keluar, dibaca balik saat kembali. Untuk DMS
-keduanya `.config/DankMaterialShell` dan `.local/state/DankMaterialShell`,
+keduanya `.config/dms` dan `.local/state/dms`,
 sehingga jumlahnya tetap delapan.
 
 Satu daftar keempat ikut dibersihkan, `generated_paths`: file yang shell itu

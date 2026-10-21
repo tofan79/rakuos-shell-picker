@@ -210,7 +210,7 @@ fn a_shell_that_does_not_say_where_its_config_lives_is_refused() {
 #[test]
 fn a_packaged_shell_is_backed_up_even_though_it_is_not_installed_yet() {
     // DMS is the case that matters: not installed, so nothing exists at
-    // ~/.config/DankMaterialShell, and the backup still has to be taken.
+    // ~/.config/dms, and the backup still has to be taken.
     let (root, home) = scratch("dms");
     std::fs::create_dir_all(home.join(".config/noctalia")).unwrap();
     std::fs::write(home.join(".config/noctalia/a"), "a").unwrap();
@@ -237,7 +237,7 @@ fn a_packaged_shell_is_backed_up_even_though_it_is_not_installed_yet() {
         .backup
         .manifest
         .trees
-        .contains_key(".config/DankMaterialShell"));
+        .contains_key(".config/dms"));
     // Everything shared is accounted for: copied if it exists, recorded
     // absent if it does not. Neither may be silently missing, because that
     // is the difference between "was never there" and "was forgotten".

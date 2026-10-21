@@ -1,0 +1,19 @@
+{
+  "wallpaperPath": "/usr/share/backgrounds/rakuos/RakuOS-Creation.png",
+  "terminalOverride": "ghostty",
+  "wallpaperTransition": "iris bloom",
+  "themeModeShareGammaSettings": false,
+  "dockPins": {
+    "dock": []
+  },
+  "hiddenTrayIds": [
+    "mate-polkit",
+    "blueman",
+    "dank-calendar",
+    "ibus-ui-gtk3"
+  ],
+  "showThirdPartyPlugins": true,
+  "pluginBrowserInstalledFirst": true,
+  "launcherQueryHistory": [],
+  "configVersion": 7
+}

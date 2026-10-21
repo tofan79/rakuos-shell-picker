@@ -1,8 +1,9 @@
 -- Placeholder shipped by the skel. DMS rewrites this file on every start with
 -- its own rules -- today just "float anything whose class is com.danklinux.dms".
 --
--- config/windowrules.lua requires it, so it has to exist before DMS runs: see
--- the note in layout.lua for why a failing require is not survivable.
+-- It has to exist before DMS runs: a require() that fails trips emergency mode
+-- with no binds at all, which would also stop DMS from ever starting to
+-- recreate this file. See layout.lua for the long version.
 --
 -- Nothing belongs here. Everything this desktop wants regardless of shell is in
--- config/windowrules.lua, which is required first.
+-- rakuos.lua, which is required first, because DMS rewrites this file.

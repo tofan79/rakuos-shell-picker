@@ -72,8 +72,8 @@ Yang disimpan, lengkap dengan alasannya:
 
 Tabel di atas adalah separuh **shell yang ditinggalkan**. Swap juga menimpa
 config dan state shell **tujuan**, jadi `backup_sources_for` menambahkan jalur
-milik DMS yang sudah ada di mesin — `.config/DankMaterialShell`,
-`.local/state/DankMaterialShell` dan companion-nya (`.config/dankcal`,
+milik DMS yang sudah ada di mesin — `.config/dms`,
+`.local/state/dms` dan companion-nya (`.config/dankcal`,
 `.config/dgop`, `.local/share/dankcal`, `.local/state/dankcal`). Di mesin yang
 belum pernah menjalankan DMS semuanya dicatat `absent`; di mesin yang pernah,
 config lama itulah yang bikin tidak ada `.pre-*` tertinggal: dulu ia hanya
@@ -365,8 +365,8 @@ Urutan langkahnya identik. Yang berbeda adalah isi setiap langkah.
 |---|---|---|
 | 1–4 | `.config/gtk-3.0/`, `.config/gtk-4.0/`, `.config/qt5ct/`, `.config/qt6ct/` | `SHARED_PATHS` |
 | 5 | `.config/hypr/` | konfigurasi kompositor, selalu disimpan |
-| 6 | `.config/DankMaterialShell/` | `config_dir` DMS |
-| 7 | `.local/state/DankMaterialShell/` | `state_dir` DMS (`session.json` sudah ada di skel, tetapi file user di sini tetap disimpan) |
+| 6 | `.config/dms/` | `config_dir` DMS |
+| 7 | `.local/state/dms/` | `state_dir` DMS (`session.json` sudah ada di skel, tetapi file user di sini tetap disimpan) |
 | 8 | `.local/share/applications/dev.noctalia.Noctalia.desktop` | `backup_extra_paths` |
 
 Direktori `.cache/` **tidak** ikut backup. Tidak ada yang perlu disimpan di
@@ -422,13 +422,13 @@ Yang dibersihkan adalah **milik DMS**:
 
 | Path | Jenis | Syarat penghapusan |
 |---|---|---|
-| `.config/DankMaterialShell/` | `config_dir` | backup byte-for-byte |
-| `.local/state/DankMaterialShell/` | `state_dir` | sama |
+| `.config/dms/` | `config_dir` | backup byte-for-byte |
+| `.local/state/dms/` | `state_dir` | sama |
 | `.config/gtk-3.0/dank-colors.css` | `generated_paths` | sama |
 | `.config/gtk-4.0/dank-colors.css` | `generated_paths` | sama |
 | `.config/qt5ct/colors/matugen.conf` | `generated_paths` | sama |
 | `.config/qt6ct/colors/matugen.conf` | `generated_paths` | sama |
-| `.cache/DankMaterialShell/` | `discard_paths` | **tanpa syarat** |
+| `.cache/dms/` | `discard_paths` | **tanpa syarat** |
 | `.cache/dankcal/` | `discard_paths` | **tanpa syarat** |
 | `.cache/dank-calendar/` | `discard_paths` | **tanpa syarat** |
 | `.cache/quickshell/` | `discard_paths` | **tanpa syarat** |

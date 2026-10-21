@@ -173,7 +173,7 @@ started   : 2026-10-02T18:31:02Z
 [18:31:03] start      FAILED
   cmd: dms run
   exit: 1
-  stderr: Failed to load config: /home/user/.config/DankMaterialShell/config.json
+  stderr: Failed to load config: /home/user/.config/dms/config.json
 [18:31:04] result     failed at stage=start
 [18:31:04] rollback   ok, noctalia restarted (pid 4913)
 ```

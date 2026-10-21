@@ -13,8 +13,9 @@
 //!   brings them back beside the shell that was chosen. `start` unwinds exactly
 //!   that when the shell comes home, and does the same on Hyprland, where
 //!   nothing enables these units but the picker itself.
-//! - **clean**: `~/.config/DankMaterialShell` and
-//!   `~/.local/state/DankMaterialShell`, the same two the backup takes.
+//! - **clean**: `~/.config/dms` and `~/.local/state/dms`, the same two the
+//!   backup takes. DMS 2.0 renamed both from `DankMaterialShell`; the old
+//!   spellings survive only as compatibility symlinks.
 //! - **verify**: a process named `dms` is alive.
 //!
 //! The Niri skel is the image's own `etc/skel` plus theme and launcher files to
@@ -25,8 +26,8 @@ use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::dms::IDENTITY;
 
 const PORT: Port = Port {
-    config_dir: Some(".config/DankMaterialShell"),
-    state_dir: Some(".local/state/DankMaterialShell"),
+    config_dir: Some(".config/dms"),
+    state_dir: Some(".local/state/dms"),
     systemd_user_unit: Some("dms"),
     systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::SystemdUserUnit,
