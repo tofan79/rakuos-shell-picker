@@ -82,7 +82,7 @@ settings_show_advanced = true
 gpu_poll_seconds = 2
 
 [wallpaper]
-directory = "/usr/share/backgrounds/rakuos"
+directory = "~/Pictures/Wallpapers"
 
     [wallpaper.default]
     path = "/usr/share/backgrounds/rakuos/RakuOS-Fuji-2.png"

@@ -6,12 +6,8 @@
 -- variables.lua (empty, so Hyprland picks whatever is connected), mode is
 -- "preferred" and position "auto" so any panel is placed by the compositor.
 --
--- scale is deliberately left unset. Hyprland defaults to 1 when it is absent,
--- so this behaves exactly like scale = "1" without asserting a value that is
--- wrong for HiDPI panels -- a 2560x1600 laptop at 1 is unreadably small, and
--- pinning it here makes that look intentional to the next person reading the
--- config rather than like a default nobody chose. Hyprland 0.56 has no
--- autoscale, so HiDPI users should set it for their own output, e.g.
+-- scale is set to 1.25 as a default comfortable for typical laptop/desktop
+-- panels. HiDPI users should raise it for their own output, e.g.
 --
 --     hl.monitor({ output = "eDP-1", scale = "2" })
 --
@@ -24,5 +20,5 @@ hl.monitor({
     output    = MONITOR1,
     mode      = "preferred",
     position = "auto",
-    scale     = "1",
+    scale     = "1.25",
 })

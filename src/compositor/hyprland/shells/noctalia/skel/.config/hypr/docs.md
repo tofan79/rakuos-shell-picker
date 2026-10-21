@@ -78,21 +78,21 @@ Shortcuts worth knowing:
 | `SUPER + S` | Scratchpad |
 | `SUPER + F` / `SHIFT + F` | Fullscreen / maximize |
 | `SUPER + SHIFT + S` | Send window to scratchpad |
-| `Print` / `SHIFT + Print` / `CTRL + Print` | Screenshot region / fullscreen / window |
+| `Print` / `SHIFT + Print` | Screenshot region / monitor (Noctalia) |
 | `SUPER + ALT` + click-drag | Move window (mouse:272) |
 | `SUPER + SHIFT + R` | Reload config |
+| `SUPER + SHIFT + O` / `ALT + O` / `CTRL + O` | GloView: overview / desktop mode / all workspaces |
 
 The scripts called by these binds live in `scripts/`:
 
 | Script | Action |
 |---|---|
-| `screenshot.sh` | Screenshot, saves to `~/Pictures/Screenshots`, opens Swash |
-| `ocr.sh` | OCR a region → clipboard |
-| `qr.sh` | Scan a QR code → clipboard |
-| `lens.sh` | Google Lens (region) — **uploads to a public host, do not use it for sensitive data** |
 | `focus-dir.sh` / `swap-dir.sh` | Directional focus/swap, adapting to the active layout |
 | `gamemode.sh` | Toggle decorative effects (max FPS / restore) |
-| `lock-and-suspend.sh` | Lock, then suspend |
+
+Screenshot and lock/suspend now use Noctalia directly: `noctalia msg screenshot-region`,
+`screenshot-fullscreen`, and `session lock-and-suspend`. OCR, QR scan, and Google Lens
+were removed from the default setup.
 
 ---
 
@@ -170,40 +170,34 @@ plugin list.
 
 ### GloView (Mission Control-style overview)
 
-GloView is **not installed by default** and its binds are commented out. The
-package is in the `rakuos` repository, so it needs no extra repository:
+GloView is installed from the `rakuos` repository (`gloview-git`, 0.3.0) and is
+loaded at startup in `hyprland.lua`:
 
-```bash
-rum install gloview-git
+```lua
+hl.plugin.load("/usr/lib64/gloview.so")
 ```
 
-The plugin lands at `/usr/lib64/gloview.so`.
+The binds live at the end of `config/binds.lua`, inside a guard so they stay
+harmless if the package is ever removed:
 
+| Shortcut | Action |
+|---|---|
+| `SUPER + SHIFT + O` | Toggle overview |
+| `SUPER + ALT + O` | Desktop mode |
+| `SUPER + CTRL + O` | All workspaces |
 
-Then uncomment exactly two things:
+```lua
+if hl.plugin.gloview then
+    hl.bind(M .. " + SHIFT + O", hl.plugin.gloview.toggle, { description = "Toggle overview" })
+    hl.bind(M .. " + ALT + O", hl.plugin.gloview.desktop, { description = "Desktop mode" })
+    hl.bind(M .. " + CTRL + O", hl.plugin.gloview.allworkspaces, { description = "All workspaces" })
+end
+```
 
-1. **`hyprland.lua`** — the plugin load line:
+Those two files are the only places that reference it. To disable GloView,
+comment the `hl.plugin.load` line; the guarded binds then register nothing and
+raise no error.
 
-   ```lua
-   hl.plugin.load("/usr/lib64/gloview.so")
-   ```
-
-2. **`config/binds.lua`** — the whole guarded block at the end of the file:
-
-   ```lua
-   if hl.plugin.gloview then
-       hl.bind(M .. " + SHIFT + O", hl.plugin.gloview.toggle, { description = "Toggle overview" })
-       hl.bind(M .. " + ALT + O", hl.plugin.gloview.desktop, { description = "Desktop mode" })
-       hl.bind(M .. " + CTRL + O", hl.plugin.gloview.allworkspaces, { description = "All workspaces" })
-   end
-   ```
-
-Those two files are the only places that reference it. Uncommenting one without
-the other leaves a half-enabled state: loading the plugin with no binds does
-nothing visible, and registering binds for a plugin that never loads fails.
-
-The `if hl.plugin.gloview then` guard means the binds stay harmless if you later
-remove the package — they simply register nothing.
 
 ---
 

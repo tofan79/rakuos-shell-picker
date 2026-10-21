@@ -4,7 +4,4 @@
 hl.on("hyprland.start", function ()
     hl.exec_cmd("noctalia")
     hl.exec_cmd("xhost +SI:localuser:root")
-
-    -- Clipboard history
-    hl.exec_cmd("wl-paste --watch cliphist store")
 end)

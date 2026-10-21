@@ -103,7 +103,7 @@ hl.bind("XF86AudioNext", hl.dsp.exec_cmd("noctalia msg media next"), { locked = 
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("noctalia msg media previous"), { locked = true, description = "Previous track" })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("noctalia msg brightness-up"), { locked = true, repeating = true, description = "Brightness up" })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("noctalia msg brightness-down"), { locked = true, repeating = true, description = "Brightness down" })
-hl.bind("XF86Sleep", hl.dsp.exec_cmd("~/.config/hypr/scripts/lock-and-suspend.sh"), { description = "Lock then suspend" })
+hl.bind("XF86Sleep", hl.dsp.exec_cmd("noctalia msg session lock-and-suspend"), { description = "Lock then suspend" })
 hl.bind("XF86Calculator", hl.dsp.exec_cmd(launchPrefix .. CALCULATOR), { locked = true, description = "Calculator" })
 
 -- ───────────────────────────────────────────
@@ -153,18 +153,14 @@ hl.bind("CTRL + SHIFT + right", hl.dsp.window.move({ x = 50, y = 0, relative = t
 -- ───────────────────────────────────────────
 hl.bind(M .. " + Return", hl.dsp.exec_cmd(launchPrefix .. TERMINAL), { description = "Terminal" })
 hl.bind(M .. " + E", hl.dsp.exec_cmd(launchPrefix .. FILE_MANAGER), { description = "File manager" })
-hl.bind(M .. " + B", hl.dsp.exec_cmd(launchPrefix .. BROWSER), { description = "Browser (Zen)" })
+hl.bind(M .. " + B", hl.dsp.exec_cmd(launchPrefix .. BROWSER), { description = "Browser" })
 hl.bind(M .. " + N", hl.dsp.exec_cmd(launchPrefix .. EDITOR), { description = "Editor" })
 
 -- ───────────────────────────────────────────
 -- Screenshot & Screen Tools
 -- ───────────────────────────────────────────
-hl.bind("Print", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot.sh region"), { description = "Screenshot: region" })
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot.sh fullscreen"), { description = "Screenshot: fullscreen" })
-hl.bind("CTRL + Print", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot.sh window"), { description = "Screenshot: active window" })
-hl.bind(M .. " + SHIFT + L", hl.dsp.exec_cmd("~/.config/hypr/scripts/lens.sh"), { description = "Google Lens (region)" })
-hl.bind(M .. " + SHIFT + C", hl.dsp.exec_cmd("~/.config/hypr/scripts/ocr.sh"), { description = "OCR (region)" })
-hl.bind(M .. " + SHIFT + Q", hl.dsp.exec_cmd("~/.config/hypr/scripts/qr.sh"), { description = "QR Scan (region)" })
+hl.bind("Print", hl.dsp.exec_cmd("noctalia msg screenshot-region"), { description = "Screenshot: region" })
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("noctalia msg screenshot-fullscreen"), { description = "Screenshot: monitor" })
 
 -- ───────────────────────────────────────────
 -- Mouse Bindings
@@ -203,13 +199,9 @@ hl.bind(M .. " + code:86", function() zoomfunction(0.3) end, { repeating = true,
 
 -- ───────────────────────────────────────────
 -- GloView (Mission Control overview)
---
--- Disabled while the plugin's repo is not ready; gloview-git is out of the
--- package list. hyprland.lua has the matching hl.plugin.load commented out.
--- The guard was already here, so this block going dark costs nothing -- it
--- simply registers nothing once hl.plugin.gloview is absent.
--- if hl.plugin.gloview then
---     hl.bind(M .. " + SHIFT + O", hl.plugin.gloview.toggle, { description = "Toggle overview" })
---     hl.bind(M .. " + ALT + O", hl.plugin.gloview.desktop, { description = "Desktop mode" })
---     hl.bind(M .. " + CTRL + O", hl.plugin.gloview.allworkspaces, { description = "All workspaces" })
--- end
+-- ───────────────────────────────────────────
+if hl.plugin.gloview then
+    hl.bind(M .. " + SHIFT + O", hl.plugin.gloview.toggle, { description = "Toggle overview" })
+    hl.bind(M .. " + ALT + O", hl.plugin.gloview.desktop, { description = "Desktop mode" })
+    hl.bind(M .. " + CTRL + O", hl.plugin.gloview.allworkspaces, { description = "All workspaces" })
+end
