@@ -30,6 +30,17 @@ for tool in rustc cargo rustfmt cargo-clippy; do
 done
 
 echo
+echo "== linker =="
+# Wajib: `.cargo/config.toml` memakai linker clang dan `-fuse-ld=lld`.
+for tool in clang ld.lld; do
+  if have "$tool"; then
+    ok "$tool — $("$tool" --version 2>&1 | head -1)"
+  else
+    bad "$tool tidak ada — pasang clang / lld (dipakai .cargo/config.toml)"
+  fi
+done
+
+echo
 echo "== library development (pkg-config) =="
 for mod in gtk4 libadwaita-1 glib-2.0 gio-2.0 gobject-2.0 cairo pango; do
   if ver=$(pkg-config --modversion "$mod" 2>/dev/null); then
@@ -64,13 +75,15 @@ echo "== konsistensi rpmdb =="
 # Diketahui: paket diinstal via dnf, tapi rpmdb tidak lagi mencatatnya.
 # File ada = aman untuk sekarang. rpmdb kosong = hilang saat ganti image.
 orphan=()
-for pkg in rust cargo rustfmt clippy gtk4-devel libadwaita-devel; do
+for pkg in rust cargo rustfmt clippy clang lld gtk4-devel libadwaita-devel; do
   file=""
   case "$pkg" in
     rust)    file=/usr/bin/rustc      ;;
     cargo)   file=/usr/bin/cargo      ;;
     rustfmt) file=/usr/bin/rustfmt    ;;
     clippy)  file=/usr/bin/cargo-clippy ;;
+    clang)   file=/usr/bin/clang      ;;
+    lld)     file=/usr/bin/ld.lld     ;;
     gtk4-devel)         file=/usr/lib64/pkgconfig/gtk4.pc         ;;
     libadwaita-devel)  file=/usr/lib64/pkgconfig/libadwaita-1.pc ;;
   esac

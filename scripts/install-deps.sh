@@ -14,7 +14,9 @@ cd "$(dirname "$0")/.." || exit 2
 
 # Nama paket rum. Deteksinya lewat efek, karena `rpm -q` tidak melihat paket
 # overlay (lihat docs/SAFETY.md: "rpm -q tidak bisa dipercaya").
-PKGS=(rust cargo rustfmt clippy gtk4-devel libadwaita-devel)
+# clang + lld bukan opsional: `.cargo/config.toml` menyetel `linker = "clang"`
+# dan `-fuse-ld=lld`, jadi build gagal di tahap link tanpa keduanya.
+PKGS=(rust cargo rustfmt clippy clang lld gtk4-devel libadwaita-devel)
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
@@ -24,6 +26,8 @@ is_installed() {
     cargo)            have cargo ;;
     rustfmt)          have rustfmt ;;
     clippy)           have cargo-clippy ;;
+    clang)            have clang ;;
+    lld)              have ld.lld ;;
     gtk4-devel)       pkg-config --exists gtk4 2>/dev/null ;;
     libadwaita-devel) pkg-config --exists libadwaita-1 2>/dev/null ;;
     *) return 1 ;;
