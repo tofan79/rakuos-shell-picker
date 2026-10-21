@@ -71,6 +71,11 @@ fn switching_away_from_dms_backs_up_what_dms_would_lose() {
             ".config/dsearch",
             ".local/share/dankcal",
             ".local/state/dankcal",
+            // and the pre-2.0 spellings 2.0 keeps as links back to the real
+            // directories, which a machine that never migrated holds as the real
+            // directory instead
+            ".config/DankMaterialShell",
+            ".local/state/DankMaterialShell",
         ]
     );
 }

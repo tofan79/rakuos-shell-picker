@@ -1635,7 +1635,11 @@ fn clean(
         .chain(outgoing.companion_paths.iter().copied())
     {
         let live = home.join(rel);
-        if !live.exists() {
+        // `present`, not `exists`: DMS 2.0 spells a companion path twice, and the
+        // older spelling is a link back to the directory this same loop removes
+        // first, so the link points at nothing by the time its turn comes. The
+        // link is still the path the registry names. See `present`.
+        if !present(&live) {
             continue;
         }
 
@@ -1657,7 +1661,9 @@ fn clean(
         }
 
         let copy = backup_root.join("home").join(rel);
-        if !copy.exists() || measure(&live) != measure(&copy) {
+        // `present` here too: the copy of a symlinked companion is a link, and it
+        // dangles inside the backup for the same reason it dangles in the home.
+        if !present(&copy) || measure(&live) != measure(&copy) {
             let line = format!(
                 "kept {rel}: the backup taken for this switch does not hold it byte for byte"
             );
@@ -1695,12 +1701,12 @@ fn clean(
     // exists.
     for rel in outgoing.discard_paths {
         let live = home.join(rel);
-        // `exists()` follows the link, so a symlink whose target is already gone
-        // reads as absent and the loop walks straight past it. That is exactly
-        // the case this list names: DMS 2.0 left `.cache/DankMaterialShell`
-        // pointing at `.cache/dms`, the entry discarded just above it, so the
-        // link used to survive every switch away and dangle in the user's home.
-        if !live.exists() && !live.is_symlink() {
+        // `present`, not `exists`: DMS 2.0 leaves `.cache/DankMaterialShell`
+        // pointing at `.cache/dms`, the entry discarded just above it, so by the
+        // time the loop reaches the link its target is gone. A link that points at
+        // nothing is still the entry this list names, and leaving it behind is
+        // exactly what naming it here is meant to prevent. See `present`.
+        if !present(&live) {
             continue;
         }
 
@@ -2184,6 +2190,18 @@ fn copy(from: &Path, to: &Path) -> std::io::Result<()> {
 }
 
 use std::os::unix::fs::PermissionsExt;
+
+/// Whether the path a registry entry names is there at all — as a file, as a
+/// directory, or as a link whose target is already gone.
+///
+/// `Path::exists()` follows the last of those and reports "not there", which is
+/// how a link DMS 2.0 left pointing at a directory a switch had just discarded
+/// used to survive every switch away and dangle in the home. Both lists that
+/// clean the home mean "the path the registry names", and a link that points at
+/// nothing is still that path.
+fn present(path: &Path) -> bool {
+    path.exists() || path.is_symlink()
+}
 
 /// How many files and bytes a tree holds, following the same rules as `copy`.
 fn measure(dir: &Path) -> (usize, u64) {

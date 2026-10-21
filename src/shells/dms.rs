@@ -54,8 +54,11 @@
 //!   programs write them the first time they run — so the switch neither replaces
 //!   them on the way in nor leaves them behind on the way out: they are backed up
 //!   with DMS, removed only when that backup reproduces them byte for byte, and
-//!   read back the next time DMS comes home. See
-//!   [`crate::shell::Identity::companion_paths`].
+//!   read back the next time DMS comes home. The pre-2.0 spellings —
+//!   `.config/DankMaterialShell` and `.local/state/DankMaterialShell`, which 2.0
+//!   keeps as links back to the real directories — are declared alongside them,
+//!   because on a machine whose migration never ran that is where the settings
+//!   live. See [`crate::shell::Identity::companion_paths`].
 //!
 //! What differs per compositor is the [`Port`]. DMS's own config directory is the
 //! same on both; the Hyprland page additionally carries the launcher entry that
@@ -177,6 +180,13 @@ pub const IDENTITY: Identity = Identity {
         ".config/dsearch",
         ".local/share/dankcal",
         ".local/state/dankcal",
+        // The pre-2.0 spellings, which 2.0 keeps as links back to the real
+        // directories. Declared for the same reason as the rest: on a machine whose
+        // migration never ran they are the real directory, holding the only copy of
+        // the settings, and on a migrated one they are links every switch away
+        // would otherwise leave dangling in the home.
+        ".config/DankMaterialShell",
+        ".local/state/DankMaterialShell",
     ],
     // Matugen renders these from the wallpaper, not the switch — DMS's
     // `matugen/configs/gtk3-*.toml` and `qt5ct.toml`/`qt6ct.toml` name them as

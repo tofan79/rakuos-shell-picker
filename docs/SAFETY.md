@@ -347,7 +347,13 @@ Daftar keenam ikut dibersihkan **dan** ikut di-backup, `companion_paths`: data
 milik program pendamping shell, dan data yang shell itu simpan sendiri di luar
 `config_dir`. DMS berjalan bersama `dankcalendar-git`, yang punya
 `~/.local/share/dankcal` (basis data kalendernya dan keyring) dan
-`~/.local/state/dankcal`, dan `dgop`, yang punya `~/.config/dgop`. Ambxst
+`~/.local/state/dankcal`, dan `dgop`, yang punya `~/.config/dgop`. DMS 2.0 juga
+menyimpan ulang ejaan pra-2.0-nya sebagai link ke direktori asli
+(`.config/DankMaterialShell` dan `.local/state/DankMaterialShell`), dan keduanya
+ikut didaftarkan di sini: di mesin yang migrasinya belum jalan dua jalur itu
+adalah direktori aslinya, yang memegang satu-satunya salinan setelan, sedangkan di
+mesin yang sudah migrasi keduanya cuma link yang tanpa pendaftaran ini akan
+ditinggalkan menggantung setiap kali DMS ditinggalkan. Ambxst
 menyimpan riwayat chat dan clipboard yang di-pin di `~/.local/share/ambxst`,
 catatannya di `~/.local/share/ambxst-notes`, dan `axctl` menyimpan catatan
 brightness-nya di `~/.config/axctl`. Tidak ada yang menginstal data ini: program
@@ -367,8 +373,8 @@ suite kalau ada jalur di daftar ini yang tidak dijelajahi `backup_sources`.
 Guard pemilik tetap berlaku, termasuk untuk dua shell yang mendeklarasikan
 companion path yang sama.
 
-Dengan begitu daftar DMS untuk switch keluar berjumlah dua belas (delapan di
-tabel plus empat companion); Noctalia dan Caelestia tanpa companion tetap
+Dengan begitu daftar DMS untuk switch keluar berjumlah empat belas (delapan di
+tabel plus enam companion); Noctalia dan Caelestia tanpa companion tetap
 delapan, sedangkan Ambxst menambah tiga companion path (`.config/axctl`,
 `.local/share/ambxst`, `.local/share/ambxst-notes`) jadi sebelas.
 

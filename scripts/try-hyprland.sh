@@ -13,7 +13,9 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
 bin=./target/debug/rakuos-shell-picker
-shells=(noctalia dms caelestia ambxst)
+# Setiap shell yang punya port Hyprland. `inir` tidak ada di sini: ia hanya
+# punya port niri.
+shells=(noctalia dms caelestia ambxst end4pc)
 
 echo "== cargo build =="
 cargo build || exit 1

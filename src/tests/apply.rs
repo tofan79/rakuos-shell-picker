@@ -1394,3 +1394,39 @@ fn a_companions_data_goes_only_when_this_switchs_backup_reproduces_it() {
         "a file the backup no longer describes must be kept, not deleted"
     );
 }
+
+#[test]
+fn a_companion_link_that_points_at_nothing_is_still_removed() {
+    // DMS 2.0 keeps its pre-2.0 spellings as links back to the real directory, and
+    // a switch away removes that directory first. The link is then all that is
+    // left of the shell in the home — and `exists()` follows it, so the loop used
+    // to read "nothing here" and walk past the one thing it was asked to take.
+    let t = Temp::new("companion-dangling");
+    let home = t.path().join("home");
+    let backup = t.path().join("backups/20261021-hyprland-dms");
+
+    std::fs::create_dir_all(home.join(".config")).unwrap();
+    std::os::unix::fs::symlink("dms", home.join(".config/DankMaterialShell")).unwrap();
+    std::fs::create_dir_all(backup.join("home/.config")).unwrap();
+    std::os::unix::fs::symlink("dms", backup.join("home/.config/DankMaterialShell")).unwrap();
+
+    assert_eq!(
+        clean(
+            &dms::SHELL,
+            &noctalia::SHELL,
+            &home,
+            backup.parent().unwrap(),
+            &backup,
+            &mut |_| {}
+        ),
+        (1, 0),
+        "the backup holds the link, so leaving DMS has to take it with it"
+    );
+    assert!(
+        home
+            .join(".config/DankMaterialShell")
+            .symlink_metadata()
+            .is_err(),
+        "a link to the directory the switch just removed is still the shell's"
+    );
+}

@@ -75,7 +75,9 @@ config dan state shell **tujuan**, jadi `backup_sources_for` menambahkan jalur
 milik DMS yang sudah ada di mesin — `.config/dms`,
 `.local/state/dms` dan companion-nya (`.config/dankcal`, `.config/dgop`,
 `.local/share/dankcal`, `.local/state/dankcal`, serta setelan layanan
-pencarian `.config/danksearch` — `.config/dsearch` sejak 2.0). Di mesin yang
+pencarian `.config/danksearch` — `.config/dsearch` sejak 2.0, dan dua ejaan
+pra-2.0 `.config/DankMaterialShell` serta `.local/state/DankMaterialShell`
+yang 2.0 simpan sebagai link ke direktori aslinya). Di mesin yang
 belum pernah menjalankan DMS semuanya dicatat `absent`; di mesin yang pernah,
 config lama itulah yang bikin tidak ada `.pre-*` tertinggal: dulu ia hanya
 disimpan sebagai aside yang tidak direproduksi backup mana pun, sekarang ia
@@ -441,6 +443,12 @@ Yang dibersihkan adalah **milik DMS**:
 | `.local/share/color-schemes/DankMatugen.colors` | `discard_paths` | **tanpa syarat** |
 | `.local/share/color-schemes/DankMatugenDark.colors` | `discard_paths` | **tanpa syarat** |
 | `.local/share/color-schemes/DankMatugenLight.colors` | `discard_paths` | **tanpa syarat** |
+
+Symlink yang targetnya sudah hilang tetap terhitung sebagai entri: `.cache/dms/`
+dibuang tepat di atas `.cache/DankMaterialShell/`, jadi saat giliran link itu tiba
+yang ditunjuknya sudah tidak ada. Pemeriksaannya lewat `present()` di `apply.rs` —
+`Path::exists()` mengikuti link dan akan membaca "tidak ada apa-apa" untuk link
+yang menggantung, sehingga entri itu diam-diam tertinggal di home.
 
 Yang **sengaja tidak** dibersihkan:
 
