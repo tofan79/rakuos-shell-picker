@@ -12,10 +12,13 @@ Hyprland / Niri        <- compositor, selalu hidup, tidak pernah di-restart
 
 Shell yang tersedia berbeda per compositor:
 
-| Compositor | Shell |
-|---|---|
-| Hyprland | Noctalia, DMS, Caelestia, Ambxst, end4-pC |
-| Niri | DMS, Noctalia, Ambxst |
+| Compositor | Shell | Jumlah |
+|---|---|---|
+| Hyprland | Noctalia, DMS, Caelestia, Ambxst, end4-pC | 5 |
+| Niri | DMS, Noctalia, Ambxst, iNiR | 4 |
+
+DMS, Noctalia, dan Ambxst tersedia di kedua compositor. **Caelestia** dan
+**end4-pC** hanya ada di Hyprland, sementara **iNiR** hanya ada di Niri.
 
 ## Status
 

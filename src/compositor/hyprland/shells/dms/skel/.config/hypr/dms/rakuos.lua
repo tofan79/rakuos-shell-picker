@@ -275,10 +275,34 @@ hl.window_rule({
     opaque = true,
 })
 
+-- Port aturan DMS dari skel niri (windowrules.kdl). Aturan ini tinggal di
+-- rakuos.lua, bukan dms/windowrules.lua, karena DMS menulis ulang file itu.
+-- Catatan: Spotify di sini di-maximize (mengikuti DMS/niri), jadi aturan
+-- float-spotify yang lama dihapus supaya tidak saling menimpa.
 hl.window_rule({
-    name  = "float-spotify",
-    match = { class = "[Ss]potify" },
+    name    = "dms-maximized",
+    match   = { class = "^(Spotify|spotify|vesktop|GDevelop 5|discord|Godot|Pixelorama)$" },
+    maximize = true,
+})
+
+hl.window_rule({
+    name  = "dms-floating",
+    match = { class = "^(dev\\.duxlabs\\.shell|com\\.danklinux\\.dms|org\\.quickshell|gsr-ui|org\\.rakuos\\.Installer\\.Gtk)$" },
     float = true,
+})
+
+hl.window_rule({
+    name  = "dms-gnome-weather",
+    match = { class = "^org\\.gnome\\.Weather$" },
+    float = true,
+    size  = { "838", "498" },
+    move  = "100%-838-32 32",
+})
+
+hl.window_rule({
+    name    = "dms-window-opaque",
+    match   = { class = "^(dev\\.duxlabs\\.shell|com\\.danklinux\\.dms)$" },
+    opacity = "1.0 override",
 })
 
 hl.window_rule({
