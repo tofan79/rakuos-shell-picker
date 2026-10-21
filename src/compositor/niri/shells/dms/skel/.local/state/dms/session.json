@@ -1,19 +1,18 @@
 {
-  "wallpaperPath": "/usr/share/backgrounds/rakuos/RakuOS-Creation.png",
+  "wallpaperPath": "/usr/share/backgrounds/rakuos/RakuOS-Glitch2.png",
   "terminalOverride": "ghostty",
+  "wallpaperPathLight": "/usr/share/backgrounds/rakuos/RakuOS-Glitch2.png",
+  "wallpaperPathDark": "/usr/share/backgrounds/rakuos/RakuOS-Glitch2.png",
   "wallpaperTransition": "iris bloom",
-  "themeModeShareGammaSettings": false,
-  "dockPins": {
-    "dock": []
-  },
+  "lastPlayerIdentity": "",
+  "lastAppliedIconTheme": "Colloid-Dark",
+  "launcherLastQuery": "",
+  "launcherQueryHistory": [
+  ],
   "hiddenTrayIds": [
-    "mate-polkit",
-    "blueman",
-    "dank-calendar",
+    "blueman::Bluetooth Disabled",
+    "blueman::Bluetooth Enabled",
     "ibus-ui-gtk3"
   ],
-  "showThirdPartyPlugins": true,
-  "pluginBrowserInstalledFirst": true,
-  "launcherQueryHistory": [],
   "configVersion": 7
 }

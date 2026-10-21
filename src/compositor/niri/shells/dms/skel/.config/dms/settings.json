@@ -48,28 +48,36 @@
       "id": "user",
       "enabled": true,
       "w": 5,
-      "h": 1
+      "h": 1,
+      "col": 0,
+      "row": 0
     },
     {
       "id": "settings",
       "enabled": true,
       "w": 1,
       "h": 1,
-      "small": true
+      "small": true,
+      "col": 5,
+      "row": 0
     },
     {
       "id": "lock",
       "enabled": true,
       "w": 1,
       "h": 1,
-      "small": true
+      "small": true,
+      "col": 6,
+      "row": 0
     },
     {
       "id": "power",
       "enabled": true,
       "w": 1,
       "h": 1,
-      "small": true
+      "small": true,
+      "col": 7,
+      "row": 0
     },
     {
       "id": "brightnessSlider",
@@ -77,89 +85,107 @@
       "instanceId": "mihoeb7uf4rrk1ghto3omf8ow4ypkf",
       "deviceName": "",
       "w": 4,
-      "h": 1
+      "h": 1,
+      "col": 0,
+      "row": 1
     },
     {
       "id": "audioOutput",
       "enabled": true,
-      "w": 4,
-      "h": 1
+      "w": 2,
+      "h": 1,
+      "col": 4,
+      "row": 1
     },
     {
       "id": "wifi",
       "enabled": true,
       "w": 4,
-      "h": 1
+      "h": 1,
+      "col": 0,
+      "row": 2
     },
     {
       "id": "bluetooth",
       "enabled": true,
       "w": 4,
-      "h": 1
+      "h": 1,
+      "col": 4,
+      "row": 2
     },
     {
       "id": "colorPicker",
       "enabled": true,
       "w": 4,
-      "h": 1
+      "h": 1,
+      "col": 0,
+      "row": 3
     },
     {
       "id": "builtin_vpn",
       "enabled": true,
       "w": 4,
-      "h": 1
+      "h": 1,
+      "col": 4,
+      "row": 3
     },
     {
       "id": "darkMode",
       "enabled": true,
       "w": 2,
-      "h": 1
+      "h": 1,
+      "col": 0,
+      "row": 4
     },
     {
       "id": "nightMode",
       "enabled": true,
       "w": 2,
-      "h": 1
+      "h": 1,
+      "col": 2,
+      "row": 4
     },
     {
       "id": "doNotDisturb",
       "enabled": true,
       "w": 2,
-      "h": 1
+      "h": 1,
+      "col": 4,
+      "row": 4
     },
     {
       "id": "idleInhibitor",
       "enabled": true,
       "w": 2,
-      "h": 1
-    },
-    {
-      "id": "audioInput",
-      "enabled": true,
-      "w": 4,
-      "h": 1
-    },
-    {
-      "id": "plugin_displayMirror",
-      "enabled": true,
-      "w": 4,
-      "h": 1
+      "h": 1,
+      "col": 6,
+      "row": 4
     },
     {
       "id": "edit",
       "enabled": true,
       "w": 1,
       "h": 1,
-      "small": true
+      "small": false,
+      "col": 7,
+      "row": 5
     },
     {
       "id": "runningApps",
       "enabled": true,
-      "w": 4,
+      "w": 7,
       "h": 1,
       "small": true,
       "col": 0,
-      "row": 7
+      "row": 5
+    },
+    {
+      "id": "audioInput",
+      "enabled": true,
+      "w": 2,
+      "h": 1,
+      "col": 6,
+      "row": 1
     }
   ],
   "workspaceNameIcons": {},
@@ -212,7 +238,7 @@
     "apps": "list"
   },
   "appDrawerSectionViewModes": {
-    "apps": "list"
+    "apps": "grid"
   },
   "niriOverviewOverlayEnabled": true,
   "dankLauncherV2Size": "compact",
@@ -223,7 +249,7 @@
   "dankLauncherV2UnloadOnClose": true,
   "dankLauncherV2IncludeFilesInAll": false,
   "dankLauncherV2IncludeFoldersInAll": false,
-  "launcherUseOverlayLayer": false,
+  "launcherUseOverlayLayer": true,
   "launcherStyle": "spotlight",
   "spotlightBarShowModeChips": true,
   "useAutoLocation": true,
@@ -330,7 +356,7 @@
   "notificationOverlayEnabled": true,
   "notificationPopupShadowEnabled": true,
   "notificationPopupPrivacyMode": false,
-  "modalDarkenBackground": false,
+  "modalDarkenBackground": true,
   "lockScreenShowPowerActions": true,
   "lockScreenShowProfileImage": true,
   "lockScreenPowerOffMonitorsOnLock": false,
@@ -561,8 +587,7 @@
       "widgetOutlineColor": "surfaceText",
       "shadowIntensity": 0,
       "followInterfaceStyle": true,
-      "widgetFollowInterfaceStyle": true,
-      "hoverPopouts": false
+      "widgetFollowInterfaceStyle": true
     }
   ],
   "desktopWidgetInstances": [],
@@ -850,7 +875,5 @@
       ]
     }
   ],
-  "dmsWindowsFloatingSeeded": [
-    "hyprland"
-  ]
+  "springBounce": 1
 }
