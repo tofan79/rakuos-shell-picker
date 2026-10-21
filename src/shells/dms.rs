@@ -158,6 +158,12 @@ pub const IDENTITY: Identity = Identity {
     // of it, so the skel carries none of it and the backup is the only thing
     // that can hand it back after DMS has been away.
     //
+    // The search service kept its package name but moved its settings in 2.0:
+    // the binary is `dsearch` and it reads `~/.config/dsearch/config.toml`, while
+    // `.config/danksearch` is what it read before (`dsearch dir migration` in its
+    // own strings). Both spellings stay declared, so a machine that has not
+    // migrated yet is backed up under the old name rather than left unread.
+    //
     // Declared rather than left to `discard_paths`: a calendar database is data.
     // It is backed up with DMS, removed on the way out only when that backup
     // reproduces it byte for byte, and read back by `plan` the next time DMS is
@@ -168,6 +174,7 @@ pub const IDENTITY: Identity = Identity {
         ".config/dankcal",
         ".config/danksearch",
         ".config/dgop",
+        ".config/dsearch",
         ".local/share/dankcal",
         ".local/state/dankcal",
     ],
@@ -203,9 +210,11 @@ pub const IDENTITY: Identity = Identity {
     // regenerated output (`matugen.lock`, `dms-colors.json`), and the two
     // `dankcal` spellings belong to `dankcalendar-git`, which an uninstall
     // takes away with DMS — its shader cache outlives the package only as
-    // rubbish. `.cache/danksearch` is the index the search service builds —
-    // close to 200 MiB on this machine — and once that service is masked and
-    // its package gone it is the same kind of rubbish. `.cache/quickshell` is a
+    // rubbish. `.cache/dsearch` is the index the search service builds — 57 MiB
+    // here, and close to 200 MiB on the machine that first measured it — and
+    // `.cache/danksearch` is the same index under its pre-2.0 spelling; once that
+    // service is masked and its package gone both are the same kind of rubbish.
+    // `.cache/quickshell` is a
     // compiled-QML cache of a few hundred
     // bytes: the runtime may or may not still be on the machine after this
     // switch (see `runtime_packages`), but whoever runs it next recompiles
@@ -222,6 +231,7 @@ pub const IDENTITY: Identity = Identity {
         ".cache/dankcal",
         ".cache/dank-calendar",
         ".cache/danksearch",
+        ".cache/dsearch",
         ".cache/quickshell",
         ".config/equibop/themes/dank-discord.css",
         ".config/ghostty/themes/dankcolors",

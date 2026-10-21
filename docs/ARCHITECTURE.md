@@ -258,7 +258,7 @@ Lalu yang memisahkan kedua daftar bersih itu — aturan satu kalimat: **yang ada
 datanya dibackup, yang tidak ada datanya dibersihkan.**
 
 - `discard_paths` — cache dan file render yang **tidak pernah diedit siapa
-  pun** (`.cache/dms`, `themes/dankcolors`, skema warna
+  pun** (`.cache/dms`, `.cache/dsearch`, `themes/dankcolors`, skema warna
   `DankMatugen*`). `clean` menghapusnya tanpa memeriksa backup, karena memang
   tidak ada yang perlu diselamatkan; backup pun tidak membawanya, supaya satu
   switch tidak memindahkan beberapa megabyte ulangan yang bisa diregenerasi.

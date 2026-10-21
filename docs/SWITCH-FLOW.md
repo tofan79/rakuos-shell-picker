@@ -73,8 +73,9 @@ Yang disimpan, lengkap dengan alasannya:
 Tabel di atas adalah separuh **shell yang ditinggalkan**. Swap juga menimpa
 config dan state shell **tujuan**, jadi `backup_sources_for` menambahkan jalur
 milik DMS yang sudah ada di mesin — `.config/dms`,
-`.local/state/dms` dan companion-nya (`.config/dankcal`,
-`.config/dgop`, `.local/share/dankcal`, `.local/state/dankcal`). Di mesin yang
+`.local/state/dms` dan companion-nya (`.config/dankcal`, `.config/dgop`,
+`.local/share/dankcal`, `.local/state/dankcal`, serta setelan layanan
+pencarian `.config/danksearch` — `.config/dsearch` sejak 2.0). Di mesin yang
 belum pernah menjalankan DMS semuanya dicatat `absent`; di mesin yang pernah,
 config lama itulah yang bikin tidak ada `.pre-*` tertinggal: dulu ia hanya
 disimpan sebagai aside yang tidak direproduksi backup mana pun, sekarang ia
@@ -429,8 +430,11 @@ Yang dibersihkan adalah **milik DMS**:
 | `.config/qt5ct/colors/matugen.conf` | `generated_paths` | sama |
 | `.config/qt6ct/colors/matugen.conf` | `generated_paths` | sama |
 | `.cache/dms/` | `discard_paths` | **tanpa syarat** |
+| `.cache/DankMaterialShell/` | `discard_paths` | **tanpa syarat** (ejaan pra-2.0, symlink) |
 | `.cache/dankcal/` | `discard_paths` | **tanpa syarat** |
 | `.cache/dank-calendar/` | `discard_paths` | **tanpa syarat** |
+| `.cache/danksearch/` | `discard_paths` | **tanpa syarat** (ejaan pra-2.0) |
+| `.cache/dsearch/` | `discard_paths` | **tanpa syarat** (index `dsearch` 2.0) |
 | `.cache/quickshell/` | `discard_paths` | **tanpa syarat** |
 | `.config/ghostty/themes/dankcolors` | `discard_paths` | **tanpa syarat** |
 | `.config/zed/themes/dank-zed-theme.json` | `discard_paths` | **tanpa syarat** |
@@ -448,9 +452,10 @@ Yang **sengaja tidak** dibersihkan:
 
 Dua kategori cache dianggap berbeda:
 
-- **`.cache/` DMS, dcal, dan Quickshell** dibuang. Isinya ulangan yang bisa
-  diregenerasi (`matugen.lock`, `dms-colors.json`, shader cache milik paket yang
-  barusan dihapus, kompilasi QML beberapa ratus byte) — tidak ada yang pernah
+- **`.cache/` DMS, dcal, search, dan Quickshell** dibuang. Isinya ulangan yang
+  bisa diregenerasi (`matugen.lock`, `dms-colors.json`, shader cache milik paket
+  yang barusan dihapus, index pencarian, kompilasi QML beberapa ratus byte) —
+  tidak ada yang pernah
   diedit orang, dan shell berikutnya membangun ulang apa pun yang ia butuhkan
   pada start pertama.
 - **`.cache/` yang isinya data** tidak pernah ada di daftar `discard_paths`

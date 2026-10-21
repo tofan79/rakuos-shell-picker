@@ -68,6 +68,7 @@ fn switching_away_from_dms_backs_up_what_dms_would_lose() {
             ".config/dankcal",
             ".config/danksearch",
             ".config/dgop",
+            ".config/dsearch",
             ".local/share/dankcal",
             ".local/state/dankcal",
         ]
