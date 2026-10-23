@@ -158,9 +158,7 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         .collect();
     assert_eq!(
         with_plan,
-        BTreeSet::from([
-            "ambxst", "caelestia", "dms", "end4pc", "inir", "noctalia"
-        ])
+        BTreeSet::from(["ambxst", "caelestia", "dms", "end4pc", "inir", "noctalia"])
     );
 
     let dms = super::shell::find("dms").expect("dms registered");
@@ -1288,8 +1286,7 @@ fn a_skel_is_missing_only_where_the_shell_cannot_be_installed() {
                 continue;
             }
             let refuses_before_a_backup = shell.config_dir.is_none();
-            let cannot_be_installed =
-                shell.package.is_none() && shell.install_plan.is_none();
+            let cannot_be_installed = shell.package.is_none() && shell.install_plan.is_none();
             assert!(
                 refuses_before_a_backup || cannot_be_installed,
                 "{}/{} has no skel, so a switch to it cannot complete — and \
