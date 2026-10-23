@@ -506,7 +506,11 @@ pub enum Removed {
 /// packages: any package the **incoming** shell declares as something it runs on
 /// is dropped from every stage before the package manager sees it. That is the
 /// only reason `quickshell` can be in a removal plan at all — see
-/// [`crate::shell::Identity::runtime_packages`].
+/// [`crate::shell::Identity::runtime_packages`]. The caller hands in the target's
+/// install plan as well, because the two plans overlap (`easyeffects` is one
+/// shell's tool and another's leftover) and the install has already run and
+/// skipped whatever was present: removing it here would take away a package the
+/// target asked for a stage earlier.
 ///
 /// A package in the **base image** is dropped for a different reason: the image
 /// is read-only, so `rum remove` refuses it and a stage that named it could only
@@ -559,8 +563,8 @@ pub fn uninstall(
 
     if !shared.is_empty() {
         let line = format!(
-            "keeping {}: the shell that is starting runs on them, so this switch \
-             will not remove them",
+            "keeping {}: the shell that is starting installs or runs on them, so \
+             this switch will not remove them",
             shared.join(", ")
         );
         progress(&line);

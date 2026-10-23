@@ -1,5 +1,5 @@
 use super::*;
-use crate::compositor::hyprland::shells::{caelestia, dms, end4pc, noctalia};
+use crate::compositor::hyprland::shells::{caelestia, dms, end4pc, noctalia, sekaipop};
 use crate::compositor::hyprland::Hyprland;
 
 struct Temp(PathBuf);
@@ -967,6 +967,7 @@ fn the_outgoing_shells_own_files_are_cleaned_once_the_backup_reproduces_them() {
             &home,
             backup.parent().unwrap(),
             &backup,
+            std::time::SystemTime::now(),
             &mut |line| { said.push(line.to_string()) }
         ),
         (2, 0),
@@ -1018,6 +1019,7 @@ fn something_with_no_data_in_it_is_discarded_without_a_backup() {
             &home,
             backup.parent().unwrap(),
             &backup,
+            std::time::SystemTime::now(),
             &mut |line| { said.push(line.to_string()) }
         ),
         (3, 0),
@@ -1069,6 +1071,7 @@ fn a_dangling_symlink_in_discard_paths_is_still_discarded() {
             &home,
             backup.parent().unwrap(),
             &backup,
+            std::time::SystemTime::now(),
             &mut |line| { said.push(line.to_string()) }
         ),
         (1, 0),
@@ -1121,6 +1124,7 @@ fn a_path_the_backup_does_not_reproduce_is_kept_when_the_shell_leaves() {
             &home,
             backup.parent().unwrap(),
             &backup,
+            std::time::SystemTime::now(),
             &mut |line| { said.push(line.to_string()) }
         ),
         (1, 1),
@@ -1169,6 +1173,7 @@ fn a_shell_never_cleans_a_path_the_shell_being_switched_to_owns() {
             &home,
             backup.parent().unwrap(),
             &backup,
+            std::time::SystemTime::now(),
             &mut |_| {},
         ),
         (0, 1)
@@ -1177,6 +1182,78 @@ fn a_shell_never_cleans_a_path_the_shell_being_switched_to_owns() {
         home.join(".config/dms/settings.json")
             .exists(),
         "the path the target owns must be left for the target to write"
+    );
+}
+
+#[test]
+fn a_shared_generated_sheet_the_target_never_wrote_is_cleaned_anyway() {
+    // Two shells rendering `gtk.css` is the one overlap the registry allows, so
+    // `clean` leaves the file for the target to write. A target whose theme only
+    // renders on a wallpaper change can start without touching it, and then the
+    // outgoing shell's sheet — `@import` into its own colours and all — is what
+    // GTK keeps reading. The mtime is the only signal for which one wrote it.
+    let t = Temp::new("clean-stale-generated");
+    let home = t.path().join("home");
+    let backup = t.path().join("backups/20261023-hyprland-sekaipop");
+    let rel: &'static str = ".config/gtk-3.0/gtk.css";
+    static GENERATED: &[&str] = &[".config/gtk-3.0/gtk.css"];
+
+    write(&home.join(rel), "sekai");
+    write(&backup.join("home").join(rel), "sekai");
+
+    let started = std::time::SystemTime::now();
+    std::fs::File::open(home.join(rel))
+        .unwrap()
+        .set_times(
+            std::fs::FileTimes::new()
+                .set_modified(started - std::time::Duration::from_secs(60)),
+        )
+        .unwrap();
+
+    let target = Shell {
+        generated_paths: GENERATED,
+        ..noctalia::SHELL
+    };
+    let mut said = Vec::new();
+    assert_eq!(
+        clean(
+            &sekaipop::SHELL,
+            &target,
+            &home,
+            backup.parent().unwrap(),
+            &backup,
+            started,
+            &mut |line| said.push(line.to_string()),
+        ),
+        (1, 0),
+        "the sheet predates the switch, so it is still the outgoing shell's"
+    );
+    assert!(
+        said.iter().any(|l| l.contains("has not written it this switch")),
+        "the panel has to say why a path the target owns was cleaned: {said:?}"
+    );
+    assert!(!home.join(rel).exists());
+
+    // Written again after the switch began: this one is the target's, and the
+    // ownership guard must go on protecting it.
+    let started = std::time::SystemTime::now();
+    write(&home.join(rel), "impasto");
+    write(&backup.join("home").join(rel), "impasto");
+    assert_eq!(
+        clean(
+            &sekaipop::SHELL,
+            &target,
+            &home,
+            backup.parent().unwrap(),
+            &backup,
+            started,
+            &mut |_| {},
+        ),
+        (0, 1)
+    );
+    assert!(
+        home.join(rel).exists(),
+        "a sheet the target wrote during this switch must be left alone"
     );
 }
 
@@ -1215,6 +1292,7 @@ fn clean_refuses_any_path_that_reaches_the_backups() {
             &home,
             &backups,
             &backup,
+            std::time::SystemTime::now(),
             &mut |line| said.push(line.to_string()),
         ),
         (0, 1)
@@ -1289,6 +1367,7 @@ fn the_backup_is_taken_again_after_the_shell_stops_so_its_state_can_go() {
             &home,
             backup_root.parent().unwrap(),
             &backup_root,
+            std::time::SystemTime::now(),
             &mut |line| said.push(line.to_string())
         ),
         (1, 0),
@@ -1376,6 +1455,7 @@ fn a_companions_data_goes_only_when_this_switchs_backup_reproduces_it() {
             &home,
             backup.parent().unwrap(),
             &backup,
+            std::time::SystemTime::now(),
             &mut |_| {}
         ),
         (2, 1),
@@ -1417,6 +1497,7 @@ fn a_companion_link_that_points_at_nothing_is_still_removed() {
             &home,
             backup.parent().unwrap(),
             &backup,
+            std::time::SystemTime::now(),
             &mut |_| {}
         ),
         (1, 0),

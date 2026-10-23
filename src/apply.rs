@@ -304,6 +304,10 @@ pub fn apply_with(
         skel,
     } = ctx;
     let (home, backups_root, skel) = (home.as_path(), backups_root.as_path(), skel.as_path());
+    // Everything the switch writes from here on carries a later mtime than this,
+    // and everything the outgoing shell left behind carries an earlier one. The
+    // clean step at the end reads that difference; see `clean`.
+    let started = std::time::SystemTime::now();
     let entries = match plan(target, compositor, backups_root, skel, progress) {
         Ok(entries) => entries,
         Err(detail) => {
@@ -453,7 +457,8 @@ pub fn apply_with(
     // succeeded, and a file or a package that would not go away leaves the
     // machine dirtier than asked, not broken.
     if let Some(outgoing) = current {
-        let (cleaned, held) = clean(outgoing, target, home, backups_root, backup_root, progress);
+        let (cleaned, held) =
+            clean(outgoing, target, home, backups_root, backup_root, started, progress);
         if cleaned > 0 {
             progress(&format!(
                 "cleaned {cleaned} path(s) belonging to {}",
@@ -491,7 +496,24 @@ pub fn apply_with(
             ));
             std::thread::sleep(AGENT_GRACE);
             progress(&format!("removing the {} packages", outgoing.display_name));
-            match crate::switch::uninstall(plan, target.runtime_packages, progress) {
+            // The incoming shell's own packages are kept, not just the ones it
+            // says it runs on. The two plans overlap — NAnDoroid installs
+            // `easyeffects`, Ambxst removes it — and the install has already run
+            // by now, skipping every package that was still present, so a
+            // removal that went ahead would take away something the target just
+            // decided it wanted. Listing the whole install plan here makes the
+            // overlap harmless: nothing is removed only to be installed again on
+            // the way back, and no shell has to remember to mirror its tools in
+            // two places to survive a switch.
+            let mut keep: Vec<&'static str> = target.runtime_packages.to_vec();
+            if let Some(install) = target.install_plan {
+                for package in install.packages() {
+                    if !keep.contains(&package) {
+                        keep.push(package);
+                    }
+                }
+            }
+            match crate::switch::uninstall(plan, &keep, progress) {
                 crate::switch::Removed::Finished { stages, .. } => progress(&format!(
                     "{}'s packages are off the machine ({stages} stage(s))",
                     outgoing.display_name
@@ -1587,12 +1609,36 @@ fn refresh_backup(
 /// re-taken. The file is then kept and said out loud, which is the honest
 /// outcome: cleaner than it was, and not a delete on a backup that has gone
 /// stale.
+/// Whether `rel` is a generated file both shells render, which the target owns
+/// but never wrote during this switch.
+///
+/// `generated_paths` is the one kind of overlap the registry allows on purpose:
+/// two shells rendering `gtk.css` from their own palettes is not a bug. `clean`
+/// leaves such a path for the target to write, which is right when it did — but
+/// a target whose theme only renders on a wallpaper change can start without
+/// touching it at all, and the outgoing shell's sheet would then be the one GTK
+/// reads, `@import` and all. The mtime is the only signal available for "the
+/// target wrote it": the switch started before any install or start step, so a
+/// file older than `started` still holds the outgoing shell's bytes.
+fn stale_generated(
+    rel: &str,
+    live: &Path,
+    target: &Shell,
+    started: std::time::SystemTime,
+) -> bool {
+    target.generated_paths.contains(&rel)
+        && !std::fs::metadata(live)
+            .and_then(|meta| meta.modified())
+            .is_ok_and(|modified| modified >= started)
+}
+
 fn clean(
     outgoing: &Shell,
     target: &Shell,
     home: &Path,
     backups_root: &Path,
     backup_root: &Path,
+    started: std::time::SystemTime,
     progress: &mut dyn FnMut(&str),
 ) -> (usize, usize) {
     let mut removed = 0;
@@ -1652,12 +1698,18 @@ fn clean(
         }
 
         if target_owns(rel) {
+            if !stale_generated(rel, &live, target, started) {
+                progress(&format!(
+                    "not cleaning {rel}: {} owns the same path",
+                    target.display_name
+                ));
+                kept += 1;
+                continue;
+            }
             progress(&format!(
-                "not cleaning {rel}: {} owns the same path",
+                "cleaning {rel}: {} owns the same path but has not written it this switch",
                 target.display_name
             ));
-            kept += 1;
-            continue;
         }
 
         let copy = backup_root.join("home").join(rel);
