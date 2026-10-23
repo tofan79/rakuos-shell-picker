@@ -304,10 +304,17 @@ pub struct Identity {
     /// The polkit authentication agent this shell starts, as an argv to run, or
     /// empty when the shell answers polkit itself.
     ///
-    /// DMS brings up its own agent and Noctalia sets `polkit_agent = true`, so
-    /// both answer `pkexec` from the shell process. Caelestia and Ambxst do not:
-    /// their Hyprland config runs
-    /// `/usr/libexec/polkit-mate-authentication-agent-1` from an
+    /// Empty is a claim about the shell's own payload rather than a shrug, and
+    /// it holds for most of the shells here: DMS brings up its own agent,
+    /// Noctalia sets `polkit_agent = true`, and end4-pC and iNiR each ship a
+    /// `services/PolkitService.qml` that registers an agent with polkitd once
+    /// the shell is up. iNiR's file is a wrapper, so it degrades to a stub
+    /// rather than refusing to load where Quickshell was built without the
+    /// module. A shell whose payload has no such file has to name the agent it
+    /// needs instead, or its privilege stage finds nobody to ask.
+    ///
+    /// Caelestia and Ambxst are the ones that name an agent. Their Hyprland
+    /// config runs `/usr/libexec/polkit-mate-authentication-agent-1` from an
     /// `exec-once`/autostart line, which a live switch never reaches — a switch
     /// reloads the config, and `exec-once` does not run again on reload. So a
     /// switch that stops such a shell and starts one of these finds nobody to

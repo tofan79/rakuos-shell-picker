@@ -409,9 +409,7 @@ pub fn install(plan: InstallPlan, progress: &mut dyn FnMut(&str)) -> Install {
         // One line, not two: `progress` already reaches the application log on
         // both paths, and logging it here as well printed the stage twice.
         progress(&format!("stage {number} of {}: {line}", plan.stages.len()));
-        progress(&format!(
-            "authorizing stage {number}; a password prompt should appear"
-        ));
+        progress(&authorizing(number));
 
         let mut command = Command::new(plan.program);
         command.args(plan.args).args(&missing);
@@ -620,9 +618,7 @@ pub fn uninstall(
 
         let line = plan.stage_command_line(&present);
         progress(&format!("stage {number} of {}: {line}", plan.stages.len()));
-        progress(&format!(
-            "authorizing stage {number}; a password prompt should appear"
-        ));
+        progress(&authorizing(number));
 
         let mut command = Command::new(plan.program);
         command.args(plan.args).args(&present);
@@ -797,6 +793,34 @@ fn looks_dismissed(code: Option<i32>, output: &str) -> bool {
     lowered.contains("not authorized")
         || lowered.contains("authentication is required")
         || lowered.contains("dismissed")
+}
+
+/// The line that announces a privileged stage, and where its password goes.
+fn authorizing(number: usize) -> String {
+    format!(
+        "authorizing stage {number}; a password prompt should appear {}",
+        prompt_place()
+    )
+}
+
+/// Where `pkexec` will ask for the password, as far as this process can tell.
+///
+/// `pkexec` answers through its own textual agent when it has a controlling
+/// terminal, and through the session's polkit agent when it does not — the one
+/// asks in the terminal the picker was started from, the other in a window over
+/// the desktop. Which of the two is worth naming: neither is part of the
+/// picker's own window, so a user watching the picker has no reason to look at a
+/// terminal they thought was finished with.
+///
+/// The terminal is probed the way polkit's textual agent reaches it, through
+/// `/dev/tty`, because a picker started from a terminal may still have its
+/// standard input pointed elsewhere.
+fn prompt_place() -> &'static str {
+    if std::fs::File::open("/dev/tty").is_ok() {
+        "in the terminal the picker was started from"
+    } else {
+        "in a dialog over the desktop"
+    }
 }
 
 #[cfg(test)]

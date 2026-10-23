@@ -44,3 +44,18 @@ fn the_logged_command_names_every_package_the_plan_stages() {
     );
     assert!(!plan.stage_command_line(plan.stages[0]).contains("dms"));
 }
+
+#[test]
+fn the_stage_that_asks_for_a_password_says_where_to_type_it() {
+    // A password prompt is never inside the picker's own window: `pkexec` asks
+    // through its textual agent in the terminal the picker was started from, or
+    // through the desktop's polkit agent in a dialog over the session. Naming
+    // which one is the difference between a user finding the prompt and a user
+    // watching the picker wait for an answer they cannot see.
+    let line = authorizing(2);
+    assert!(line.contains("authorizing stage 2"), "{line}");
+    assert!(
+        line.contains("terminal") || line.contains("dialog"),
+        "the line has to name where the prompt appears: {line}"
+    );
+}
