@@ -99,6 +99,14 @@ pub const IDENTITY: Identity = Identity {
                 "wf-recorder",
                 "swappy",
                 "fuzzel",
+                // `Vpn.qml` and `Presets.qml` open a file chooser with
+                // `kdialog || zenity`, and the image has neither; `mpvpaper`
+                // plays the video wallpapers `LiveWallpaper.qml` starts.
+                "zenity",
+                "mpvpaper",
+                // `Translator.qml` drives `trans` for the sidebar's
+                // translation panel.
+                "translate-shell",
                 "uv",
                 "cairo-devel",
                 "cairo-gobject-devel",
@@ -132,6 +140,9 @@ pub const IDENTITY: Identity = Identity {
             "wf-recorder",
             "swappy",
             "fuzzel",
+            "zenity",
+            "mpvpaper",
+            "translate-shell",
             "uv",
             "cairo-devel",
             "cairo-gobject-devel",

@@ -83,6 +83,12 @@ pub const IDENTITY: Identity = Identity {
                 "mate-polkit",
                 "easyeffects",
                 "gpu-screen-recorder",
+                // Its avatar and assistant-image pickers run `zenity
+                // --file-selection` directly; the image does not carry it.
+                "zenity",
+                // `BluetoothPanel.qml` opens `blueman-manager` from its own
+                // button; nothing in the image provides it.
+                "blueman",
             ],
         ],
         program: "pkexec",
@@ -108,6 +114,8 @@ pub const IDENTITY: Identity = Identity {
             "mate-polkit",
             "easyeffects",
             "gpu-screen-recorder",
+            "zenity",
+            "blueman",
         ]],
         program: "pkexec",
         args: &["rum", "remove", "-y"],
@@ -143,26 +151,37 @@ pub const IDENTITY: Identity = Identity {
     ],
     // Rendered output and cached state, none of it written by the user: colour
     // schemes, wallpapers, usage counters and icon caches Ambxst rebuilds on the
-    // next start. `~/.cache/quickshell` is the same kind of thing one level out:
-    // the QML and pipeline caches written by the Quickshell runtime Ambxst runs
-    // on, which DMS declares too and neither shell needs after a switch. The
-    // Vesktop theme is one file inside a program's directory, named rather than
-    // the directory on the same terms DMS names its own render for that client.
+    // next start. The Vesktop theme is one file inside a program's directory,
+    // named rather than the directory on the same terms DMS names its own render
+    // for that client.
+    //
+    // `~/.cache/quickshell` used to be here whole, and it was too much: that
+    // directory is the Quickshell runtime's cache for *every* Quickshell shell on
+    // the machine — `qtpipelinecache-*`, `_qt_GfxShaderBuilder-*` and, one level
+    // down, each shell's own idle cache, which is real state (NAnDoroid keeps a
+    // todo list and cover art in `~/.cache/quickshell/nandoroid`). Discarding it
+    // from here threw away the next shell's cache as well, and the switch had no
+    // business reaching into another shell's directory. What Ambxst itself writes
+    // is `~/.cache/ambxst`, which stays; the shared caches are left for whoever
+    // runs next, since they cost a few megabytes and are rebuilt only when
+    // missing. If Ambxst turns out to own a subdirectory there too, it gets named
+    // on its own, the way NAnDoroid names its own.
     //
     // None of it is walked by a backup —
     // `every_discard_path_is_never_preserved` fails the suite if that ever
     // changes.
-    discard_paths: &[
-        ".cache/ambxst",
-        ".cache/quickshell",
-        ".config/vesktop/themes/ambxst.css",
-    ],
+    discard_paths: &[".cache/ambxst", ".config/vesktop/themes/ambxst.css"],
     // The runtime and theming tool Ambxst shares with DMS, the polkit agent it
     // shares with Caelestia, and the audio effects daemon it shares with
     // end4-pC. All have to be named so a switch between the shells that use
     // them keeps them, while a switch to a shell that needs none (Noctalia)
     // takes them away.
     runtime_packages: &[
+        // `QtCtGenerator.qml` renders `.config/qt5ct/colors/ambxst.colors`, and
+        // the Qt5 platform-theme plugin that reads it ships in the `qt5ct`
+        // package. NAnDoroid installs and removes that package, so without this
+        // entry a switch away from it left the rendered palette with no reader.
+        "qt5ct",
         "quickshell",
         "quickshell-git",
         "matugen",

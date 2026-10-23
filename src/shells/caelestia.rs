@@ -178,6 +178,11 @@ pub const IDENTITY: Identity = Identity {
     // of the three keeps them; leaving for a shell that needs none (Noctalia)
     // takes them away.
     runtime_packages: &[
+        // The skel ships `.config/fuzzel/fuzzel.ini` and its clipboard and emoji
+        // keybinds kill a running `fuzzel` before opening their own panel, so the
+        // package is part of this desktop even though the plan does not install
+        // it. end4-pC installs and removes it.
+        "fuzzel",
         "quickshell",
         "quickshell-git",
         "mate-polkit",
