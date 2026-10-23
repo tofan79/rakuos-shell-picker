@@ -1,0 +1,25 @@
+RakuOS Shell Picker
+===================
+
+The program is GPL-3.0 (see LICENSE). The artwork under `assets/` comes from the
+shells it shows, and keeps their licence:
+
+  assets/noctalia.svg, assets/danklogo2.svg, assets/caelestia.svg,
+  assets/ambxst-logo-color.svg, assets/inir.svg
+      From the respective upstream projects.
+
+  assets/end4pc.svg
+      From pctrade/end4-pC (GPL-3.0).
+
+  assets/nandoroid.svg
+      From na-ive/nandoroid-shell, `assets/icons/NAnDoroid.svg` (GPL-3.0).
+
+  assets/sekaipop.svg
+      Cropped from Blapples/SekaiPop's `assets/banner.svg` (GPL-3.0).
+
+  assets/impasto.svg
+      The palette mark supplied by the RakuOS desktop's author, embedded as a
+      PNG inside an SVG frame so the picker needs no separate image file.
+
+The previews under `assets/previews/` are screenshots of the shells, published by
+their projects under the same licences.
