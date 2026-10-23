@@ -1,0 +1,12 @@
+{
+  "canvas": 1254,
+  "daub": { "width": 144, "height": 90, "radius": 45 },
+  "shadow": { "offsetX": 8, "offsetY": 12, "blur": 7, "opacity": 0.4 },
+  "paint": [
+    { "key": "accent", "x": 280, "y": 650, "rotation": -72 },
+    { "key": "green",  "x": 340, "y": 480, "rotation": -52 },
+    { "key": "yellow", "x": 450, "y": 340, "rotation": -33 },
+    { "key": "red",    "x": 620, "y": 250, "rotation": -12 },
+    { "key": "blue",   "x": 800, "y": 225, "rotation": 6 }
+  ]
+}

@@ -1,0 +1,1 @@
+-- Your own changes. Loaded after the defaults in hyprland/execs.lua; never overwritten.

@@ -487,6 +487,29 @@ user, bukan file image.
 Switch-back tetap mungkin setelah bersih: `install_plan` memasang paketnya
 kembali, dan `plan` membaca config serta state dari backup yang sama.
 
+## Batas yang datang dari shell-nya sendiri
+
+Picker tidak bisa menjamin semua yang dijalankan shell baru aman. Yang di bawah ini
+milik shell, bukan milik switch, dan disebut di sini supaya tidak ditemukan saat
+sudah telat.
+
+### Lock screen shell bisa mengunci akun
+
+Dua shell membawa lock screen sendiri yang memakai service PAM sistem `login`:
+SekaiPop dan Impasto (keduanya `PamContext` dengan service `login`, artinya
+`system-auth`). Di Fedora `system-auth` menaruh `pam_faillock` di depan
+`pam_unix`, jadi beberapa kali password salah akan
+**mengunci akun**, bukan hanya menolak satu percobaan. Sesi yang sedang berjalan
+tidak ikut terkunci, jadi jalan keluarnya selalu ada:
+
+- `Ctrl+Alt+F3` ke TTY lain, lalu login seperti biasa; atau
+- dari sesi yang masih hidup: `loginctl unlock-session`, dan bila akun sudah
+  terkunci `faillock --reset --user "$USER"`.
+
+Picker tidak menyentuh berkas itu dan tidak mengubah kebijakan PAM sistem.
+
+---
+
 ## Skel: apa yang diganti penuh
 
 Skel tiap shell membawa konfigurasi lengkap, bukan potongan. Semuanya dipasang

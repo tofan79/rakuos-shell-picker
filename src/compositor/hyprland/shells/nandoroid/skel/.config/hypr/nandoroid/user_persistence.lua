@@ -1,0 +1,9 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+--  User Persistence Configuration (DO NOT OVERWRITE ON UPDATE)
+--  Add your custom overrides here.
+-- ─────────────────────────────────────────────────────────────────────────────
+--
+-- This file is seeded empty on purpose: NAnDoroid writes the monitor layout and
+-- game-mode choices a person makes in its panels here, and loads it last. It
+-- travels with ~/.config/hypr like the rest of the compositor configuration, so
+-- a backup taken on the way out holds it.

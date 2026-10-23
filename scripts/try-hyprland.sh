@@ -15,7 +15,7 @@ cd "$(dirname "$0")/.." || exit 2
 bin=./target/debug/rakuos-shell-picker
 # Setiap shell yang punya port Hyprland. `inir` tidak ada di sini: ia hanya
 # punya port niri.
-shells=(noctalia dms caelestia ambxst end4pc)
+shells=(noctalia dms caelestia ambxst end4pc nandoroid sekaipop impasto)
 
 echo "== cargo build =="
 cargo build || exit 1

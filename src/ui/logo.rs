@@ -66,6 +66,9 @@ fn logo_bytes(name: &str) -> Option<&'static [u8]> {
         "danklogo2.svg" => include_bytes!("../../assets/danklogo2.svg").as_slice(),
         "end4pc.svg" => include_bytes!("../../assets/end4pc.svg").as_slice(),
         "inir.svg" => include_bytes!("../../assets/inir.svg").as_slice(),
+        "impasto.svg" => include_bytes!("../../assets/impasto.svg").as_slice(),
+        "nandoroid.svg" => include_bytes!("../../assets/nandoroid.svg").as_slice(),
+        "sekaipop.svg" => include_bytes!("../../assets/sekaipop.svg").as_slice(),
         "noctalia.svg" => include_bytes!("../../assets/noctalia.svg").as_slice(),
         _ => return None,
     })

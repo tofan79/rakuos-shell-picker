@@ -1,0 +1,30 @@
+# RakuOS: the part of NAnDoroid's matugen configuration this desktop uses.
+#
+# The templates come from the package — the `templates` symlink beside this file
+# points at /usr/share/nandoroid/matugen/templates — so a template fix reaches
+# the machine with the package instead of needing a new picker release.
+#
+# Upstream's copy also renders kitty (and its own profile files), fuzzel, and a
+# Hyprland `.conf`. None of those has an owner here: the compositor configuration
+# is Lua, so a `.conf` would never be read and the borders keep the colours in
+# `configs/general.lua`; theming kitty is not this shell's to install; fuzzel is
+# the session's. hyprlock stays, because `~/.config/hypr/hyprlock.conf` sources
+# `hyprlock/colors.conf` and the skel seeds it.
+[config]
+version_check = false
+
+[templates.m3colors]
+input_path = '~/.config/matugen/templates/colors.json'
+output_path = '~/.local/state/quickshell/user/generated/colors.json'
+
+[templates.gtk3]
+input_path = '~/.config/matugen/templates/gtk-3.0/gtk.css'
+output_path = '~/.config/gtk-3.0/gtk.css'
+
+[templates.gtk4]
+input_path = '~/.config/matugen/templates/gtk-4.0/gtk.css'
+output_path = '~/.config/gtk-4.0/gtk.css'
+
+[templates.hyprlock]
+input_path = '~/.config/matugen/templates/hyprland/hyprlock-colors.conf'
+output_path = '~/.config/hypr/hyprlock/colors.conf'

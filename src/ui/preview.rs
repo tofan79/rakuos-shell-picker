@@ -68,6 +68,13 @@ pub(crate) fn image_bytes(shell_id: &str) -> Vec<&'static [u8]> {
             include_bytes!("../../assets/previews/end4pc-5.jpg").as_slice(),
             include_bytes!("../../assets/previews/end4pc-6.jpg").as_slice(),
         ],
+        "impasto" => vec![
+            include_bytes!("../../assets/previews/impasto-1.jpg").as_slice(),
+            include_bytes!("../../assets/previews/impasto-2.jpg").as_slice(),
+            include_bytes!("../../assets/previews/impasto-3.jpg").as_slice(),
+            include_bytes!("../../assets/previews/impasto-4.jpg").as_slice(),
+            include_bytes!("../../assets/previews/impasto-5.jpg").as_slice(),
+        ],
         "inir" => vec![
             include_bytes!("../../assets/previews/inir-1.jpg").as_slice(),
             include_bytes!("../../assets/previews/inir-2.jpg").as_slice(),
@@ -76,6 +83,14 @@ pub(crate) fn image_bytes(shell_id: &str) -> Vec<&'static [u8]> {
             include_bytes!("../../assets/previews/inir-5.jpg").as_slice(),
             include_bytes!("../../assets/previews/inir-6.jpg").as_slice(),
         ],
+        "nandoroid" => vec![
+            include_bytes!("../../assets/previews/nandoroid-1.jpg").as_slice(),
+            include_bytes!("../../assets/previews/nandoroid-2.jpg").as_slice(),
+            include_bytes!("../../assets/previews/nandoroid-3.jpg").as_slice(),
+            include_bytes!("../../assets/previews/nandoroid-4.jpg").as_slice(),
+            include_bytes!("../../assets/previews/nandoroid-5.jpg").as_slice(),
+            include_bytes!("../../assets/previews/nandoroid-6.jpg").as_slice(),
+        ],
         "noctalia" => vec![
             include_bytes!("../../assets/previews/noctalia-1.jpg").as_slice(),
             include_bytes!("../../assets/previews/noctalia-2.jpg").as_slice(),
@@ -83,6 +98,13 @@ pub(crate) fn image_bytes(shell_id: &str) -> Vec<&'static [u8]> {
             include_bytes!("../../assets/previews/noctalia-4.jpg").as_slice(),
             include_bytes!("../../assets/previews/noctalia-5.jpg").as_slice(),
             include_bytes!("../../assets/previews/noctalia-6.jpg").as_slice(),
+        ],
+        "sekaipop" => vec![
+            include_bytes!("../../assets/previews/sekaipop-1.jpg").as_slice(),
+            include_bytes!("../../assets/previews/sekaipop-2.jpg").as_slice(),
+            include_bytes!("../../assets/previews/sekaipop-3.jpg").as_slice(),
+            include_bytes!("../../assets/previews/sekaipop-4.jpg").as_slice(),
+            include_bytes!("../../assets/previews/sekaipop-5.jpg").as_slice(),
         ],
         _ => Vec::new(),
     }
@@ -241,7 +263,10 @@ mod tests {
 
         assert_eq!(
             registered,
-            ["ambxst", "caelestia", "dms", "end4pc", "inir", "noctalia"]
+            [
+            "ambxst", "caelestia", "dms", "end4pc", "impasto", "inir", "nandoroid",
+            "noctalia", "sekaipop"
+        ]
         );
     }
 }

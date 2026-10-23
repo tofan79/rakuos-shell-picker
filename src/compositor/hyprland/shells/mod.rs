@@ -29,7 +29,10 @@ pub mod ambxst;
 pub mod caelestia;
 pub mod dms;
 pub mod end4pc;
+pub mod impasto;
+pub mod nandoroid;
 pub mod noctalia;
+pub mod sekaipop;
 
 use crate::shell::Shell;
 
@@ -40,4 +43,7 @@ pub static ALL: &[Shell] = &[
     caelestia::SHELL,
     ambxst::SHELL,
     end4pc::SHELL,
+    nandoroid::SHELL,
+    sekaipop::SHELL,
+    impasto::SHELL,
 ];

@@ -91,7 +91,16 @@ fn each_compositor_lists_the_shells_it_really_supports() {
         .expect("hyprland registered");
     assert_eq!(
         hyprland.shells().iter().map(|s| s.id).collect::<Vec<_>>(),
-        ["noctalia", "dms", "caelestia", "ambxst", "end4pc"]
+        [
+            "noctalia",
+            "dms",
+            "caelestia",
+            "ambxst",
+            "end4pc",
+            "nandoroid",
+            "sekaipop",
+            "impasto"
+        ]
     );
 
     // Niri's four: DMS from its base image, Noctalia and Ambxst from the
@@ -158,7 +167,17 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         .collect();
     assert_eq!(
         with_plan,
-        BTreeSet::from(["ambxst", "caelestia", "dms", "end4pc", "inir", "noctalia"])
+        BTreeSet::from([
+            "ambxst",
+            "caelestia",
+            "dms",
+            "end4pc",
+            "impasto",
+            "inir",
+            "nandoroid",
+            "noctalia",
+            "sekaipop"
+        ])
     );
 
     let dms = super::shell::find("dms").expect("dms registered");
@@ -206,7 +225,7 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
     assert_eq!(
         plan.command_line(),
         "pkexec rum install -y --refresh quickshell-git ambxst axctl matugen \
-         phosphor-icons-fonts mate-polkit easyeffects gpu-screen-recorder"
+         phosphor-icons-fonts mate-polkit easyeffects gpu-screen-recorder zenity blueman"
     );
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");
@@ -238,7 +257,7 @@ fn only_packaged_shells_can_be_installed_and_they_use_polkit() {
         "pkexec rum install -y --refresh quickshell-git end4-pc illogical-impulse \
          matugen hypridle hyprlock google-rubik-fonts cascadia-code-nf-fonts \
          material-symbols-fonts easyeffects hyprsunset wf-recorder swappy fuzzel \
-         uv cairo-devel cairo-gobject-devel gobject-introspection-devel dbus-devel"
+         zenity mpvpaper translate-shell uv cairo-devel cairo-gobject-devel gobject-introspection-devel dbus-devel"
     );
     assert!(plan.packages().contains(&plan.package));
     assert_eq!(plan.program, "pkexec");

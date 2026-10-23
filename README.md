@@ -14,11 +14,12 @@ Shell yang tersedia berbeda per compositor:
 
 | Compositor | Shell | Jumlah |
 |---|---|---|
-| Hyprland | Noctalia, Dux Shell, Caelestia, Ambxst, end4-pC | 5 |
+| Hyprland | Noctalia, Dux Shell, Caelestia, Ambxst, end4-pC, NAnDoroid, SekaiPop, Impasto | 8 |
 | Niri | Dux Shell, Noctalia, Ambxst, iNiR | 4 |
 
-Dux Shell, Noctalia, dan Ambxst tersedia di kedua compositor. **Caelestia** dan
-**end4-pC** hanya ada di Hyprland, sementara **iNiR** hanya ada di Niri.
+Dux Shell, Noctalia, dan Ambxst tersedia di kedua compositor. **Caelestia**,
+**end4-pC**, **NAnDoroid**, **SekaiPop**, dan **Impasto** hanya ada di
+Hyprland, sementara **iNiR** hanya ada di Niri.
 
 ## Status
 

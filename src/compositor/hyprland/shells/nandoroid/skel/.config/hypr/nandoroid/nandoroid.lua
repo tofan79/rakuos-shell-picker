@@ -1,0 +1,1 @@
+/usr/share/nandoroid/hypr/nandoroid/nandoroid.lua
