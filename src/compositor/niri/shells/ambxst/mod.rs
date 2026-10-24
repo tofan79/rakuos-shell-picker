@@ -63,8 +63,12 @@ const PORT: Port = Port {
     skel_extra_paths: &[
         ".config/qt6ct/qt6ct.conf",
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
     ],
-    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    backup_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

@@ -41,11 +41,17 @@ const PORT: Port = Port {
     // the visible one back on the way *to* Noctalia, from that shell's own
     // backup or skel. A single file rather than the directory, so the rest of
     // `~/.local/share/applications` is left alone.
-    skel_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    skel_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
     // Same file, listed for the second question a switch asks: nothing else
     // would back it up. "Being installed" and "being kept" are not the same
     // fact, and the plan deduplicates the path so it is not staged twice.
-    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    backup_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

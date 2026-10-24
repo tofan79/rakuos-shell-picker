@@ -52,7 +52,10 @@ const PORT: Port = Port {
     systemd_user_unit: None,
     systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::StartEvent,
-    skel_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    skel_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
     // A switch must not leave Noctalia advertised in the app menu while SekaiPop
     // is the shell, and the two theme copies are the only place its palette is
     // left behind on disk: `generated_paths` removes them, so the backup has to
@@ -62,6 +65,7 @@ const PORT: Port = Port {
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
         ".local/share/themes/sekaipop-adw-gtk3",
         ".local/share/themes/sekaipop-adw-gtk3-dark",
+        ".config/ghostty/config",
     ],
 };
 

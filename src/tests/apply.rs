@@ -1022,13 +1022,12 @@ fn something_with_no_data_in_it_is_discarded_without_a_backup() {
             std::time::SystemTime::now(),
             &mut |line| { said.push(line.to_string()) }
         ),
-        (3, 0),
-        "no copy of any of it exists and none is needed"
+        (2, 1),
+        "the generated Ghostty theme is held without a matching backup"
     );
 
     for gone in [
         ".cache/dms",
-        ".config/ghostty/themes/dankcolors",
         ".local/share/color-schemes/DankMatugenDark.colors",
     ] {
         assert!(
@@ -1036,6 +1035,10 @@ fn something_with_no_data_in_it_is_discarded_without_a_backup() {
             "{gone} holds no data, so leaving a shell must take it away"
         );
     }
+    assert!(
+        home.join(".config/ghostty/themes/dankcolors").exists(),
+        "generated output without a matching backup must be held"
+    );
     assert!(
         !backup.exists(),
         "cleaning a discard path must not invent a backup for it"

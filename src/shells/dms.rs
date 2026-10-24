@@ -196,25 +196,23 @@ pub const IDENTITY: Identity = Identity {
     // with it instead of leaving `dank-colors.css` beside a gtk.css that no
     // longer imports it.
     //
-    // Only those four. DMS also writes into `.config/ghostty`, `.config/kitty`,
-    // `.config/foot`, `.config/alacritty` and the rest of matugen's templates,
-    // and those directories belong to the programs themselves rather than to
-    // the session, so a switch neither backs them up nor cleans them. Listing
-    // them here would fail `every_generated_path_is_backed_up`, which is the
-    // test saying so out loud.
+    // The four shared toolkit outputs and Ghostty's DMS theme. The Ghostty
+    // config directory belongs to Ghostty, but this theme file is carried by
+    // DMS's skel and saved with DMS so switching away can remove it safely.
     generated_paths: &[
         ".config/gtk-3.0/dank-colors.css",
         ".config/gtk-4.0/dank-colors.css",
         ".config/qt5ct/colors/matugen.conf",
         ".config/qt6ct/colors/matugen.conf",
+        ".config/ghostty/themes/dankcolors",
     ],
     // The rest of matugen's output, which is DMS's own work and nobody's data.
     //
-    // `ghostty`, `zed`, `vesktop` and `equibop` get one file each: the directory
-    // belongs to the program and a switch leaves it alone, but the theme inside
-    // it is DMS's render and there is nothing in it worth keeping, so only that
-    // file is named rather than the whole directory. The three colour schemes are the
-    // same in KDE's own format.
+    // `zed`, `vesktop` and `equibop` get one file each: the directory belongs
+    // to the program and a switch leaves it alone, but the theme inside it is
+    // DMS's render and there is nothing in it worth keeping, so only that file
+    // is named rather than the whole directory. The three colour schemes are
+    // the same in KDE's own format.
     //
     // The caches go too. `.cache/dms` is several megabytes of
     // regenerated output (`matugen.lock`, `dms-colors.json`), and the two
@@ -244,7 +242,6 @@ pub const IDENTITY: Identity = Identity {
         ".cache/dsearch",
         ".cache/quickshell",
         ".config/equibop/themes/dank-discord.css",
-        ".config/ghostty/themes/dankcolors",
         ".config/vesktop/themes/dank-discord.css",
         ".config/zed/themes/dank-zed-theme.json",
         ".local/share/color-schemes/DankMatugen.colors",

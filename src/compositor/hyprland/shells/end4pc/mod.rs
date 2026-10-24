@@ -58,8 +58,16 @@ const PORT: Port = Port {
     // what keeps the user's copy: "being installed" and "being kept" are not
     // the same question, and `plan` deduplicates the path so it is not staged
     // twice.
-    skel_extra_paths: &[".config/matugen"],
-    backup_extra_paths: &[".config/matugen"],
+    skel_extra_paths: &[
+        ".config/matugen",
+        ".config/ghostty/config",
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+    ],
+    backup_extra_paths: &[
+        ".config/matugen",
+        ".config/ghostty/config",
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

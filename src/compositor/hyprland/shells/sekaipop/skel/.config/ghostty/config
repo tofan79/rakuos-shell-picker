@@ -1,0 +1,75 @@
+# ===== FONT =====
+font-family = "Maple Mono NF"
+font-size = 11
+font-feature = +liga, +calt
+
+# ===== WINDOW =====
+window-padding-x = 6
+window-padding-y = 4
+window-decoration = false
+background-opacity = 0.75
+# Paired with the opacity above. On its own a translucent background over a
+# busy wallpaper reads as washed out; the blur is what makes 0.75 legible.
+background-blur-radius = 32
+window-theme = dark
+
+# ===== SPLIT =====
+# Makes the focused split visually distinct, which matters now that splits are
+# reachable from the keybinds below.
+# unfocused-split-fill cannot read from the theme, so it is fixed. #44464f is
+# the Material 3 neutral grey the niri skel used; on a dark violet palette it
+# reads slightly cold. Swap it for a palette entry if it ever looks off.
+unfocused-split-opacity = 0.95
+unfocused-split-fill = #44464f
+
+# ===== CURSOR =====
+cursor-style = bar
+cursor-style-blink = true
+cursor-click-to-move = true
+
+# ===== SCROLLBACK & SEARCH =====
+scrollback-limit = 100000
+mouse-hide-while-typing = true
+
+# ===== SHELL INTEGRATION =====
+# detect alone only wires up the OSC sequences. These features are opt-in:
+#   title    — window title follows the running command
+#   cursor   — block cursor while a command line is being typed
+#   no-cursor— restore the configured cursor style outside the command line
+#   sudo     — adjust the prompt for sudo, which rewrites PS1
+shell-integration = detect
+shell-integration-features = cursor,sudo,title,no-cursor
+
+# ===== MISC QOL =====
+copy-on-select = clipboard
+confirm-close-surface = false
+# Single instance so every launcher in Noctalia, the launcher and the binds
+# reuses the running terminal instead of spawning a fresh window each time.
+gtk-single-instance = true
+
+# ===== SPLIT & TAB =====
+# ctrl+shift is deliberate: Hyprland already binds ctrl+shift to the arrow keys
+# and Escape (window moves, btop), and ctrl+1..5 to workspaces. Using bare ctrl
+# here would shadow them, because the terminal sees the key first when it has
+# focus. Letters and digits are therefore chosen to stay clear of both sets.
+keybind = ctrl+shift+d=new_split:right
+keybind = ctrl+shift+e=new_split:down
+keybind = ctrl+shift+w=close_surface
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+1=goto_tab:1
+keybind = ctrl+shift+2=goto_tab:2
+keybind = ctrl+shift+3=goto_tab:3
+keybind = ctrl+shift+4=goto_tab:4
+keybind = ctrl+shift+5=goto_tab:5
+
+# ===== FONT SIZE =====
+# Not a Ghostty default. ctrl+plus/minus/zero are unbound in Hyprland, and a
+# focused terminal sees the key before the compositor does, so these are safe
+# on bare ctrl while the split and tab layer stays on ctrl+shift.
+keybind = ctrl+plus=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+zero=reset_font_size
+
+# ===== MISC =====
+# Newline without leaving the row — for multi-line input, heredocs, comments.
+keybind = shift+enter=text:\n

@@ -56,11 +56,15 @@ const PORT: Port = Port {
     skel_extra_paths: &[
         ".config/qt6ct/qt6ct.conf",
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
     ],
     // The launcher entry is in `skel_extra_paths` because a switch installs it
     // and in `backup_extra_paths` because nothing else would save it. The plan
     // deduplicates the path, so it is not staged twice.
-    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    backup_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

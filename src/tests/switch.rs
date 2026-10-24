@@ -40,6 +40,7 @@ fn switching_away_from_noctalia_backs_up_exactly_these_paths() {
             // out. This one was missing until the backup set was declared per
             // shell rather than derived: a switch destroyed it with no copy.
             ".local/share/applications/dev.noctalia.Noctalia.desktop",
+            ".config/ghostty/config",
         ]
     );
 }
@@ -61,6 +62,8 @@ fn switching_away_from_dms_backs_up_what_dms_would_lose() {
             ".config/dms",
             ".local/state/dms",
             ".local/share/applications/dev.noctalia.Noctalia.desktop",
+            ".config/ghostty/config",
+            ".config/ghostty/themes/dankcolors",
             // and what its companions keep. Nothing installs a calendar
             // database or a search service's settings, so nothing else on the
             // machine would have saved them — and leaving DMS unannounced would
@@ -99,16 +102,17 @@ fn caelestia_brings_only_its_own_paths() {
             ".config/caelestia",
             ".local/state/caelestia",
             ".local/share/applications/dev.noctalia.Noctalia.desktop",
+            ".config/ghostty/config",
         ]
     );
     assert_eq!(
         CAELESTIA.skel_extra_paths,
-        [".local/share/applications/dev.noctalia.Noctalia.desktop"],
+        [".local/share/applications/dev.noctalia.Noctalia.desktop", ".config/ghostty/config"],
         "the launcher is the one path the skel installs beyond its own directories"
     );
     assert_eq!(
         CAELESTIA.backup_extra_paths,
-        [".local/share/applications/dev.noctalia.Noctalia.desktop"],
+        [".local/share/applications/dev.noctalia.Noctalia.desktop", ".config/ghostty/config"],
         "and nothing else would back it up, so it is declared kept as well"
     );
 }
@@ -152,6 +156,7 @@ fn switching_away_from_ambxst_backs_up_its_config_and_state() {
             ".config/ambxst",
             ".local/state/ambxst",
             ".local/share/applications/dev.noctalia.Noctalia.desktop",
+            ".config/ghostty/config",
             ".config/axctl",
             ".local/share/ambxst",
             ".local/share/ambxst-notes",

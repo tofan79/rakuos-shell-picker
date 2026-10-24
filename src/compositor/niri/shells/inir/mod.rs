@@ -119,6 +119,7 @@ const PORT: Port = Port {
     skel_extra_paths: &[
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
         ".config/autostart/org.kde.xwaylandvideobridge.desktop",
+        ".config/ghostty/config",
     ],
     // Same files, listed for the second question a switch asks: nothing else
     // would back them up. The plan deduplicates the paths, so none is staged
@@ -127,6 +128,7 @@ const PORT: Port = Port {
     backup_extra_paths: &[
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
         ".config/autostart/org.kde.xwaylandvideobridge.desktop",
+        ".config/ghostty/config",
     ],
 };
 

@@ -38,8 +38,12 @@ const PORT: Port = Port {
         ".config/qt6ct/colors/noctalia.conf",
         ".config/qt6ct/qt6ct.conf",
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
     ],
-    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    backup_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

@@ -53,6 +53,7 @@ const PORT: Port = Port {
     skel_extra_paths: &[
         ".config/matugen",
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
     ],
     // The matugen directory is in `skel_extra_paths` because a switch installs
     // it and here because nothing else would save it; `~/.config/matugen` is not
@@ -62,6 +63,7 @@ const PORT: Port = Port {
     backup_extra_paths: &[
         ".config/matugen",
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
     ],
 };
 

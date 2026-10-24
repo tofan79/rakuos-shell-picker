@@ -43,8 +43,14 @@ const PORT: Port = Port {
     systemd_user_unit: None,
     systemd_user_unit_wanted_by: None,
     mechanism: StartMechanism::StartEvent,
-    skel_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
-    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    skel_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
+    backup_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);

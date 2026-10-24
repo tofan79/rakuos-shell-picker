@@ -40,8 +40,14 @@ const PORT: Port = Port {
         ".config/gtk-4.0/settings.ini",
         ".config/qt6ct/qt6ct.conf",
         ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+        ".config/ghostty/themes/dankcolors",
     ],
-    backup_extra_paths: &[".local/share/applications/dev.noctalia.Noctalia.desktop"],
+    backup_extra_paths: &[
+        ".local/share/applications/dev.noctalia.Noctalia.desktop",
+        ".config/ghostty/config",
+        ".config/ghostty/themes/dankcolors",
+    ],
 };
 
 pub static SHELL: Shell = Shell::join(IDENTITY, PORT);
