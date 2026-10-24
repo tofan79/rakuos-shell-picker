@@ -31,15 +31,15 @@
 //!   the hidden Noctalia launcher entry. `~/.config/hypr` itself is the
 //!   compositor's `config_dir` and is backed up by `switch::SHARED_PATHS` for
 //!   every shell.
-//! - **clean**: nothing of its own. The rendered GTK/hyprlock sheets are in
+//! - **clean**: the Matugen config directory and rendered GTK sheets are in
 //!   `generated_paths`, the cache in `discard_paths`, and the rest is either
-//!   backed up and reproduced (the matugen directory) or the compositor's.
+//!   backed up and reproduced or belongs to the compositor.
 //! - **verify**: a process whose command line carries `-c nandoroid` is alive.
 //!
 //! The matugen directory is a skel path rather than a companion because the
-//! switch is the only thing that installs it: no part of the shell writes
-//! `config.toml`, and the templates are a symlink into the package, so a backup
-//! of the directory holds one file and a link.
+//! switch installs it. It is also cleaned as a generated path after the outgoing
+//! shell's backup reproduces it, so its package symlink cannot keep affecting
+//! the next shell; the backup restores it when NAnDoroid returns.
 
 use crate::shell::{Port, Shell, StartMechanism};
 use crate::shells::nandoroid::IDENTITY;

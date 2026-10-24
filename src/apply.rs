@@ -406,6 +406,23 @@ pub fn apply_with(
     };
     let _ = std::fs::remove_dir_all(&staging);
 
+    // DMS 2.x can run user Matugen templates from ~/.config/matugen. A restored
+    // DMS settings.json may predate this shell switch and still enable them,
+    // which lets the previous shell's templates override DMS's own theme. Keep
+    // DMS on its bundled templates whenever it is selected.
+    if target.id == "dms" {
+        if let Err(detail) = disable_user_matugen_templates(home) {
+            progress(&format!("could not select DMS theme templates: {detail}"));
+            let configs_back = restore(&asides, home);
+            let old_up = resume(current, home, progress);
+            return Apply::Failed {
+                step: "theme",
+                detail,
+                rolled_back: configs_back && old_up,
+            };
+        }
+    }
+
     if let Err((step, detail)) =
         start(target, home, progress).and_then(|()| verify(target, bus_owner_before, progress))
     {
@@ -1626,10 +1643,16 @@ fn stale_generated(
     target: &Shell,
     started: std::time::SystemTime,
 ) -> bool {
+    // Filesystems commonly round mtimes to whole seconds. Treat a file written
+    // within the same second that the switch started as fresh; otherwise a
+    // target's new render can compare just before `started` and be removed.
+    let cutoff = started
+        .checked_sub(Duration::from_secs(1))
+        .unwrap_or(std::time::UNIX_EPOCH);
     target.generated_paths.contains(&rel)
         && !std::fs::metadata(live)
             .and_then(|meta| meta.modified())
-            .is_ok_and(|modified| modified >= started)
+            .is_ok_and(|modified| modified >= cutoff)
 }
 
 fn clean(
@@ -1800,6 +1823,53 @@ fn clean(
     }
 
     (removed, kept)
+}
+
+/// Prevent a restored DMS profile from executing the outgoing shell's
+/// `~/.config/matugen/config.toml`. DMS carries its own templates; user templates
+/// are an opt-in that cannot safely survive a switch from a shell that owned the
+/// global Matugen config directory.
+fn disable_user_matugen_templates(home: &Path) -> Result<(), String> {
+    let path = home.join(".config/dms/settings.json");
+    let contents = std::fs::read_to_string(&path)
+        .map_err(|err| format!("cannot read {}: {err}", path.display()))?;
+    let mut found = 0;
+    let mut updated = String::with_capacity(contents.len());
+    for line in contents.split_inclusive('\n') {
+        let trimmed = line.trim_start();
+        if trimmed.starts_with("\"runUserMatugenTemplates\"") {
+            found += 1;
+            let (prefix, value) = line
+                .split_once(':')
+                .ok_or_else(|| "invalid runUserMatugenTemplates setting".to_string())?;
+            let leading = &value[..value.len() - value.trim_start().len()];
+            let value = value.trim_start();
+            let token_end = value
+                .find(|ch: char| ch == ',' || ch.is_whitespace())
+                .unwrap_or(value.len());
+            if !matches!(&value[..token_end], "true" | "false") {
+                return Err("runUserMatugenTemplates is not a boolean".to_string());
+            }
+            updated.push_str(prefix);
+            updated.push(':');
+            updated.push_str(leading);
+            updated.push_str("false");
+            updated.push_str(&value[token_end..]);
+        } else {
+            updated.push_str(line);
+        }
+    }
+    if found != 1 {
+        return Err(format!(
+            "expected one runUserMatugenTemplates setting in {}, found {found}",
+            path.display()
+        ));
+    }
+    if updated != contents {
+        std::fs::write(&path, updated)
+            .map_err(|err| format!("cannot update {}: {err}", path.display()))?;
+    }
+    Ok(())
 }
 
 /// Start one systemd user unit, treating a refusal as this switch's failure.

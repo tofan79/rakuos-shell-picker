@@ -222,16 +222,17 @@ pub struct Identity {
     /// config and state has nothing to declare, and four of the six registered
     /// shells are exactly that.
     pub companion_paths: &'static [&'static str],
-    /// Files this shell renders into shared directories while it runs, relative
-    /// to `$HOME`.
+    /// Files this shell renders into shared directories or installs as
+    /// shell-specific theme configuration, relative to `$HOME`.
     ///
-    /// These are not installed by the switch. The shell produces them from its
+    /// Most are not installed by the switch: the shell produces them from its
     /// own templates on every start — Noctalia renders `noctalia.css` for GTK and
     /// a colour scheme for qt5ct/qt6ct — so they sit in directories shared with
-    /// everything else and outlive the shell that made them. `clean` removes them
-    /// on the way out for the same reason it removes `config_dir`: leaving the
-    /// previous shell's furniture in place is untidy, and the next shell has no
-    /// use for it.
+    /// everything else and outlive the shell that made them. This also covers
+    /// shell-specific renderer configuration such as NAnDoroid's
+    /// `~/.config/matugen`, which must leave with that shell to avoid running its
+    /// templates under DMS. `clean` removes these paths on the way out, while the
+    /// backup preserves the route back to the outgoing shell.
     ///
     /// The safety is the same, not weaker: an entry is only deleted when this
     /// switch's backup holds it byte for byte. That makes every path here

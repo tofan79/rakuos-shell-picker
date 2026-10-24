@@ -73,3 +73,7 @@ keybind = ctrl+zero=reset_font_size
 # ===== MISC =====
 # Newline without leaving the row — for multi-line input, heredocs, comments.
 keybind = shift+enter=text:\n
+
+
+# ===== Dank color =====
+theme = dankcolors

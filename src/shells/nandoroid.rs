@@ -194,8 +194,15 @@ pub const IDENTITY: Identity = Identity {
     companion_paths: &[".config/nandoroid"],
     // Matugen renders both shared GTK sheets on every colour change; both
     // directories are in `switch::SHARED_PATHS`, so a backup holds them before
-    // `clean` may take either away.
-    generated_paths: &[".config/gtk-3.0/gtk.css", ".config/gtk-4.0/gtk.css"],
+    // `clean` may take either away. `.config/matugen` is the shell-specific
+    // configuration installed by NAnDoroid's skel. Keep it in the same
+    // byte-for-byte cleanup path so a switch to DMS cannot leave NAnDoroid's
+    // user templates enabled (the backup is still used if NAnDoroid returns).
+    generated_paths: &[
+        ".config/gtk-3.0/gtk.css",
+        ".config/gtk-4.0/gtk.css",
+        ".config/matugen",
+    ],
     // Regenerated output and cached state, none of it written by the user:
     // `~/.cache/nandoroid` is wallpaper/weather thumbnails plus the alarm,
     // reminder and favourites lists upstream itself keeps under `cache`;

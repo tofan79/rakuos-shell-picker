@@ -89,7 +89,14 @@ fn a_real_niri_socket_names_niri() {
 
     let socket = std::env::temp_dir().join(format!("rsp-niri-{}.sock", std::process::id()));
     let _ = std::fs::remove_file(&socket);
-    let _listener = UnixListener::bind(&socket).expect("bind a unix socket");
+    let _listener = match UnixListener::bind(&socket) {
+        Ok(listener) => listener,
+        // Some sandboxes prohibit creating sockets even in their temp dir.
+        // The negative-path detection tests still run there; exercise the
+        // positive path on systems where a test socket is permitted.
+        Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => return,
+        Err(err) => panic!("bind a unix socket: {err}"),
+    };
 
     let mut e = wayland();
     e.insert("NIRI_SOCKET".into(), socket.to_string_lossy().into_owned());

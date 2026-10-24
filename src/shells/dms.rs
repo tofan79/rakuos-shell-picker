@@ -45,6 +45,11 @@
 //! - **start**: a systemd user unit. Confirmed present in the package at
 //!   `/usr/lib/systemd/user/dms.service`, so starting means
 //!   `systemctl --user start dms` and not a bare `dms run`.
+//! - **Matugen user templates**: disabled in both compositor skels. NAnDoroid
+//!   also uses the global `~/.config/matugen/config.toml`, whose templates can
+//!   write DMS-owned GTK files; DMS's own templates are bundled with its shell
+//!   and continue to run. This keeps the two shells' theme generation isolated
+//!   when switching between them.
 //! - **`dcal` first**: it supplies the calendar widgets DMS draws. Nothing makes
 //!   DMS wait for it, and DMS looks merely incomplete without it, so it is declared
 //!   rather than left to the skel autostart, which only runs on the next login. The
